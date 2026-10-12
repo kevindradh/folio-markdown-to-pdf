@@ -21,6 +21,7 @@ import { useLocalImages } from '@/hooks/use-local-images'
 import { useDocumentDraft } from '@/hooks/use-document-draft'
 import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
+import { PwaStatus } from '@/components/pwa-status'
 import { DocumentLibraryBar } from '@/components/document-library'
 
 const example = `# Ruang untuk ide yang baik
@@ -227,6 +228,7 @@ export default function App() {
   if (!library.ready) return <main><p role="status">Memuat dokumen lokal…</p></main>
 
   return <div className="app-shell">
+    <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
     <header className="topbar">
       <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={39} height={39} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
       <MarkdownGuide />

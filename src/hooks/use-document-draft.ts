@@ -130,6 +130,20 @@ export function useDocumentDraft(fallback: Draft) {
   const activeDocument = library.documents.find(document => document.id === library.activeId)
   return {
     draft, setDraft, update, saved, ready, available, busy, error, library, activeDocument, historyTick,
+    prepareReload: async () => {
+      if (!available || blocked.current) return false
+      blocked.current = true; setBusy(true)
+      try {
+        await queue.current.catch(() => {})
+        await persist(currentId.current, currentDraft.current)
+        return true
+      } catch (reason) {
+        blocked.current = false; setBusy(false)
+        toast.add({ title: 'Draft belum tersimpan.', description: reason instanceof Error ? reason.message : 'Unduh .md sebelum memuat ulang.', type: 'error' })
+        return false
+      }
+    },
+    cancelReload: () => { blocked.current = false; setBusy(false) },
     openDocument: (id: string) => action(async () => {
       await storage.saveVersion(currentId.current, 'automatic')
       await storage.selectDocument(id); return true
