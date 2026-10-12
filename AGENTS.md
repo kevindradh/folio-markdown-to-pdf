@@ -138,3 +138,9 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - Renderer di `src/App.tsx` menghasilkan tabel HTML semantik untuk isi dokumen (bukan kontrol UI), dengan `thead`, `tbody`, header `scope="col"`, dan perataan dari titik dua. Inline formatting, syntax highlighting, dan matematika tetap tersedia dalam sel.
 - Pagination membagi tabel per baris dan mengulang header. Baris melebihi satu halaman dibagi per sel menggunakan pemotongan logis yang mempertahankan formula dan markup inline. Lebar kolom tetap konsisten antarhalaman melalui table-layout fixed.
 - Verifikasi browser: contoh alat ukur tiga baris; tabel 100 baris pada delapan halaman, header berulang, 100 rumus utuh, isi identik, dan tanpa overflow. Satu baris panjang pada tujuh halaman mempertahankan isi setiap sel tanpa overflow. Build/lint berhasil.
+
+## Tema kode pada dokumen
+
+- Pilihan Terang/Gelap memakai Field dan ToggleGroup shadcn berbasis Base UI. State `codeTheme` berada di App, default `light`, mengikuti masa sesi aplikasi.
+- `PaginatedDocument` meneruskan `data-code-theme` ke template dan semua lembar hasil clone. Token warna kode di CSS dipakai bersama oleh inline code, blok kode, syntax highlighting, dan cetak. Ukuran font tidak berubah saat mengganti tema.
+- Pengaturan dokumen ditata dua kolom pada layar kecil. Pengujian browser memeriksa tema terang/gelap dan lebar 390 px tanpa overflow horizontal. Build/lint berhasil. Cetak menggunakan print-color-adjust exact; pengguna perlu mengaktifkan background di dialog cetak bila browser mengabaikannya.

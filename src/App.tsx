@@ -150,7 +150,7 @@ function MarkdownGuide() {
         <dt>[teks](https://...)</dt><dd>Tautan</dd>
         <dt>`kode` atau ```javascript</dt><dd>Kode berwarna. Tulis nama bahasa setelah tiga backtick, misalnya javascript, ts, python, atau css. Tanpa nama bahasa, deteksi otomatis; gunakan text untuk teks biasa.</dd>
       </dl>
-      <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Gunakan ukuran kertas yang dipilih di aplikasi, skala 100%, margin “None”, dan nonaktifkan header/footer browser agar hasilnya sesuai pratinjau.</p>
+      <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Gunakan ukuran kertas yang dipilih di aplikasi, skala 100%, margin “None”, dan nonaktifkan header/footer browser agar hasilnya sesuai pratinjau. Aktifkan pencetakan background untuk mempertahankan latar tema kode.</p>
       <DialogFooter><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
@@ -163,6 +163,7 @@ export default function App() {
   const [paper, setPaper] = useState('A4')
   const [font, setFont] = useState('Literary')
   const [margin, setMargin] = useState('Normal')
+  const [codeTheme, setCodeTheme] = useState('light')
   const [zoom, setZoom] = useState(90)
   const [resetOpen, setResetOpen] = useState(false)
   const [pageCount, setPageCount] = useState(1)
@@ -205,7 +206,7 @@ export default function App() {
     </header>
     <main>
       <section className="workspace-heading">
-        <div><div className="workspace-label"><span /> alat konversi</div><h1>Konversi markdown menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
+        <div><div className="workspace-label"><span /> Alat Konversi</div><h1>Konversi Markdown Menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
           <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
           <Button size="lg" onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
@@ -252,7 +253,7 @@ export default function App() {
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span></div>
             <Separator />
-            <PaginatedDocument name={name} paper={paper} font={font} margin={margin} zoom={zoom} onPagesChange={setPageCount}>
+            <PaginatedDocument name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} zoom={zoom} onPagesChange={setPageCount}>
               {text.trim() ? <Markdown text={text} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
             </PaginatedDocument>
             <Separator />
@@ -268,10 +269,17 @@ export default function App() {
             <DocumentSetting id="paper-size" label="Ukuran kertas" value={paper} options={['A4', 'Letter']} onChange={setPaper} />
             <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
             <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
+            <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
+              <FieldLabel id="code-theme-label">Tema kode</FieldLabel>
+              <ToggleGroup aria-labelledby="code-theme-label" value={[codeTheme]} onValueChange={values => { if (values.length) setCodeTheme(values[0]) }} variant="outline" spacing={0}>
+                <ToggleGroupItem value="light">Terang</ToggleGroupItem>
+                <ToggleGroupItem value="dark">Gelap</ToggleGroupItem>
+              </ToggleGroup>
+            </Field>
           </FieldGroup>
         </div>
       </section>
-      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat oleh (github: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
+      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
     </main>
     <Toaster />
     <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: 0; }`}</style>

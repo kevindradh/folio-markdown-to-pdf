@@ -228,24 +228,24 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 
 
 /* Container queries suppress intrinsic inline size: give the settings an explicit width. */
-.document-settings-fields { width: 376px; flex: 0 0 376px; flex-direction: row; gap: 20px; }
+.document-settings-fields { width: 552px; flex: 0 0 552px; flex-direction: row; gap: 20px; }
 .document-name-field > [data-slot="field-label"] { flex: 0 0 auto; }
 @media (max-width: 720px) {
-  .document-settings-fields { width: 100%; flex: 1 1 100%; gap: 12px; }
-  .document-settings-fields > [data-slot="field"] { width: 0; min-width: 0; flex: 1 1 0; }
+  .document-settings-fields { width: 100%; flex: 1 1 100%; gap: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .document-settings-fields > [data-slot="field"] { width: auto; min-width: 0; flex: 1 1 0; }
   .document-settings-fields [data-slot="select-trigger"] { min-width: 0; }
 }
 
 /* Token colors are shared by preview and print; highlighting never changes font metrics. */
 .document-body .syntax-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
 .document-body pre { tab-size: 4; }
-.syntax-code .hljs-keyword, .syntax-code .hljs-selector-tag, .syntax-code .hljs-literal { color: #a6264c; }
-.syntax-code .hljs-string, .syntax-code .hljs-regexp, .syntax-code .hljs-addition { color: #21613b; }
-.syntax-code .hljs-number, .syntax-code .hljs-symbol, .syntax-code .hljs-attr, .syntax-code .hljs-built_in { color: #075985; }
-.syntax-code .hljs-title, .syntax-code .hljs-section, .syntax-code .hljs-selector-class { color: #6f42a1; }
-.syntax-code .hljs-comment, .syntax-code .hljs-quote { color: #596579; }
-.syntax-code .hljs-meta, .syntax-code .hljs-type, .syntax-code .hljs-tag, .syntax-code .hljs-name { color: #92400e; }
-.syntax-code .hljs-variable, .syntax-code .hljs-template-variable, .syntax-code .hljs-deletion { color: #a6264c; }
+.syntax-code .hljs-keyword, .syntax-code .hljs-selector-tag, .syntax-code .hljs-literal { color: var(--code-keyword); }
+.syntax-code .hljs-string, .syntax-code .hljs-regexp, .syntax-code .hljs-addition { color: var(--code-string); }
+.syntax-code .hljs-number, .syntax-code .hljs-symbol, .syntax-code .hljs-attr, .syntax-code .hljs-built_in { color: var(--code-number); }
+.syntax-code .hljs-title, .syntax-code .hljs-section, .syntax-code .hljs-selector-class { color: var(--code-title); }
+.syntax-code .hljs-comment, .syntax-code .hljs-quote { color: var(--code-comment); }
+.syntax-code .hljs-meta, .syntax-code .hljs-type, .syntax-code .hljs-tag, .syntax-code .hljs-name { color: var(--code-meta); }
+.syntax-code .hljs-variable, .syntax-code .hljs-template-variable, .syntax-code .hljs-deletion { color: var(--code-keyword); }
 
 .math-expression { display: inline-block; max-width: 100%; vertical-align: baseline; overflow-wrap: normal; }
 .math-block { margin: 12pt 0; break-inside: avoid; text-align: center; }
@@ -259,3 +259,9 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .markdown-table th { background: var(--secondary); color: var(--foreground); font-weight: 700; }
 .markdown-table tr { break-inside: avoid; }
 .markdown-table .math-expression { max-width: 100%; }
+
+/* Code themes are scoped to document pages; they also apply to printed page clones. */
+.paper { --code-background: var(--muted); --code-foreground: var(--foreground); --code-keyword: #a6264c; --code-string: #21613b; --code-number: #075985; --code-title: #6f42a1; --code-comment: #596579; --code-meta: #92400e; }
+.paper[data-code-theme="dark"] { --code-background: #1e293b; --code-foreground: #f1f5f9; --code-keyword: #fda4af; --code-string: #a7f3d0; --code-number: #7dd3fc; --code-title: #d8b4fe; --code-comment: #cbd5e1; --code-meta: #fdba74; }
+.document-body pre, .document-body .syntax-code { background: var(--code-background); color: var(--code-foreground); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+@media (min-width: 721px) and (max-width: 950px) { .settings-bar { flex-wrap: wrap; } .settings-title { width: 100%; } .document-settings-fields { width: 100%; flex: 1 1 100%; } }

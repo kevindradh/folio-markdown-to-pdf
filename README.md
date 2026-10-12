@@ -25,7 +25,7 @@ Perintah lainnya:
 - Mode editor, pratinjau, atau tampilan berdampingan.
 - Pratinjau beberapa halaman sesuai ukuran A4 atau Letter, dengan nomor halaman.
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
-- Syntax highlighting untuk kode inline dan blok kode.
+- Syntax highlighting untuk kode inline dan blok kode, dengan pilihan tema Terang/Gelap.
 - Tabel Markdown dengan header, perataan kolom, serta kelanjutan antarhalaman.
 - Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
 - Pemrosesan lokal di browser; isi editor hanya tersimpan selama sesi aplikasi.
@@ -50,6 +50,8 @@ def greet(name):
 ````
 
 Bahasa umum seperti JavaScript (`js`, `jsx`), TypeScript (`ts`, `tsx`), Python, HTML, CSS, JSON, Bash, dan SQL tersedia. Kode inline di antara backtick dan blok tanpa nama bahasa memakai deteksi otomatis. Deteksi otomatis bisa keliru; tulis nama bahasa untuk hasil yang lebih tepat. Gunakan `text` untuk menonaktifkan warna pada sebuah blok. Bahasa yang tidak dikenali ditampilkan sebagai teks biasa.
+
+Pilih **Tema kode → Terang** atau **Gelap** pada Pengaturan dokumen. Pilihan berlaku untuk kode inline dan blok kode pada pratinjau serta cetak PDF; tema awal adalah Terang. Tema hanya mengubah warna, bukan ukuran teks atau pembagian halaman.
 
 Warna membedakan token seperti keyword, string, angka, nama fungsi, dan komentar. Highlighting tidak menjalankan kode atau memvalidasi kesalahan program. Kode dirender sebagai elemen React dari AST lowlight, tanpa menyisipkan HTML mentah.
 

@@ -210,8 +210,8 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   return bodies.length
 }
 
-export function PaginatedDocument({ children, name, paper, font, margin, zoom, onPagesChange }: {
-  children: ReactNode; name: string; paper: string; font: string; margin: string; zoom: number
+export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, zoom, onPagesChange }: {
+  children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; zoom: number
   onPagesChange: (pages: number) => void
 }) {
   const template = useRef<HTMLElement>(null)
@@ -236,7 +236,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, zoom, o
       cancelAnimationFrame(frame)
       document.fonts.removeEventListener('loadingdone', layout)
     }
-  }, [children, name, paper, font, margin, onPagesChange])
+  }, [children, name, paper, font, margin, codeTheme, onPagesChange])
 
   useEffect(() => {
     const element = stage.current
@@ -255,7 +255,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, zoom, o
 
   return <div ref={stage} className="paper-stage" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
     {createPortal(<div className="paper-measurement" aria-hidden="true" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
-      <article ref={template} className={`paper paper-template font-${font.toLowerCase()} margin-${margin.toLowerCase()}`}>
+      <article ref={template} data-code-theme={codeTheme} className={`paper paper-template font-${font.toLowerCase()} margin-${margin.toLowerCase()}`}>
         <header className="paper-topline">{name || 'Tanpa judul'}</header>
         <div className="document-body">{children}</div>
         <footer className="paper-footer"><span>Dibuat dengan folio</span><span className="paper-page-number" /></footer>
