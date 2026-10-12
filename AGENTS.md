@@ -208,3 +208,9 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 - README memuat persiapan repository kosong, impor Vercel, konfigurasi build, dan domain sendiri. Belum ada Git remote yang dikonfigurasi atau push/deployment yang dilakukan dari workspace ini.
 - Pemeriksaan pola umum token/private key pada file yang dilacak dan riwayat seluruh branch tidak menemukan kecocokan; ini pemeriksaan pola, bukan jaminan lengkap bebas kredensial. Tidak ada environment file/private key yang sudah dilacak Git pada pemeriksaan ini.
 - Verifikasi: build biasa dan build dengan `--configLoader native`, lint, serta dry-run `npm ci` dari lockfile berhasil. Audit dari sinkronisasi npm melaporkan **0 vulnerabilities**. Peringatan bundle besar tetap ada. Regresi browser/PDF sebelumnya masih tercatat pada bagian fitur Markdown; tidak ada perubahan renderer atau UI dalam persiapan ini.
+
+## Perbaikan pengujian unduhan WebKit di GitHub Actions
+
+- Log runner Linux GitHub menunjukkan `suggestedFilename()` WebKit dapat mengubah `Catatan pribadi.md` menjadi `Catatan_pribadi.md`. Pemeriksaan sebelumnya hanya menerima spasi, sehingga gagal meskipun unduhan berhasil.
+- `tests/draft.spec.ts` menerima kedua nama persis tersebut khusus pada WebKit. Chromium tetap memerlukan nama dengan spasi; ekstensi/nama lengkap dan isi UTF-8 file tetap diperiksa. Pemeriksaan fungsi `markdownFilename` terpisah memastikan aplikasi tetap menghasilkan `Catatan pribadi.md`. Perilaku unduhan aplikasi tidak diubah.
+- Verifikasi lokal: **26 pengujian draft/unduhan lulus** pada Chromium/WebKit; build, lint, dan pemeriksaan tipe test berhasil. Runner Linux GitHub belum dijalankan ulang dari workspace; hasil CI perlu diperiksa setelah perubahan di-push.

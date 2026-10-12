@@ -9,6 +9,7 @@ test('input limits use UTF-8 bytes and line count; download names are safe', () 
   expect(inputError('\n'.repeat(5000))).toContain('5.000 baris')
   expect(markdownFilename('../catatan/ide:baru\u0000')).toBe('..-catatan-ide-baru-.md')
   expect(markdownFilename('  ')).toBe('Dokumen.md')
+  expect(markdownFilename('Catatan pribadi')).toBe('Catatan pribadi.md')
 })
 
 test('draft, settings and an intentionally empty document survive reload', async ({ page }) => {
@@ -29,7 +30,7 @@ test('draft, settings and an intentionally empty document survive reload', async
   await expect(page.locator('#markdown-editor')).toHaveValue('')
 })
 
-test('Markdown download preserves UTF-8 content and current document name', async ({ page }) => {
+test('Markdown download preserves UTF-8 content and current document name', async ({ page, browserName }) => {
   await page.goto('/')
   const text = '# Catatan 🌿\n\n**Teks**, $x^2$, dan `kode`.\n'
   await page.locator('#markdown-editor').fill(text)
@@ -37,7 +38,13 @@ test('Markdown download preserves UTF-8 content and current document name', asyn
   const downloaded = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Unduh .md', exact: true }).click()
   const file = await downloaded
-  expect(file.suggestedFilename()).toBe('Catatan pribadi.md')
+  // Linux WebKit can replace spaces in the suggested filename with underscores.
+  // Only accept that specific browser normalization; still require the full name and extension.
+  if (browserName === 'webkit') {
+    expect(['Catatan pribadi.md', 'Catatan_pribadi.md']).toContain(file.suggestedFilename())
+  } else {
+    expect(file.suggestedFilename()).toBe('Catatan pribadi.md')
+  }
   expect(await readFile((await file.path())!, 'utf8')).toBe(text)
 })
 
