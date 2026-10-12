@@ -14,6 +14,7 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/
 import { Toaster } from '@/components/ui/toast'
 import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
+import { PaginatedDocument } from '@/components/paginated-document'
 
 const example = `# Ruang untuk ide yang baik
 
@@ -111,7 +112,7 @@ function MarkdownGuide() {
         <dt>[teks](https://...)</dt><dd>Tautan</dd>
         <dt>`kode` atau ```</dt><dd>Kode inline atau blok kode</dd>
       </dl>
-      <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Sesuaikan ukuran kertas di dialog dan nonaktifkan header/footer browser.</p>
+      <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Gunakan ukuran kertas yang dipilih di aplikasi, skala 100%, margin “None”, dan nonaktifkan header/footer browser agar hasilnya sesuai pratinjau.</p>
       <DialogFooter><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
@@ -126,6 +127,7 @@ export default function App() {
   const [margin, setMargin] = useState('Normal')
   const [zoom, setZoom] = useState(90)
   const [resetOpen, setResetOpen] = useState(false)
+  const [pageCount, setPageCount] = useState(1)
   const input = useRef<HTMLInputElement>(null)
   const editor = useRef<HTMLTextAreaElement>(null)
   const words = text.trim() ? text.trim().split(/\s+/).length : 0
@@ -168,7 +170,7 @@ export default function App() {
         <div><div className="workspace-label"><span /> Ruang menulis kamu</div><h1>Dari ide, menjadi dokumen.</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
           <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
-          <Button size="lg" onClick={() => { document.title = name || 'Dokumen'; window.print() }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
+          <Button size="lg" onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
         </div>
         <Input ref={input} aria-label="Pilih file Markdown" type="file" accept=".md,.markdown,.txt" className="hidden" onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
       </section>
@@ -214,15 +216,11 @@ export default function App() {
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><Badge variant="secondary">Diperbarui langsung</Badge></div>
             <Separator />
-            <div className="paper-stage">
-              <article className={cn('paper', `font-${font.toLowerCase()}`, `margin-${margin.toLowerCase()}`)} style={{ zoom: zoom / 100, aspectRatio: paper === 'A4' ? '210 / 297' : '216 / 279' }}>
-                <div className="paper-topline">{name || 'Tanpa judul'}</div><Separator className="mb-5" />
-                {text.trim() ? <div className="document-body"><Markdown text={text} /></div> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
-                <div className="paper-footer"><span>Dibuat dengan folio</span><span>Markdown to PDF</span></div>
-              </article>
-            </div>
+            <PaginatedDocument name={name} paper={paper} font={font} margin={margin} zoom={zoom} onPagesChange={setPageCount}>
+              {text.trim() ? <Markdown text={text} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
+            </PaginatedDocument>
             <Separator />
-            <div className="preview-footer"><span><FileText size={13} /> {paper}<span className="paper-dimensions">{paper === 'A4' ? '210 × 297 mm' : '216 × 279 mm'}</span></span>
+            <div className="preview-footer"><span><FileText size={13} /> {paper} · {pageCount} halaman<span className="paper-dimensions">{paper === 'A4' ? '210 × 297 mm' : '215,9 × 279,4 mm'}</span></span>
               <div><Button variant="ghost" size="icon-xs" aria-label="Perkecil" disabled={zoom <= 50} onClick={() => setZoom(zoom - 10)}><Minus /></Button><span>{zoom}%</span><Button variant="ghost" size="icon-xs" aria-label="Perbesar" disabled={zoom >= 120} onClick={() => setZoom(zoom + 10)}><Plus /></Button></div>
             </div>
           </section>
@@ -240,6 +238,6 @@ export default function App() {
       <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat untuk ide yang layak dibagikan.</span></footer>
     </main>
     <Toaster />
-    <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: ${margin === 'Lebar' ? '25mm' : margin === 'Tipis' ? '12mm' : '20mm'}; }`}</style>
+    <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: 0; }`}</style>
   </div>
 }

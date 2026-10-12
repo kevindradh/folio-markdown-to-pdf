@@ -7,7 +7,7 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 - Tujuan proyek: membangun tool untuk mengonversi Markdown menjadi dokumen PDF. Markdown menjadi input, dan file PDF menjadi hasil konversi. Detail fitur dan alur penggunaan akan ditentukan lebih lanjut bersama pengguna.
 - Nama paket: `markdown-to-pdf`; paket privat, versi `0.0.0`, menggunakan ES modules (`type: module`).
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
-- Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown atau pagination pratinjau; belum ada dependensi Markdown/PDF khusus. Isi editor tersimpan dalam state sesi, belum persisten.
+- Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; belum ada dependensi Markdown/PDF khusus. Isi editor tersimpan dalam state sesi, belum persisten.
 - Belum ada router, backend, state management eksternal, atau framework pengujian dalam konfigurasi proyek.
 - Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` masih berisi dokumentasi template Vite.
 - Repository Git sudah diinisialisasi. Periksa `git status` sebelum mengubah file agar perubahan pengguna tetap terjaga.
@@ -107,3 +107,10 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 
 - Kontrol antarmuka telah dimigrasikan ke komponen shadcn/ui: Button, Input, Textarea, Select, ToggleGroup, Field, Dialog, AlertDialog, Badge, Separator, Empty, dan Toast.
 - Warna aplikasi memakai token tema semantik. Dialog panduan dan konfirmasi reset menggunakan manajemen fokus bawaan Base UI.
+
+## Pagination pratinjau
+
+- `src/components/paginated-document.tsx` mengukur konten DOM pada ukuran fisik A4 (210 × 297 mm) atau Letter (215,9 × 279,4 mm), lalu membaginya menjadi lembar dengan header dan nomor halaman. Margin Normal/Lebar/Tipis adalah 20/25/12 mm.
+- Paragraf, kutipan, kode, dan item daftar yang melebihi satu halaman dipecah sambil mempertahankan teks serta markup inline. Judul mengikuti blok berikutnya. Sumber pengukuran berada dalam portal tersembunyi agar mode editor tetap dapat menghitung halaman.
+- Zoom hanya mengubah skala tampilan. Cetak memakai DOM halaman yang sama, tanpa transformasi, dengan `@page` margin 0 dan ukuran kertas pilihan. Gunakan skala cetak 100%, margin None, serta matikan header/footer browser.
+- Verifikasi browser: dokumen panjang, A4/Letter, margin dan tipografi alternatif, mode editor, serta zoom; teks sumber dan hasil pagination identik, tidak ada overflow atau judul tertinggal dalam dokumen uji. Build dan lint berhasil. Aturan cetak telah diperiksa; file PDF hasil dialog cetak belum diverifikasi langsung karena browser dalam aplikasi tidak menyediakan dialog cetak yang dapat dikendalikan.
