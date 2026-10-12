@@ -14,6 +14,7 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/
 import { Toaster } from '@/components/ui/toast'
 import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
+import { HighlightedCode } from '@/components/highlighted-code'
 import { PaginatedDocument } from '@/components/paginated-document'
 
 const example = `# Ruang untuk ide yang baik
@@ -46,7 +47,7 @@ function inline(text: string): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
     if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>
     if (part.startsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>
-    if (part.startsWith('`')) return <code key={i}>{part.slice(1, -1)}</code>
+    if (part.startsWith('`')) return <HighlightedCode key={i} text={part.slice(1, -1)} />
     const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
     if (link) return <a key={i} href={/^https?:\/\//.test(link[2]) ? link[2] : undefined} target="_blank" rel="noreferrer">{link[1]}</a>
     return part
@@ -59,9 +60,10 @@ function Markdown({ text }: { text: string }) {
     const line = rows[i]
     if (!line.trim()) continue
     if (line.startsWith('```')) {
+      const language = line.slice(3).trim().split(/\s+/)[0]
       const code: string[] = []
       while (++i < rows.length && !rows[i].startsWith('```')) code.push(rows[i])
-      result.push(<pre key={i}><code>{code.join('\n')}</code></pre>); continue
+      result.push(<pre key={i}><HighlightedCode text={code.join('\n')} language={language} /></pre>); continue
     }
     if (/^---+$/.test(line)) { result.push(<Separator key={i} className="my-5" />); continue }
     if (/^[-*] /.test(line)) {
@@ -110,7 +112,7 @@ function MarkdownGuide() {
         <dt>- Item daftar</dt><dd>Daftar berpoin</dd>
         <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
         <dt>[teks](https://...)</dt><dd>Tautan</dd>
-        <dt>`kode` atau ```</dt><dd>Kode inline atau blok kode</dd>
+        <dt>`kode` atau ```javascript</dt><dd>Kode berwarna. Tulis nama bahasa setelah tiga backtick, misalnya javascript, ts, python, atau css. Tanpa nama bahasa, deteksi otomatis; gunakan text untuk teks biasa.</dd>
       </dl>
       <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Gunakan ukuran kertas yang dipilih di aplikasi, skala 100%, margin “None”, dan nonaktifkan header/footer browser agar hasilnya sesuai pratinjau.</p>
       <DialogFooter><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>

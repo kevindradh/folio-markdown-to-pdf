@@ -9,7 +9,7 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
 - Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; belum ada dependensi Markdown/PDF khusus. Isi editor tersimpan dalam state sesi, belum persisten.
 - Belum ada router, backend, state management eksternal, atau framework pengujian dalam konfigurasi proyek.
-- Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` masih berisi dokumentasi template Vite.
+- Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` berisi panduan menjalankan proyek, fitur, syntax highlighting, ekspor PDF, dan batasan aplikasi.
 - Repository Git sudah diinisialisasi. Periksa `git status` sebelum mengubah file agar perubahan pengguna tetap terjaga.
 
 ## Skill proyek
@@ -36,6 +36,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | `tailwindcss`, `@tailwindcss/vite` | `^4.3.3` | Styling utility Tailwind v4, terintegrasi lewat plugin Vite. |
 | `class-variance-authority` | `^0.7.1` | Mendefinisikan variant dan size Button melalui `cva` serta tipe `VariantProps`. |
 | `cn` | `^0.4.0` | Helper class name yang dipakai langsung oleh Button dan diekspor ulang di `src/lib/utils.ts`. |
+| `lowlight` | `^3.3.0` | Syntax highlighting berbasis AST highlight.js, dirender sebagai elemen React tanpa HTML mentah. |
 | `lucide-react` | `^1.55.0` | Library ikon yang dipilih di konfigurasi shadcn dan digunakan di antarmuka aplikasi. |
 | `tw-animate-css` | `^1.4.0` | Stylesheet utility animasi, diimpor oleh CSS global. |
 | `@fontsource-variable/inter` | `^5.3.0` | Font Inter Variable lokal, diimpor oleh CSS global. |
@@ -60,6 +61,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 - `index.html`: elemen mount `#root`, entry `/src/main.tsx`, favicon, dan pemuatan CSS global lewat `<link href="/src/style.css">`. CSS tidak diimpor dari `main.tsx` saat ini.
 - `src/main.tsx`: memasang `App` di dalam `StrictMode`.
 - `src/App.tsx`: workspace folio dan renderer Markdown dasar berbasis React; tidak merender HTML mentah.
+- `src/components/highlighted-code.tsx`: rendering token syntax highlighting dari AST lowlight ke elemen React, termasuk deteksi bahasa dan fallback teks biasa.
 - `src/style.css`: import Tailwind, animasi, shadcn, dan Inter; token warna OKLCH, radius, serta tema terang/gelap dengan kelas `.dark`. Belum ada kontrol UI untuk mengganti tema.
 - `src/components/ui/button.tsx`: Button berbasis Base UI dengan variant `default`, `outline`, `secondary`, `ghost`, `destructive`, `link`, serta ukuran biasa dan ikon. Mengekspor `Button`; `buttonVariants` merupakan konstanta internal.
 - `src/components/ui/`: komponen resmi shadcn berbasis Base UI untuk kontrol, form, dialog, status, dan notifikasi. Textarea memiliki variant `editor`; helper variant Toggle dipisah ke `toggle-variants.ts` agar kompatibel dengan Fast Refresh.
@@ -114,3 +116,10 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - Paragraf, kutipan, kode, dan item daftar yang melebihi satu halaman dipecah sambil mempertahankan teks serta markup inline. Judul mengikuti blok berikutnya. Sumber pengukuran berada dalam portal tersembunyi agar mode editor tetap dapat menghitung halaman.
 - Zoom hanya mengubah skala tampilan. Cetak memakai DOM halaman yang sama, tanpa transformasi, dengan `@page` margin 0 dan ukuran kertas pilihan. Gunakan skala cetak 100%, margin None, serta matikan header/footer browser.
 - Verifikasi browser: dokumen panjang, A4/Letter, margin dan tipografi alternatif, mode editor, serta zoom; teks sumber dan hasil pagination identik, tidak ada overflow atau judul tertinggal dalam dokumen uji. Build dan lint berhasil. Aturan cetak telah diperiksa; file PDF hasil dialog cetak belum diverifikasi langsung karena browser dalam aplikasi tidak menyediakan dialog cetak yang dapat dikendalikan.
+
+## Syntax highlighting
+
+- `src/components/highlighted-code.tsx` memakai grammar `common` dari lowlight. Kode inline dan fenced code tanpa bahasa memakai deteksi otomatis terbatas pada JavaScript, TypeScript, Python, Bash, JSON, CSS, HTML/XML, dan SQL.
+- Bahasa setelah fence (misalnya `javascript`, `ts`, `python`, `css`, `html`, `jsx`, atau `tsx`) digunakan secara eksplisit. `text` dan bahasa yang tidak dikenali tetap berupa teks biasa. Highlighting memberi warna token, bukan validasi atau diagnosis kesalahan program.
+- Warna token berada di CSS bersama untuk pratinjau dan cetak. Pagination mempertahankan span token, teks, dan indentasi ketika kode panjang terbagi halaman.
+- Verifikasi: build/lint berhasil; browser menguji kode inline, JavaScript, Python, HTML, teks biasa, bahasa tak dikenal, dan blok TypeScript 150 baris yang menjadi enam halaman. Teks identik dengan sumber dan tidak ada overflow. Konten HTML dalam kode tidak dieksekusi. Verifikasi PDF langsung masih mengikuti batasan pada bagian pagination.

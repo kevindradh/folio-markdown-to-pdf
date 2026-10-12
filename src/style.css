@@ -235,3 +235,14 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
   .document-settings-fields > [data-slot="field"] { width: 0; min-width: 0; flex: 1 1 0; }
   .document-settings-fields [data-slot="select-trigger"] { min-width: 0; }
 }
+
+/* Token colors are shared by preview and print; highlighting never changes font metrics. */
+.document-body .syntax-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+.document-body pre { tab-size: 4; }
+.syntax-code .hljs-keyword, .syntax-code .hljs-selector-tag, .syntax-code .hljs-literal { color: #a6264c; }
+.syntax-code .hljs-string, .syntax-code .hljs-regexp, .syntax-code .hljs-addition { color: #21613b; }
+.syntax-code .hljs-number, .syntax-code .hljs-symbol, .syntax-code .hljs-attr, .syntax-code .hljs-built_in { color: #075985; }
+.syntax-code .hljs-title, .syntax-code .hljs-section, .syntax-code .hljs-selector-class { color: #6f42a1; }
+.syntax-code .hljs-comment, .syntax-code .hljs-quote { color: #596579; }
+.syntax-code .hljs-meta, .syntax-code .hljs-type, .syntax-code .hljs-tag, .syntax-code .hljs-name { color: #92400e; }
+.syntax-code .hljs-variable, .syntax-code .hljs-template-variable, .syntax-code .hljs-deletion { color: #a6264c; }
