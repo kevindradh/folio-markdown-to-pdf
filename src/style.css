@@ -265,3 +265,6 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .paper[data-code-theme="dark"] { --code-background: #1e293b; --code-foreground: #f1f5f9; --code-keyword: #fda4af; --code-string: #a7f3d0; --code-number: #7dd3fc; --code-title: #d8b4fe; --code-comment: #cbd5e1; --code-meta: #fdba74; }
 .document-body pre, .document-body .syntax-code { background: var(--code-background); color: var(--code-foreground); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 @media (min-width: 721px) and (max-width: 950px) { .settings-bar { flex-wrap: wrap; } .settings-title { width: 100%; } .document-settings-fields { width: 100%; flex: 1 1 100%; } }
+
+/* Draft status can wrap without squeezing counters on narrow screens. */
+.editor-footer { flex-wrap: wrap; gap: 6px 12px; padding-top: 8px; padding-bottom: 8px; }

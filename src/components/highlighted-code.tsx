@@ -19,6 +19,8 @@ function renderTokens(nodes: RootContent[]): ReactNode[] {
 
 export function HighlightedCode({ text, language }: { text: string; language?: string }) {
   const tokens = useMemo(() => {
+    // Avoid costly grammar autodetection on very large code blocks. Preserve all text.
+    if (text.length > 8000) return text
     const selected = language?.toLowerCase()
     // Explicit plain text and unsupported languages remain readable without guessing.
     if (selected && !highlighter.registered(selected)) return text

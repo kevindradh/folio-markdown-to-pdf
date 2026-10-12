@@ -14,6 +14,7 @@ async function ready(page: Page, text: string) {
   await page.evaluate(() => document.fonts.ready)
   await expect.poll(() => page.locator('.paper-template .document-body').textContent()).toContain('Penanda1 awal')
   await expect.poll(() => page.locator('.paper-pages').textContent()).toContain('Penanda80 akhir')
+  await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
 }
 
 async function integrity(page: Page) {

@@ -23,14 +23,14 @@ Perintah lainnya:
 
 ## Fitur
 
-- Editor Markdown, toolbar format, dan impor file `.md`, `.markdown`, atau `.txt`.
+- Editor Markdown, toolbar format, impor file `.md`, `.markdown`, atau `.txt`, dan unduhan `.md`.
 - Mode editor, pratinjau, atau tampilan berdampingan.
 - Pratinjau beberapa halaman sesuai ukuran A4 atau Letter, dengan nomor halaman.
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
 - Syntax highlighting untuk kode inline dan blok kode, dengan pilihan tema Terang/Gelap.
 - Tabel Markdown dengan header, perataan kolom, serta kelanjutan antarhalaman.
 - Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
-- Pemrosesan lokal di browser; isi editor hanya tersimpan selama sesi aplikasi.
+- Pemrosesan lokal di browser dan draft otomatis untuk tulisan, nama, serta pengaturan dokumen.
 
 Kontrol antarmuka menggunakan shadcn/ui berbasis Base UI. Panduan pengembangan berada di [AGENTS.md](AGENTS.md).
 
@@ -105,7 +105,7 @@ Cetak menggunakan susunan halaman, tipografi, dan warna token yang sama dengan p
 
 ## Batasan dan verifikasi
 
-Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend atau penyimpanan persisten.
+Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend atau sinkronisasi cloud. Draft memakai penyimpanan lokal browser.
 
 Build dan lint berhasil. Pengujian browser mencakup pagination A4/Letter, pengaturan dokumen, syntax highlighting, serta kode TypeScript 150 baris yang terbagi enam halaman tanpa kehilangan teks atau overflow. File PDF dari mesin cetak Chromium telah diperiksa: jumlah halaman sesuai pratinjau pada A4/Letter, ukuran kertas benar, footer berurutan, serta penanda isi lengkap. Dialog cetak Safari/Firefox belum diverifikasi; rincian dan batas pemeriksaan tercatat di AGENTS.md.
 
@@ -122,3 +122,19 @@ npm test -- --workers=2
 Di Linux, gunakan `npx playwright install --with-deps chromium webkit`. Pengujian membuka build produksi pada port 4173; pastikan port tersebut tersedia. Playwright menghasilkan laporan, trace kegagalan, dan PDF uji di direktori yang diabaikan Git. PDF diuji pada Chromium; WebKit menguji layout dan tombol ekspor. Workflow GitHub menjalankan audit, lint, dan pengujian yang sama pada Node 24.
 
 Komponen UI tetap memakai shadcn/ui berbasis Base UI. CLI shadcn tidak menjadi dependensi aplikasi untuk menghapus rantai dependensi tooling yang rentan. Stylesheet resmi dipertahankan di `src/styles/shadcn.css` dengan lisensi pada `THIRD_PARTY_NOTICES.md`. CLI tetap dapat digunakan untuk pemeliharaan setelah keamanan rilisnya diperiksa. Audit dependensi proyek pada 12 Oktober 2026: **0 vulnerabilities**.
+
+## Draft dan unduhan Markdown
+
+Tulisan, nama dokumen, ukuran kertas, tipografi, margin, dan tema kode disimpan otomatis di browser yang sama dan dipulihkan setelah reload. Status **Draft tersimpan** menunjukkan penyimpanan berhasil. Jika status menyebut draft belum tersimpan, gunakan **Unduh .md** di toolbar editor untuk menyimpan salinan UTF-8. Unduhan memakai isi editor terbaru dan nama dokumen.
+
+Draft hanya satu per origin/browser. Menghapus data browser menghapus draft; beberapa tab berbagi draft terakhir yang disimpan. Mengganti tulisan dengan contoh mengganti draft setelah konfirmasi.
+
+## Batas input dan respons pratinjau
+
+File dan isi editor maksimal **100 KiB (102.400 byte UTF-8)** dan **5.000 baris**. File diperiksa sebelum dibaca; paste atau perubahan yang melewati batas ditolak tanpa mengganti tulisan sebelumnya. Pisahkan dokumen yang lebih besar menjadi beberapa file.
+
+Pratinjau diperbarui setelah jeda mengetik 250 ms. Pagination dikerjakan bertahap dan pekerjaan lama dibatalkan saat isi berubah. Selama **Memperbarui halaman…**, pratinjau terakhir tetap terlihat dan Ekspor PDF belum dapat digunakan. Unduh .md tetap tersedia. Cetak langsung melalui shortcut browser memperbarui isi terbaru sebelum mencetak.
+
+Blok kode lebih dari 8.000 karakter tetap dicetak utuh dengan tema pilihan, tetapi tanpa warna token. Rumus lebih dari 2.000 karakter ditampilkan sebagai sumber dengan petunjuk untuk membaginya. Pengukuran dokumen tetap menggunakan thread utama browser; batas input dan jeda pemrosesan mengurangi risiko tersendat pada dokumen besar.
+
+Verifikasi terbaru: **40 pengujian lulus, 2 kasus PDF WebKit dilewati**; build dan lint berhasil. Pengujian meliputi pemulihan draft, unduhan, storage gagal, batas input, respons pagination, cetak terbaru, dan tampilan mobile, selain seluruh regresi dokumen sebelumnya.

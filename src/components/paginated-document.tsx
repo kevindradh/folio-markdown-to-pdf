@@ -37,7 +37,7 @@ function sliceBlock(block: HTMLElement, start: number, end: number) {
 }
 
 /** Lay out the same DOM that is later printed, at its unscaled physical size. */
-function paginate(template: HTMLElement, host: HTMLElement) {
+function* paginate(template: HTMLElement, host: HTMLElement) {
   host.replaceChildren()
   const blocks = Array.from(template.querySelector('.document-body')!.children).flatMap(node => {
     // Allow lists to continue on the next page without keeping the whole list together.
@@ -53,7 +53,11 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   function newPage() {
     const wrapper = document.createElement('div')
     wrapper.className = 'paper-sheet'
-    const page = template.cloneNode(true) as HTMLElement
+    const page = template.cloneNode(false) as HTMLElement
+    // Do not copy the entire source document just to create an empty page.
+    for (const child of template.children) {
+      page.append(child.cloneNode(!child.classList.contains('document-body')))
+    }
     page.removeAttribute('aria-hidden')
     page.classList.remove('paper-template')
     page.setAttribute('aria-label', `Halaman ${bodies.length + 1}`)
@@ -67,16 +71,17 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   let body = newPage()
   // A small reserve accommodates subpixel rounding in the browser's print pipeline.
   const fits = () => body.scrollHeight <= body.clientHeight
-  function paginateTable(source: HTMLTableElement) {
+  function* paginateTable(source: HTMLTableElement) {
     const rows = Array.from(source.tBodies[0]?.rows ?? [])
     function tableShell() {
-      const table = source.cloneNode(true) as HTMLTableElement
-      table.tBodies[0].replaceChildren()
+      const table = source.cloneNode(false) as HTMLTableElement
+      for (const child of source.children) table.append(child.cloneNode(child.tagName !== 'TBODY'))
       body.append(table)
       return table
     }
     let table = tableShell()
     for (const row of rows) {
+      yield
       table.tBodies[0].append(row)
       if (fits()) continue
       row.remove()
@@ -99,6 +104,7 @@ function paginate(template: HTMLElement, host: HTMLElement) {
       const content = cells.map(flowText)
       const offsets = cells.map(() => 0)
       while (content.some((text, i) => offsets[i] < text.length)) {
+        yield
         function fragment(length: number) {
           const next = row.cloneNode(false) as HTMLTableRowElement
           cells.forEach((cell, i) => next.append(sliceBlock(cell, offsets[i], Math.min(content[i].length, offsets[i] + length))))
@@ -131,9 +137,10 @@ function paginate(template: HTMLElement, host: HTMLElement) {
     }
   }
   for (let index = 0; index < blocks.length; index++) {
+    yield
     let block = blocks[index]
     if (block instanceof HTMLTableElement) {
-      paginateTable(block)
+      yield* paginateTable(block)
       continue
     }
     body.append(block)
@@ -176,6 +183,7 @@ function paginate(template: HTMLElement, host: HTMLElement) {
       continue
     }
     while (flowText(block).length) {
+      yield
       const content = flowText(block)
       const length = content.length
       let low = 0
@@ -210,9 +218,9 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   return bodies.length
 }
 
-export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, zoom, onPagesChange }: {
+export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, zoom, onPagesChange, onPendingChange }: {
   children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; zoom: number
-  onPagesChange: (pages: number) => void
+  onPagesChange: (pages: number) => void; onPendingChange: (pending: boolean) => void
 }) {
   const template = useRef<HTMLElement>(null)
   const measurement = useRef<HTMLDivElement>(null)
@@ -221,25 +229,51 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
 
   useEffect(() => {
     let cancelled = false
-    const layout = () => {
+    let revision = 0
+    onPendingChange(true)
+    const layout = (synchronous = false) => {
       if (cancelled || !template.current || !measurement.current || !pages.current) return
-      const count = paginate(template.current, measurement.current)
-      pages.current.replaceChildren(...Array.from(measurement.current.children))
-      onPagesChange(count)
+      const current = ++revision
+      const iterator = paginate(template.current, measurement.current)
+      const publish = (count: number) => {
+        if (cancelled || current !== revision || !pages.current || !measurement.current) return
+        pages.current.replaceChildren(...Array.from(measurement.current.children))
+        onPagesChange(count)
+        onPendingChange(false)
+      }
+      if (synchronous) {
+        let step = iterator.next()
+        while (!step.done) step = iterator.next()
+        publish(step.value)
+        return
+      }
+      const run = async () => {
+        let start = performance.now()
+        while (!cancelled && current === revision) {
+          const step = iterator.next()
+          if (step.done) { publish(step.value); return }
+          if (performance.now() - start >= 8) {
+            // Yield between blocks, table rows and text fragments; newer edits cancel this run.
+            await new Promise<void>(resolve => setTimeout(resolve, 0))
+            start = performance.now()
+          }
+        }
+      }
+      void run()
     }
-    // React owns the source only. The paginated output consists of safe DOM clones.
-    const frame = requestAnimationFrame(layout)
-    void document.fonts.ready.then(layout)
-    document.fonts.addEventListener('loadingdone', layout)
-    // Native Ctrl/Cmd+P and the export button both print the latest page clones.
-    window.addEventListener('beforeprint', layout)
+    // Keep the previous complete preview visible until the new layout is ready.
+    void document.fonts.ready.then(() => layout())
+    const fontsLoaded = () => layout()
+    const beforePrint = () => layout(true)
+    document.fonts.addEventListener('loadingdone', fontsLoaded)
+    window.addEventListener('beforeprint', beforePrint)
     return () => {
       cancelled = true
-      cancelAnimationFrame(frame)
-      document.fonts.removeEventListener('loadingdone', layout)
-      window.removeEventListener('beforeprint', layout)
+      revision++
+      document.fonts.removeEventListener('loadingdone', fontsLoaded)
+      window.removeEventListener('beforeprint', beforePrint)
     }
-  }, [children, name, paper, font, margin, codeTheme, onPagesChange])
+  }, [children, name, paper, font, margin, codeTheme, onPagesChange, onPendingChange])
 
   useEffect(() => {
     const element = stage.current

@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,6 +17,8 @@ import { tableCells, tableAlignment } from '@/lib/markdown-table'
 import { cn } from '@/lib/utils'
 import { MathExpression } from '@/components/math-expression'
 import { HighlightedCode } from '@/components/highlighted-code'
+import { useDocumentDraft } from '@/hooks/use-document-draft'
+import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
 
 const example = `# Ruang untuk ide yang baik
@@ -60,6 +63,9 @@ function inline(text: string): ReactNode[] {
 
 function Markdown({ text }: { text: string }) {
   const rows = text.split('\n'); const result: ReactNode[] = []
+  // Unclosed display delimiters must not rescan the remaining document for every line.
+  const bracketEnd = rows.findLastIndex(row => /\\{1,2}\]\s*$/.test(row))
+  const dollarEnd = rows.findLastIndex(row => /\$\$\s*$/.test(row))
   for (let i = 0; i < rows.length; i++) {
     const line = rows[i]
     if (!line.trim()) continue
@@ -70,7 +76,7 @@ function Markdown({ text }: { text: string }) {
       result.push(<pre key={i}><HighlightedCode text={code.join('\n')} language={language} /></pre>); continue
     }
     const displayStart = line.trim().match(/^(\\{1,2}\[|\$\$)/)
-    if (displayStart) {
+    if (displayStart && (displayStart[0] === '$$' ? dollarEnd : bracketEnd) >= i) {
       const closing = displayStart[0] === '$$' ? /\$\$\s*$/ : /\\{1,2}\]\s*$/
       const formula = [line.trim().slice(displayStart[0].length)]
       let end = i
@@ -157,13 +163,43 @@ function MarkdownGuide() {
 }
 
 export default function App() {
-  const [text, setText] = useState(example)
-  const [name, setName] = useState('Catatan kreatif')
+  const { draft, update, setDraft, saved } = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
+  const { text, name, paper, font, margin, codeTheme } = draft
+  const setName = (value: string) => update('name', value)
+  const setPaper = (value: string) => update('paper', value)
+  const setFont = (value: string) => update('font', value)
+  const setMargin = (value: string) => update('margin', value)
+  const setCodeTheme = (value: string) => update('codeTheme', value)
   const [view, setView] = useState('split')
-  const [paper, setPaper] = useState('A4')
-  const [font, setFont] = useState('Literary')
-  const [margin, setMargin] = useState('Normal')
-  const [codeTheme, setCodeTheme] = useState('light')
+  const [previewText, setPreviewText] = useState(text)
+  const [layoutPending, setLayoutPending] = useState(true)
+  useEffect(() => {
+    if (text === previewText) return
+    const timer = window.setTimeout(() => { setLayoutPending(true); setPreviewText(text) }, 250)
+    return () => clearTimeout(timer)
+  }, [text, previewText])
+  useEffect(() => {
+    const flushPreview = () => flushSync(() => setPreviewText(text))
+    // Capture runs before pagination's beforeprint handler, even during the typing debounce.
+    window.addEventListener('beforeprint', flushPreview, true)
+    return () => window.removeEventListener('beforeprint', flushPreview, true)
+  }, [text])
+  const previewContent = useMemo(() => previewText.trim() ? <Markdown text={previewText} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>, [previewText])
+  const previewPending = text !== previewText || layoutPending
+  function setText(next: string) {
+    const error = inputError(next)
+    if (error) { toast.add({ title: 'Tulisan tidak ditambahkan.', description: error, type: 'error' }); return false }
+    update('text', next)
+    return true
+  }
+  function downloadMarkdown() {
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = markdownFilename(name)
+    link.click()
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
   const [zoom, setZoom] = useState(90)
   const [resetOpen, setResetOpen] = useState(false)
   const [pageCount, setPageCount] = useState(1)
@@ -177,7 +213,7 @@ export default function App() {
     const start = el.selectionStart
     const end = el.selectionEnd
     const selection = text.slice(start, end) || 'teks'
-    setText(text.slice(0, start) + before + selection + after + text.slice(end))
+    if (!setText(text.slice(0, start) + before + selection + after + text.slice(end))) return
     requestAnimationFrame(() => {
       el.focus()
       el.setSelectionRange(start + before.length, start + before.length + selection.length)
@@ -190,9 +226,15 @@ export default function App() {
       toast.add({ title: 'Pilih file .md, .markdown, atau .txt.', type: 'error' })
       return
     }
+    if (file.size > MAX_DOCUMENT_BYTES) {
+      toast.add({ title: 'File terlalu besar.', description: 'Pilih file maksimal 100 KiB.', type: 'error' })
+      return
+    }
     try {
-      setText(await file.text())
-      setName(file.name.replace(/\.[^.]+$/, ''))
+      const next = await file.text()
+      const error = inputError(next)
+      if (error) { toast.add({ title: 'File tidak dibuka.', description: error, type: 'error' }); return }
+      setDraft(previous => ({ ...previous, text: next, name: file.name.replace(/\.[^.]+$/, '').slice(0, 120) }))
       toast.add({ title: 'File berhasil dibuka.', type: 'success' })
     } catch {
       toast.add({ title: 'File tidak dapat dibaca.', description: 'Coba pilih kembali.', type: 'error' })
@@ -209,7 +251,7 @@ export default function App() {
         <div><div className="workspace-label"><span /> Alat Konversi</div><h1>Konversi Markdown Menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
           <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
-          <Button size="lg" onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
+          <Button size="lg" disabled={previewPending} onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
         </div>
         <Input ref={input} aria-label="Pilih file Markdown" type="file" accept=".md,.markdown,.txt" className="hidden" onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
       </section>
@@ -218,7 +260,7 @@ export default function App() {
           <FieldGroup className="min-w-0 flex-1 sm:max-w-sm">
             <Field orientation="horizontal" className="document-name-field">
               <FieldLabel htmlFor="document-name" className="flex-none"><FileText size={17} /><span className="sr-only">Nama dokumen</span></FieldLabel>
-              <Input id="document-name" className="min-w-0 flex-1" value={name} onChange={e => setName(e.target.value)} />
+              <Input maxLength={120} id="document-name" className="min-w-0 flex-1" value={name} onChange={e => setName(e.target.value)} />
             </Field>
           </FieldGroup>
           <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
@@ -230,13 +272,14 @@ export default function App() {
           <section className="editor-pane">
             <div className="pane-toolbar">
               <span><Code2 size={15} /> Markdown</span>
+              <div className="flex items-center gap-1"><Button variant="ghost" size="sm" onClick={downloadMarkdown}><ArrowDownToLine data-icon="inline-start" /> Unduh .md</Button>
               <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
                 <AlertDialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Muat ulang contoh" title="Muat ulang contoh" />}><RotateCcw /></AlertDialogTrigger>
                 <AlertDialogContent>
-                  <AlertDialogHeader><AlertDialogTitle>Ganti tulisan dengan contoh?</AlertDialogTitle><AlertDialogDescription>Tulisan di editor akan diganti dengan contoh awal. Salin tulisanmu terlebih dahulu jika ingin menyimpannya.</AlertDialogDescription></AlertDialogHeader>
+                  <AlertDialogHeader><AlertDialogTitle>Ganti tulisan dengan contoh?</AlertDialogTitle><AlertDialogDescription>Tulisan di editor akan diganti dengan contoh awal. Unduh Markdown terlebih dahulu untuk menyimpan salinan tulisanmu.</AlertDialogDescription></AlertDialogHeader>
                   <AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction onClick={() => { setText(example); setResetOpen(false) }}>Muat contoh</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog></div>
             </div>
             <Separator />
             <div className="format-toolbar">
@@ -244,17 +287,25 @@ export default function App() {
             </div>
             <FieldGroup className="editor-content">
               <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>
-                <Textarea variant="editor" id="markdown-editor" ref={editor} spellCheck={false} value={text} onChange={e => setText(e.target.value)} placeholder="# Mulai ceritamu di sini" />
+                <Textarea variant="editor" id="markdown-editor" ref={editor} spellCheck={false} value={text} onChange={e => setText(e.target.value)} onPaste={event => {
+                  const element = event.currentTarget
+                  const next = text.slice(0, element.selectionStart) + event.clipboardData.getData('text') + text.slice(element.selectionEnd)
+                  const error = inputError(next)
+                  if (error) {
+                    event.preventDefault()
+                    toast.add({ title: 'Tulisan tidak ditambahkan.', description: error, type: 'error' })
+                  }
+                }} aria-describedby="draft-status" placeholder="# Mulai ceritamu di sini" />
               </Field>
             </FieldGroup>
             <Separator />
-            <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span>Markdown <Check size={12} /></span></div>
+            <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span id="draft-status" role="status">{saved ? 'Draft tersimpan' : 'Draft belum tersimpan; unduh .md'}</span></div>
           </section>
           <section className="preview-pane">
-            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span></div>
+            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{previewPending ? 'Memperbarui halaman…' : ''}</span></div>
             <Separator />
-            <PaginatedDocument name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} zoom={zoom} onPagesChange={setPageCount}>
-              {text.trim() ? <Markdown text={text} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
+            <PaginatedDocument onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} zoom={zoom} onPagesChange={setPageCount}>
+              {previewContent}
             </PaginatedDocument>
             <Separator />
             <div className="preview-footer"><span><FileText size={13} /> {paper} · {pageCount} halaman<span className="paper-dimensions">{paper === 'A4' ? '210 × 297 mm' : '215,9 × 279,4 mm'}</span></span>
