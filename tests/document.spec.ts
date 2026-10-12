@@ -155,6 +155,9 @@ test(`${paper} PDF has the preview page count, physical size, text and footer or
 }
 
 test('export button waits for fonts and prints the current document', async ({ page }) => {
+  await expect(page).toHaveTitle('folio. – Markdown to PDF')
+  await expect(page.locator('.brand-mark')).toHaveJSProperty('naturalWidth', 48)
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /favicon\.svg$/)
   await page.evaluate(() => {
     window.print = () => {
       window.dispatchEvent(new Event('beforeprint'))
@@ -165,4 +168,6 @@ test('export button waits for fonts and prints the current document', async ({ p
   await page.getByRole('button', { name: 'Ekspor PDF', exact: true }).click()
   await expect(page.locator('body')).toHaveAttribute('data-printed', String(await page.locator('.paper-pages article').count()))
   await expect(page).toHaveTitle('Catatan kreatif')
+  await page.evaluate(() => window.dispatchEvent(new Event('afterprint')))
+  await expect(page).toHaveTitle('folio. – Markdown to PDF')
 })

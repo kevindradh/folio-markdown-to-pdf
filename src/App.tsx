@@ -184,6 +184,12 @@ export default function App() {
     window.addEventListener('beforeprint', flushPreview, true)
     return () => window.removeEventListener('beforeprint', flushPreview, true)
   }, [text])
+  useEffect(() => {
+    const applicationTitle = document.title
+    const restoreTitle = () => { document.title = applicationTitle }
+    window.addEventListener('afterprint', restoreTitle)
+    return () => window.removeEventListener('afterprint', restoreTitle)
+  }, [])
   const previewContent = useMemo(() => previewText.trim() ? <Markdown text={previewText} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>, [previewText])
   const previewPending = text !== previewText || layoutPending
   function setText(next: string) {
@@ -243,7 +249,7 @@ export default function App() {
 
   return <div className="app-shell">
     <header className="topbar">
-      <a className="brand" href="#"><span className="brand-mark"><FileText size={22} /></span>folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
+      <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={39} height={39} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
       <MarkdownGuide />
     </header>
     <main>

@@ -176,3 +176,8 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 - Ekspor PDF dinonaktifkan selama pembaruan pratinjau/pagination. Native `beforeprint` memperbarui sumber debounced melalui `flushSync` sebelum pagination cetak sinkron, sehingga cetak saat baru mengetik memakai versi terbaru. DOM akhir, ukuran kertas, dan aturan cetak tetap sama.
 - Verifikasi akhir: build, lint, pemeriksaan tipe test, serta **40 passed / 2 skipped** (PDF WebKit). `tests/draft.spec.ts` menguji reload dan draft kosong, pengaturan, UTF-8/nama unduhan, storage gagal/rusak, unggah valid, penolakan file sebelum membaca, batas byte multibyte/baris, paste, respons timer browser selama pagination 1.200 paragraf, edit cepat, cetak selama debounce, fallback kode/rumus besar, serta mobile 390 px tanpa overflow. Regresi parser/tabel/matematika dan PDF A4/Letter tetap lulus.
 - Batas mitigasi: pengukuran DOM dan render React tetap pada thread utama; jeda 8 ms adalah target antarlangkah, bukan batas waktu keras untuk satu blok. Cetak native menghitung ulang secara sinkron. Solusi ini mengurangi risiko input besar melalui batas dan pemrosesan bertahap; tidak menjamin waktu yang sama pada setiap perangkat. Worker/parser lengkap dan pengurangan bundle merupakan pekerjaan penyempurnaan terpisah.
+
+## Identitas aplikasi
+
+- Judul browser: `folio. – Markdown to PDF`. Ikon `public/favicon.svg` berupa kertas berhuruf f dengan latar biru; aset yang sama digunakan di navbar dan favicon. Ikon navbar dekoratif (`alt=""`) karena nama folio sudah tersedia pada tautan.
+- Ekspor memakai nama dokumen sebagai judul sementara untuk nama PDF, lalu mengembalikan judul aplikasi melalui `afterprint`, termasuk saat dialog cetak ditutup.

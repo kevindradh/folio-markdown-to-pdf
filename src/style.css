@@ -153,7 +153,7 @@ body { margin: 0; }
 a:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
 .topbar { height: 78px; padding: 0 4%; display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--border); }
 .brand { display: flex; align-items: center; text-decoration: none; color: var(--foreground); font-weight: 760; font-size: 29px; letter-spacing: -1.5px; }
-.brand-mark { width: 37px; height: 39px; border-radius: 10px; background: var(--primary); color: var(--primary-foreground); display: grid; place-items: center; margin-right: 10px; transform: rotate(-5deg); }
+.brand-mark { width: 39px; height: 39px; flex-shrink: 0; margin-right: 10px; }
 .brand-dot { color: var(--primary); }
 .brand-description { font-size: 12px; color: var(--muted-foreground); font-weight: 450; letter-spacing: 0; border-left: 1px solid var(--border); padding-left: 18px; margin-left: 21px; }
 main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
