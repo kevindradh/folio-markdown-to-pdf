@@ -4,12 +4,38 @@ Aplikasi React, Vite, dan TypeScript untuk menulis Markdown, melihat pratinjau d
 
 ## Menjalankan proyek
 
-Gunakan npm dan lockfile yang tersedia:
+Gunakan **Node.js 24.x** dan npm. Versi Node dicatat di `.nvmrc`, `package.json`, dan workflow CI. Jika memakai nvm, jalankan `nvm use` sebelum memasang dependensi. Gunakan lockfile yang tersedia:
 
 ```sh
 npm ci
 npm run dev
 ```
+
+Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau backend. Jangan mengunggah dokumen pribadi maupun file kredensial ke repository. `.gitignore` mengecualikan environment file, dependensi, hasil build/pengujian, dan konfigurasi deployment lokal; `package-lock.json`, sumber aplikasi, serta contoh environment yang sudah disanitasi tetap dapat dilacak.
+
+## Publikasi ke GitHub dan Vercel
+
+1. Buat repository GitHub kosong. Jangan membuat README atau `.gitignore` baru dari GitHub karena proyek ini sudah memilikinya.
+2. Commit perubahan lokal, tambahkan URL repository GitHub sebagai remote `origin`, lalu push branch **main**. Branch `codex/visit-counter` adalah fitur penghitung yang ditunda dan tidak perlu dipublikasikan sebagai aplikasi utama.
+3. Di Vercel, pilih **Add New → Project** lalu impor repository tersebut. Gunakan pengaturan berikut:
+
+   | Pengaturan | Nilai |
+   | --- | --- |
+   | Framework Preset | Vite |
+   | Root Directory | Root repository |
+   | Production Branch | `main` |
+   | Node.js Version | `24.x` |
+   | Install Command | `npm ci` |
+   | Build Command | `npm run build` |
+   | Output Directory | `dist` |
+   | Environment Variables | Tidak diperlukan untuk fitur pada `main` |
+
+4. Setelah deployment berhasil, buka URL situs dan periksa editor, unggah Markdown/gambar lokal, pemulihan draft, serta ekspor PDF.
+5. Tambahkan domain sendiri melalui **Project Settings → Domains**, kemudian sesuaikan DNS di penyedia domain mengikuti nilai yang diberikan Vercel. Domain tidak perlu dipindahkan registrasinya.
+
+Workflow `.github/workflows/verify.yml` memeriksa audit, lint, dan pengujian saat push/pull request dengan izin baca repository. Deployment otomatis Vercel dan workflow verifikasi adalah proses terpisah; jika ingin mewajibkan pemeriksaan lulus sebelum merge ke `main`, atur aturan branch di GitHub. CI tidak melakukan deployment situs.
+
+Referensi: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite), [pengaturan domain](https://vercel.com/docs/domains/working-with-domains/add-a-domain). Hosting Vercel Hobby ditujukan untuk penggunaan pribadi nonkomersial; periksa ketentuan paket jika tujuan aplikasi berubah.
 
 Perintah lainnya:
 

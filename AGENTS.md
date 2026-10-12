@@ -96,7 +96,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | `npm test` | Build, pemeriksaan tipe pengujian, lalu regresi Chromium/WebKit terhadap build produksi. |
 | `npm run test:chromium` | Pengujian build produksi khusus Chromium, termasuk PDF. |
 
-Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux: tambahkan `--with-deps`). Pengujian memakai port 4173 khusus dan tidak menggunakan server dev pengguna. Workflow `.github/workflows/verify.yml` menjalankan audit, lint, dan pengujian pada Node 24. Belum ada field `engines` di `package.json`.
+Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux: tambahkan `--with-deps`). Pengujian memakai port 4173 khusus dan tidak menggunakan server dev pengguna. Workflow `.github/workflows/verify.yml` menjalankan audit, lint, dan pengujian pada Node 24. Runtime ditetapkan **Node 24.x** melalui `engines` di `package.json` dan `.nvmrc`.
 
 ## Pedoman perubahan
 
@@ -112,7 +112,7 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 ## Hasil verifikasi awal
 
 - `npm ls --depth=0`: berhasil. Versi terpasang antara lain React/React DOM `19.3.0`, Vite `8.3.4`, dan TypeScript `6.0.3`; perbedaan dari angka dasar di manifest masih sesuai rentangnya.
-- `npm run build`: berhasil. Vite memberi peringatan penggunaan `__dirname` di `vite.config.ts`, yang tidak didukung oleh `configLoader: 'native'`; pesan tooling menyarankan `import.meta.dirname`. Ini belum diperbaiki.
+- `npm run build`: berhasil. Pada pemeriksaan awal Vite memberi peringatan penggunaan `__dirname` di `vite.config.ts`. Ini telah diperbaiki menjadi `import.meta.dirname` saat persiapan publikasi; build dengan loader native juga telah diverifikasi.
 - `npm run lint`: gagal dengan satu error `react-refresh/only-export-components` pada ekspor `buttonVariants` di `src/components/ui/button.tsx`. Error awal ini sudah diperbaiki saat implementasi UI dengan menjadikan `buttonVariants` konstanta internal.
 - Pembaruan setelah pemeriksaan awal: Git sudah diinisialisasi dan `git status` berhasil dijalankan. Skill `frontend-design` juga sudah tersedia di direktori skill proyek.
 
@@ -198,3 +198,13 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 - `Unduh .md` masih mengunduh teks dan referensi, **bukan paket gambar**. Simpan file gambar asli jika ingin memindahkan Markdown ke browser/perangkat lain. Menghapus data browser menghapus aset lokal; referensi UUID di file Markdown tidak membawa data gambar. Gambar HTTP/data URL tidak dimuat pada tahap fitur lokal ini.
 - Verifikasi: **53 passed / 3 skipped** (tiga kasus PDF WebKit), build, lint, tipe test, dan audit **0 vulnerabilities**. Pengujian baru mencakup 80 item bernomor mulai 7 beserta tiga tingkat/checklist, teks identik tanpa overflow, catatan multiline dan referensi ulang dengan target unik, pemulihan gambar/Markdown setelah reload, penolakan file palsu/oversize, pipe dalam kode tabel, elemen atomik pada paragraf/footnote panjang, serta PDF Chromium dengan gambar benar-benar tertanam. PDF contoh telah diraster dan diperiksa visual untuk gambar, penomoran, checklist, serta catatan kaki. Regresi draft, matematika, tabel, dan PDF A4/Letter tetap lulus.
 - Build utama sekarang sekitar 996 KB sebelum gzip (sekitar 324 KB gzip). Pengurangan bundle tetap pekerjaan penyempurnaan terpisah; penambahan parser tidak menghilangkan batas input/performance yang sudah ada.
+
+## Persiapan repository GitHub dan Vercel
+
+- Branch aplikasi utama adalah `main`. Implementasi penghitung kunjungan ditunda dan disimpan pada branch lokal `codex/visit-counter`; tidak menjadi fitur atau konfigurasi deployment pada `main`.
+- `.gitignore` mengecualikan `.env`/`.env.*` (contoh tersanitasi `.env.example`/`.env.*.example` tetap dapat dilacak), private key/sertifikat, direktori `.secrets`, konfigurasi lokal Vercel/Netlify/Wrangler/Codex, cache, coverage, dependensi, hasil build, dan artefak pengujian. `.agents/skills`, `AGENTS.md`, dan `package-lock.json` tetap dibagikan sebagai bagian proyek.
+- Runtime Node **24.x** konsisten pada `.nvmrc`, `package.json` beserta lockfile, dan CI. Vite memakai `import.meta.dirname` agar konfigurasi ES modules kompatibel dengan loader native.
+- Workflow verifikasi GitHub memiliki izin minimum `contents: read` dan membatalkan run lama pada ref yang sama. Workflow ini tidak mempublikasikan situs; deployment Vercel dikonfigurasi terpisah, dengan production branch `main`, preset Vite, `npm ci`, `npm run build`, dan output `dist`. Aplikasi utama tidak memerlukan environment variable atau API key.
+- README memuat persiapan repository kosong, impor Vercel, konfigurasi build, dan domain sendiri. Belum ada Git remote yang dikonfigurasi atau push/deployment yang dilakukan dari workspace ini.
+- Pemeriksaan pola umum token/private key pada file yang dilacak dan riwayat seluruh branch tidak menemukan kecocokan; ini pemeriksaan pola, bukan jaminan lengkap bebas kredensial. Tidak ada environment file/private key yang sudah dilacak Git pada pemeriksaan ini.
+- Verifikasi: build biasa dan build dengan `--configLoader native`, lint, serta dry-run `npm ci` dari lockfile berhasil. Audit dari sinkronisasi npm melaporkan **0 vulnerabilities**. Peringatan bundle besar tetap ada. Regresi browser/PDF sebelumnya masih tercatat pada bagian fitur Markdown; tidak ada perubahan renderer atau UI dalam persiapan ini.

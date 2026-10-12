@@ -7,10 +7,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+node_modules/
+dist/
+dist-ssr/
 *.local
+
+# Environment files can contain credentials. Keep sanitized examples shareable.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local deployment, assistant state and caches
+.vercel/
+.netlify/
+.wrangler/
+.codex/
+.cache/
+coverage/
+blob-report/
+*.tsbuildinfo
+
+# Local secrets and certificates
+.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
 
 # Editor directories and files
 .vscode/*
