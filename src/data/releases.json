@@ -1,0 +1,203 @@
+[
+  {
+    "version": "0.0.20",
+    "date": "2026-10-13",
+    "title": "Versi aplikasi dan changelog",
+    "changes": [
+      "Nomor versi tampil di footer dan membuka riwayat pembaruan.",
+      "Riwayat sejak commit pertama tersedia dalam bahasa Indonesia, termasuk saat aplikasi digunakan offline."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
+    "version": "0.0.19",
+    "date": "2026-10-13",
+    "title": "Status offline yang ringkas",
+    "changes": [
+      "Status offline menjadi ikon dengan tooltip pada navbar; ikon pembaruan muncul ketika versi baru tersedia."
+    ],
+    "commit": "6aaf41070abd0783aa0b83ffe65b2b1882c50d0a",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.18",
+    "date": "2026-10-12",
+    "title": "Penggunaan offline",
+    "changes": [
+      "Aplikasi dapat dibuka ulang tanpa internet setelah siap; pembaruan menunggu tindakan pengguna dan penyimpanan draft."
+    ],
+    "commit": "ed35accec943a1e7f21f2ce9f46734dcb2f364ea",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.17",
+    "date": "2026-10-12",
+    "title": "Pengujian WebKit lebih stabil",
+    "changes": [
+      "Pengujian otomatis disesuaikan untuk beban runner dan animasi; alur penggunaan aplikasi tetap sama."
+    ],
+    "commit": "bda99ca5c0477a88b30b6e922414c911f3b0dc3b",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.16",
+    "date": "2026-10-12",
+    "title": "Pemulihan versi lebih aman",
+    "changes": [
+      "Aksi riwayat tidak lagi berpindah mengikuti dokumen di tab lain; konfirmasi pemulihan mempertahankan versi yang dipilih."
+    ],
+    "commit": "d492f5fc8d48b16c780bcc1d444e7851fe4acbf2",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.15",
+    "date": "2026-10-12",
+    "title": "Project dan riwayat dokumen",
+    "changes": [
+      "Beberapa dokumen dapat dikelompokkan dalam project, disimpan otomatis, dan dipulihkan melalui riwayat versi."
+    ],
+    "commit": "fb1dda9ae4515040ac803cf0637803a7140e2139",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.14",
+    "date": "2026-10-12",
+    "title": "Pemeriksaan unduhan Safari",
+    "changes": [
+      "Pengujian menerima penyesuaian nama unduhan WebKit tanpa mengubah isi file Markdown."
+    ],
+    "commit": "416ac19154c26d62c5f2cc7c68fc3c687f66c748",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.13",
+    "date": "2026-10-12",
+    "title": "Persiapan publikasi",
+    "changes": [
+      "Konfigurasi repository, pemeriksaan otomatis, dan panduan deployment diperbarui."
+    ],
+    "commit": "95682626177f25f9276e6adff438dc2c7ccd1cdd",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.12",
+    "date": "2026-10-12",
+    "title": "Gambar, daftar, dan catatan kaki",
+    "changes": [
+      "Gambar lokal, daftar bertingkat, checklist, dan catatan kaki didukung dalam pratinjau serta PDF."
+    ],
+    "commit": "f79c9f6d0d1eb727086835f95b19725351a4c94e",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.11",
+    "date": "2026-10-12",
+    "title": "Identitas folio",
+    "changes": [
+      "Ikon folio dan judul browser diterapkan; nama dokumen digunakan ketika mengekspor PDF."
+    ],
+    "commit": "7ac673b5e64fddec1876509c52ff29aab958da62",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.10",
+    "date": "2026-10-12",
+    "title": "Draft otomatis dan dokumen besar",
+    "changes": [
+      "Draft tersimpan otomatis; batas input dan pemrosesan bertahap membantu menjaga editor tetap responsif."
+    ],
+    "commit": "64ac2b844b2e6788983e90c33a0bb68c59fafe0d",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.9",
+    "date": "2026-10-12",
+    "title": "Verifikasi PDF dan dependensi",
+    "changes": [
+      "Pemeriksaan hasil PDF diperluas dan dependensi yang rentan dibersihkan."
+    ],
+    "commit": "59aeb61fb5f329f055c3e40b0183bb72a9b4e102",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.8",
+    "date": "2026-10-12",
+    "title": "Tema kode terang dan gelap",
+    "changes": [
+      "Tema kode dapat dipilih untuk pratinjau serta dokumen PDF."
+    ],
+    "commit": "343cbf9ad38354b2068dea1226819e143eaa7e75",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.7",
+    "date": "2026-10-12",
+    "title": "Tabel Markdown",
+    "changes": [
+      "Tabel dapat ditampilkan dan dibagi per halaman dengan header berulang; toolbar editor disederhanakan."
+    ],
+    "commit": "ac29733c88c7fc0c13632e45433bc0a619702a30",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.6",
+    "date": "2026-10-12",
+    "title": "Dukungan rumus matematika",
+    "changes": [
+      "Rumus LaTeX dapat ditampilkan; rumus tetap utuh saat konten dibagi ke beberapa halaman."
+    ],
+    "commit": "1a0973aefdcd64b7cfe65ee994b015713cd86133",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.5",
+    "date": "2026-10-12",
+    "title": "Teks antarmuka diperjelas",
+    "changes": [
+      "Penjelasan aplikasi dan kredit pembuat diperbarui."
+    ],
+    "commit": "44bc59306cfd1fee264085c8303bd6b83431290e",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.4",
+    "date": "2026-10-12",
+    "title": "Kode lebih mudah dibaca",
+    "changes": [
+      "Syntax highlighting ditambahkan untuk kode; panduan penggunaan Markdown dan ekspor PDF diperjelas."
+    ],
+    "commit": "4894b134c957ca4f29c430fd6d12db6c5826c0fb",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.3",
+    "date": "2026-10-12",
+    "title": "Pratinjau per halaman",
+    "changes": [
+      "Pratinjau dibagi sesuai ukuran fisik kertas sehingga susunan halaman lebih dekat dengan hasil cetak."
+    ],
+    "commit": "4619d611a1de372f2263adb3f9fdbafbe3e6265b",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.2",
+    "date": "2026-10-12",
+    "title": "Kontrol yang lebih konsisten",
+    "changes": [
+      "Kontrol antarmuka memakai shadcn; tata letak workspace diperbaiki untuk layar kecil."
+    ],
+    "commit": "4f461f61d3449703dab9248fcc775aa565086e26",
+    "retrospective": true
+  },
+  {
+    "version": "0.0.1",
+    "date": "2026-10-11",
+    "title": "Fondasi folio",
+    "changes": [
+      "Editor Markdown, pratinjau dokumen, impor file, pengaturan dokumen, dan ekspor melalui dialog cetak tersedia."
+    ],
+    "commit": "b67590ff4e1c2e4735592a9f98836ac1e6c0e1ff",
+    "retrospective": true
+  }
+]

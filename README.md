@@ -227,3 +227,13 @@ npm run preview
 ```
 
 Buka URL preview, tunggu status offline siap, lalu putuskan koneksi dan muat ulang halaman. Server pengembangan pada port 5173 tidak mengaktifkan PWA. Pengujian `tests/pwa.spec.ts` memakai build produksi dan mencakup reload/tab baru offline, dokumen/gambar/font/rumus, impor dan riwayat offline, unduhan, PDF Chromium, pembaruan atas tindakan pengguna, tab lain, serta kegagalan penyimpanan.
+
+## Versi aplikasi dan changelog
+
+Klik nomor versi dan **Catatan pembaruan** di footer untuk melihat perubahan aplikasi. Riwayat ini tersedia offline. Nomor tersebut mengikuti build yang sedang dibuka; ketika ada pembaruan PWA, nomor berubah setelah pengguna menekan **Perbarui aplikasi** dan aplikasi dimuat ulang.
+
+Penomoran dimulai dari commit pertama pada `main`: **v0.0.1**. Sebanyak 19 commit awal dipetakan menjadi v0.0.1–v0.0.19, dan penerapan versioning menjadi **v0.0.20**. Catatan versi awal merupakan rekonstruksi riwayat pengembangan, bukan rilis atau tag yang pernah dipublikasikan. Branch yang belum digabung tidak termasuk. Riwayat lengkap juga tersedia di [CHANGELOG.md](CHANGELOG.md).
+
+Untuk perubahan berikutnya pada `main`, naikkan nomor patch dengan `npm version patch --no-git-tag-version`, lalu tambahkan entri terbaru di `src/data/releases.json` dengan nomor yang sama, tanggal, judul, dan daftar perubahan untuk pengguna. Gunakan `commit: null` untuk entri yang belum memiliki commit dan `retrospective: false` untuk catatan baru. Pertahankan nomor dan isi catatan historis. Jalankan `npm run changelog` untuk memperbarui CHANGELOG.md, lalu build, lint, dan pengujian yang relevan sebelum commit. Penomoran berlanjut sebagai v0.0.21, v0.0.22, dan seterusnya; satu perubahan yang dikomit ke main mendapat satu entri baru.
+
+Versi berasal dari `package.json`; isi changelog antarmuka dan Markdown berasal dari data yang sama. Build memeriksa kecocokan versi, lockfile, urutan catatan, serta CHANGELOG.md tanpa membutuhkan riwayat Git lengkap pada CI. Nomor versi aplikasi terpisah dari versi format penyimpanan dokumen.

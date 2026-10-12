@@ -5,7 +5,7 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 ## Gambaran umum
 
 - Tujuan proyek: membangun tool untuk mengonversi Markdown menjadi dokumen PDF. Markdown menjadi input, dan file PDF menjadi hasil konversi. Detail fitur dan alur penggunaan akan ditentukan lebih lanjut bersama pengguna.
-- Nama paket: `markdown-to-pdf`; paket privat, versi `0.0.0`, menggunakan ES modules (`type: module`).
+- Nama paket: `markdown-to-pdf`; paket privat, versi aplikasi mengikuti `package.json` (saat penerapan versioning: `0.0.20`), menggunakan ES modules (`type: module`).
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
 - Editor, unggah file Markdown, pratinjau Markdown terstruktur, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; rumus memakai KaTeX dan syntax highlighting memakai lowlight. Tulisan, nama dokumen, dan pengaturan tersimpan otomatis sebagai banyak dokumen dalam project IndexedDB, dengan riwayat versi otomatis + manual; tombol Unduh .md menyediakan salinan file.
 - Belum ada router, backend, atau state management eksternal. Pengujian regresi memakai Playwright pada build produksi.
@@ -269,3 +269,10 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - Status PWA dipindahkan dari baris/chip di atas halaman ke ikon pada navbar di sebelah Panduan Markdown, langsung pada main. Keterangan tersedia melalui Tooltip shadcn/Base UI saat hover atau fokus keyboard; label aksesibel dan live region tetap menyediakan status untuk pembaca layar. Ikon pembaruan juga ringkas dengan tooltip dan tetap mengikuti pengamanan draft sebelumnya.
 - Komponen Tooltip resmi ditambahkan tanpa dependensi baru, dan TooltipProvider membungkus App. Status serta popup tooltip disembunyikan pada media cetak. Pengujian PWA disesuaikan untuk tombol berlabel, popup keyboard/Escape, dan layout mobile; proses storage/service worker tidak diubah.
 - Verifikasi: build, lint, tipe test, enam kasus PWA Chromium/WebKit lulus, diff-check bersih. Screenshot navbar mobile 390 px diperiksa visual; tidak ada baris status tambahan atau overflow horizontal. Tidak ada push pada sesi ini.
+
+## Versi aplikasi dan changelog — 13 Oktober 2026
+
+- Versi aplikasi dimulai dari commit pertama pada main sebagai v0.0.1. Sebanyak 19 commit awal direkonstruksi menjadi v0.0.1–v0.0.19; implementasi versioning adalah v0.0.20. Tidak membuat tag atau mengklaim rilis historis. Branch yang belum digabung tidak dihitung.
+- Setiap perubahan berikutnya yang dikomit ke main harus menaikkan patch package.json dan package-lock.json melalui `npm version patch --no-git-tag-version`, menambahkan satu entri terbaru di `src/data/releases.json`, dan menjalankan `npm run changelog`. Catatan baru memakai `retrospective: false`; commit dapat null sebelum commit dibuat. Jangan mengubah nomor historis. Kebijakan versi dapat diperbarui jika pengguna meminta.
+- `src/components/app-releases.tsx` menampilkan nomor build pada footer dan dialog shadcn/Base UI dengan riwayat yang tersedia offline. Data JSON yang sama menghasilkan CHANGELOG.md lewat scripts/changelog.mjs. Build menjalankan changelog:check untuk memeriksa versi package/lockfile, urutan catatan, dan dokumen Markdown; tidak bergantung pada Git lengkap di CI. Versi format database/draft tetap terpisah dari versi aplikasi.
+- Verifikasi: build, lint, tipe test, enam pengujian PWA Chromium/WebKit lulus. Dialog diuji offline pada 390 px, akses ke versi pertama, Escape dan pengembalian fokus, serta batas area dialog; screenshot diperiksa visual. Peringatan bundle besar tetap ada. Tidak ada push.

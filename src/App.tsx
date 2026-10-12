@@ -21,6 +21,7 @@ import { useLocalImages } from '@/hooks/use-local-images'
 import { useDocumentDraft } from '@/hooks/use-document-draft'
 import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
+import { AppReleases } from '@/components/app-releases'
 import { PwaStatus } from '@/components/pwa-status'
 import { DocumentLibraryBar } from '@/components/document-library'
 
@@ -326,7 +327,7 @@ export default function App() {
           </FieldGroup>
         </div>
       </section>
-      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
+      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><AppReleases /><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
     </main>
     <Toaster />
     <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: 0; }`}</style>
