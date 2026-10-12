@@ -58,7 +58,7 @@ Perintah lainnya:
 - Gambar lokal PNG/JPEG/WebP yang dipulihkan setelah reload.
 - Daftar bernomor/bertingkat, checklist, dan catatan kaki bertautan.
 - Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
-- Pemrosesan lokal di browser dan draft otomatis untuk tulisan, nama, serta pengaturan dokumen.
+- Project untuk mengelompokkan banyak dokumen, penyimpanan otomatis, dan riwayat versi lokal otomatis + manual.
 
 Kontrol antarmuka menggunakan shadcn/ui berbasis Base UI. Panduan pengembangan berada di [AGENTS.md](AGENTS.md).
 
@@ -155,7 +155,13 @@ Komponen UI tetap memakai shadcn/ui berbasis Base UI. CLI shadcn tidak menjadi d
 
 Tulisan, nama dokumen, ukuran kertas, tipografi, margin, dan tema kode disimpan otomatis di browser yang sama dan dipulihkan setelah reload. Status **Draft tersimpan** menunjukkan penyimpanan berhasil. Jika status menyebut draft belum tersimpan, gunakan **Unduh .md** di toolbar editor untuk menyimpan salinan UTF-8. Unduhan memakai isi editor terbaru dan nama dokumen.
 
-Draft hanya satu per origin/browser. Menghapus data browser menghapus draft; beberapa tab berbagi draft terakhir yang disimpan. Mengganti tulisan dengan contoh mengganti draft setelah konfirmasi.
+Klik **Project** untuk membuat kelompok, membuat atau mencari dokumen, mengganti nama project, serta memindahkan atau menghapus dokumen. Project memiliki satu tingkat; nama dokumen diubah melalui kolom nama pada editor. **Buka file .md** membuat dokumen baru di project aktif. Draft lama otomatis dipindahkan ke project **Umum** pada pemakaian pertama fitur ini.
+
+Klik **Riwayat** untuk melihat sumber Markdown setiap versi dan memulihkannya. Versi otomatis dibuat setelah jeda menulis **15 detik**, saat berpindah dokumen, atau sebelum membuat/mengimpor dokumen baru. **Simpan versi** menandai perubahan penting secara manual. Isi identik tidak digandakan; menyimpan manual menandai versi identik terakhir sebagai manual. Pemulihan mengembalikan teks, nama, dan pengaturan kertas/tipografi/margin/tema kode, serta menyimpan isi saat ini sebagai versi sebelum pemulihan. Mengganti tulisan dengan contoh juga menyimpan versi terlebih dahulu.
+
+Penyimpanan menggunakan IndexedDB, maksimal **20 project**, **100 dokumen**, **20 versi per dokumen**, dan **20 MiB** untuk isi dokumen serta riwayat. Versi tertua dipangkas saat batas jumlah atau kapasitas tercapai; isi dokumen terbaru tetap dipertahankan. Kapasitas gambar lokal dihitung terpisah. Penghapusan membutuhkan konfirmasi; project berisi dokumen harus dikosongkan dahulu. Menghapus dokumen terakhir menyediakan dokumen kosong baru agar editor tetap dapat dipakai.
+
+Data hanya tersedia pada origin/browser/perangkat yang sama, tanpa akun atau sinkronisasi cloud. Menghapus data browser menghapus project, dokumen, riwayat, dan gambar. Unduh `.md` sebagai cadangan; unduhan tidak mencakup riwayat atau lampiran gambar. Saat dua tab mengubah dokumen yang sama, penyimpanan tab kedua ditolak agar perubahan sebelumnya tidak tertimpa. Tulisan tab tersebut tetap di editor: unduh salinannya sebelum memuat ulang.
 
 ## Batas input dan respons pratinjau
 
@@ -165,7 +171,7 @@ Pratinjau diperbarui setelah jeda mengetik 250 ms. Pagination dikerjakan bertaha
 
 Blok kode lebih dari 8.000 karakter tetap dicetak utuh dengan tema pilihan, tetapi tanpa warna token. Rumus lebih dari 2.000 karakter ditampilkan sebagai sumber dengan petunjuk untuk membaginya. Pengukuran dokumen tetap menggunakan thread utama browser; batas input dan jeda pemrosesan mengurangi risiko tersendat pada dokumen besar.
 
-Verifikasi terbaru: **53 pengujian lulus, 3 kasus PDF WebKit dilewati**; build dan lint berhasil. Pengujian meliputi pemulihan draft, unduhan, storage gagal, batas input, respons pagination, cetak terbaru, dan tampilan mobile, selain seluruh regresi dokumen sebelumnya.
+Verifikasi terbaru: **71 pengujian lulus, 3 kasus PDF WebKit dilewati**; build, lint, dan pemeriksaan tipe test berhasil. Pengujian mencakup project, impor/pemindahan dokumen, riwayat otomatis/manual, pemulihan aman, konflik antar-tab, batas riwayat/kapasitas, migrasi draft, unduhan, storage gagal, batas input, pagination, cetak, serta tampilan desktop/mobile. PDF Chromium tetap diuji langsung.
 
 ## Gambar lokal
 

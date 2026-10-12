@@ -49,7 +49,10 @@ test('Markdown download preserves UTF-8 content and current document name', asyn
 })
 
 test('unavailable storage is visible and does not prevent editing or downloading', async ({ page }) => {
-  await page.addInitScript(() => { Storage.prototype.setItem = () => { throw new DOMException('Quota exceeded', 'QuotaExceededError') } })
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => { throw new DOMException('Quota exceeded', 'QuotaExceededError') }
+    IDBFactory.prototype.open = () => { throw new DOMException('Storage blocked', 'SecurityError') }
+  })
   await page.goto('/')
   await page.locator('#markdown-editor').fill('Tetap bisa menulis tanpa penyimpanan.')
   await expect(page.locator('#draft-status')).toContainText('Draft belum tersimpan')

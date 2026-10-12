@@ -32,13 +32,24 @@ export function readDraft(fallback: Draft): Draft {
   }
 }
 
-export function saveDraft(draft: Draft): boolean {
+export function saveDraft(draft: Draft, recovery?: { documentId: string; revision: number; pending: boolean }): boolean {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ...draft }))
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ...draft, recovery }))
     return true
   } catch {
     return false
   }
+}
+
+export function readRecovery(fallback: Draft) {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (!raw || raw.length > MAX_DOCUMENT_BYTES * 6 + 4096) return null
+    const value = JSON.parse(raw)
+    if (value.version !== 1 || typeof value.text !== 'string' || inputError(value.text) || value.recovery?.pending !== true
+      || typeof value.recovery.documentId !== 'string' || !Number.isSafeInteger(value.recovery.revision)) return null
+    return { draft: readDraft(fallback), documentId: value.recovery.documentId as string, revision: value.recovery.revision as number }
+  } catch { return null }
 }
 
 export function markdownFilename(name: string): string {

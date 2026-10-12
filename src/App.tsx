@@ -21,6 +21,7 @@ import { useLocalImages } from '@/hooks/use-local-images'
 import { useDocumentDraft } from '@/hooks/use-document-draft'
 import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
+import { DocumentLibraryBar } from '@/components/document-library'
 
 const example = `# Ruang untuk ide yang baik
 
@@ -95,7 +96,8 @@ function MarkdownGuide() {
 }
 
 export default function App() {
-  const { draft, update, setDraft, saved } = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
+  const library = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
+  const { draft, update, setDraft, saved } = library
   const { text, name, paper, font, margin, codeTheme } = draft
   const { images, loading: imagesLoading, addImage } = useLocalImages()
   const setName = (value: string) => update('name', value)
@@ -107,6 +109,7 @@ export default function App() {
   const [previewText, setPreviewText] = useState(text)
   const [layoutPending, setLayoutPending] = useState(true)
   const [imageSaving, setImageSaving] = useState(false)
+  const [fileLoading, setFileLoading] = useState(false)
   useEffect(() => {
     if (text === previewText) return
     const timer = window.setTimeout(() => { setLayoutPending(true); setPreviewText(text) }, 250)
@@ -127,7 +130,7 @@ export default function App() {
   const previewTokens = useMemo(() => markdownParser.parse(previewText, {}), [previewText])
   const missingImages = imageTokens(previewTokens).some(token => !resolveImage(String(token.attrGet('src') ?? ''), images))
   const previewContent = useMemo(() => previewText.trim() ? <MarkdownDocument text={previewText} parsed={previewTokens} images={images} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>, [previewText, images, previewTokens])
-  const previewPending = text !== previewText || layoutPending || imagesLoading || missingImages || imageSaving
+  const previewPending = text !== previewText || layoutPending || imagesLoading || missingImages || imageSaving || library.busy || fileLoading
   function setText(next: string) {
     const error = inputError(next)
     if (error) { toast.add({ title: 'Tulisan tidak ditambahkan.', description: error, type: 'error' }); return false }
@@ -207,15 +210,21 @@ export default function App() {
       return
     }
     try {
+      setFileLoading(true)
       const next = await file.text()
       const error = inputError(next)
       if (error) { toast.add({ title: 'File tidak dibuka.', description: error, type: 'error' }); return }
-      setDraft(previous => ({ ...previous, text: next, name: file.name.replace(/\.[^.]+$/, '').slice(0, 120) }))
+      const imported = { ...draft, text: next, name: file.name.replace(/\.[^.]+$/, '').slice(0, 120) }
+      if (library.available && library.activeDocument) {
+        if (!await library.newDocument(library.activeDocument.projectId, imported)) return
+      } else setDraft(imported)
       toast.add({ title: 'File berhasil dibuka.', type: 'success' })
     } catch {
       toast.add({ title: 'File tidak dapat dibaca.', description: 'Coba pilih kembali.', type: 'error' })
-    }
+    } finally { setFileLoading(false) }
   }
+
+  if (!library.ready) return <main><p role="status">Memuat dokumen lokal…</p></main>
 
   return <div className="app-shell">
     <header className="topbar">
@@ -226,17 +235,19 @@ export default function App() {
       <section className="workspace-heading">
         <div><div className="workspace-label"><span /> Alat Konversi</div><h1>Konversi Markdown Menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
-          <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
+          <Button variant="outline" size="lg" disabled={library.busy || imageSaving || fileLoading} onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
           <Button size="lg" disabled={previewPending} onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
         </div>
         <Input ref={input} aria-label="Pilih file Markdown" type="file" accept=".md,.markdown,.txt" className="hidden" onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
       </section>
+      {library.error && <p className="library-error" role="alert">{library.error}</p>}
+      <DocumentLibraryBar controller={library} disabled={imageSaving || fileLoading} />
       <section className={cn('workspace', `view-${view}`)}>
         <div className="workspace-bar">
           <FieldGroup className="min-w-0 flex-1 sm:max-w-sm">
             <Field orientation="horizontal" className="document-name-field">
               <FieldLabel htmlFor="document-name" className="flex-none"><FileText size={17} /><span className="sr-only">Nama dokumen</span></FieldLabel>
-              <Input maxLength={120} id="document-name" className="min-w-0 flex-1" value={name} onChange={e => setName(e.target.value)} />
+              <Input maxLength={120} id="document-name" className="min-w-0 flex-1" disabled={library.busy} value={name} onChange={e => setName(e.target.value)} />
             </Field>
           </FieldGroup>
           <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
@@ -253,7 +264,7 @@ export default function App() {
                 <AlertDialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Muat ulang contoh" title="Muat ulang contoh" />}><RotateCcw /></AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader><AlertDialogTitle>Ganti tulisan dengan contoh?</AlertDialogTitle><AlertDialogDescription>Tulisan di editor akan diganti dengan contoh awal. Unduh Markdown terlebih dahulu untuk menyimpan salinan tulisanmu.</AlertDialogDescription></AlertDialogHeader>
-                  <AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction onClick={() => { setText(example); setResetOpen(false) }}>Muat contoh</AlertDialogAction></AlertDialogFooter>
+                  <AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction disabled={library.busy} onClick={async () => { if (library.available && !await library.saveVersion()) return; setText(example); setResetOpen(false) }}>Muat contoh</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog></div>
             </div>
@@ -268,7 +279,7 @@ export default function App() {
             </div>
             <FieldGroup className="editor-content">
               <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>
-                <Textarea variant="editor" id="markdown-editor" ref={editor} spellCheck={false} value={text} onChange={e => setText(e.target.value)} onPaste={event => {
+                <Textarea variant="editor" id="markdown-editor" ref={editor} spellCheck={false} disabled={library.busy} value={text} onChange={e => setText(e.target.value)} onPaste={event => {
                   const element = event.currentTarget
                   const next = text.slice(0, element.selectionStart) + event.clipboardData.getData('text') + text.slice(element.selectionEnd)
                   const error = inputError(next)
@@ -280,7 +291,7 @@ export default function App() {
               </Field>
             </FieldGroup>
             <Separator />
-            <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span id="draft-status" role="status">{saved ? 'Draft tersimpan' : 'Draft belum tersimpan; unduh .md'}</span></div>
+            <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span id="draft-status" role="status" title={library.error}>{saved ? 'Draft tersimpan' : 'Draft belum tersimpan; unduh .md'}</span></div>
           </section>
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{imagesLoading ? 'Memuat gambar…' : missingImages ? 'Gambar belum tersedia' : previewPending ? 'Memperbarui halaman…' : ''}</span></div>
