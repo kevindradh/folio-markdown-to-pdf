@@ -62,14 +62,16 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 - `src/App.tsx`: workspace folio dan renderer Markdown dasar berbasis React; tidak merender HTML mentah.
 - `src/style.css`: import Tailwind, animasi, shadcn, dan Inter; token warna OKLCH, radius, serta tema terang/gelap dengan kelas `.dark`. Belum ada kontrol UI untuk mengganti tema.
 - `src/components/ui/button.tsx`: Button berbasis Base UI dengan variant `default`, `outline`, `secondary`, `ghost`, `destructive`, `link`, serta ukuran biasa dan ikon. Mengekspor `Button`; `buttonVariants` merupakan konstanta internal.
+- `src/components/ui/`: komponen resmi shadcn berbasis Base UI untuk kontrol, form, dialog, status, dan notifikasi. Textarea memiliki variant `editor`; helper variant Toggle dipisah ke `toggle-variants.ts` agar kompatibel dengan Fast Refresh.
+- `src/lib/toast.ts`: manager notifikasi bersama untuk komponen shadcn Toaster dan aksi aplikasi.
 - `src/lib/utils.ts`: re-export `cn` dari paket `cn`; tidak menggunakan implementasi lokal berbasis `clsx`/`tailwind-merge`.
 - `src/assets/` dan `public/`: aset gambar/logo serta favicon dan ikon statis.
 - `vite.config.ts`: plugin React dan Tailwind; alias `@` menuju `src`.
 - `components.json`: shadcn style `base-nova`, TSX aktif, RSC nonaktif, base color `neutral`, CSS variables aktif, ikon Lucide. Alias komponen/UI/lib/utils/hooks mengarah ke `@/...`; folder hooks belum tersedia.
-- `tsconfig.json`: project references ke konfigurasi aplikasi dan tooling, serta pemetaan `@/*` ke `./src/*`. Konfigurasi anak tidak memakai `extends` ke file ini, sehingga jangan menganggap pemetaan alias otomatis diwarisi saat pemeriksaan tipe aplikasi.
+- `tsconfig.json`: project references ke konfigurasi aplikasi dan tooling, serta pemetaan `@/*` ke `./src/*`. Konfigurasi anak tidak memakai `extends` ke file ini, sehingga alias aplikasi juga dideklarasikan langsung dalam `tsconfig.app.json`.
 - `tsconfig.app.json`: target ES2023, module ESNext, resolusi bundler, JSX `react-jsx`, `noEmit`, dan pemeriksaan unused locals/parameters. `strict` belum diaktifkan secara eksplisit.
 - `tsconfig.node.json`: konfigurasi untuk `vite.config.ts`, target ES2023, module NodeNext, dan tipe Node.
-- `eslint.config.js`: memeriksa `**/*.{ts,tsx}` menggunakan recommended JavaScript, TypeScript, React Hooks, dan React Refresh; mengabaikan `dist`.
+- `eslint.config.js`: memeriksa `**/*.{ts,tsx}` menggunakan recommended JavaScript, TypeScript, React Hooks, dan React Refresh; mengabaikan `dist` dan `.agents/**` (aset referensi skill, bukan kode aplikasi).
 
 ## Perintah kerja
 
@@ -85,6 +87,8 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 
 ## Pedoman perubahan
 
+- **Wajib menggunakan komponen shadcn/ui untuk kontrol antarmuka.** Gunakan skill `shadcn` saat implementasi. Jangan membuat pengganti kustom untuk Button, Input, Textarea, Select, ToggleGroup, Dialog, AlertDialog, Badge, Empty, Separator, atau Toast yang tersedia. HTML semantik tetap digunakan untuk struktur halaman dan isi dokumen Markdown.
+
 - Ikuti pola React function component dan TypeScript yang sudah tersedia.
 - Gunakan komponen UI yang tersedia, Base UI, serta token Tailwind/CSS proyek sebelum menambahkan solusi serupa.
 - Pertahankan konfigurasi alias Vite dan TypeScript agar konsisten saat menambahkan penggunaan import `@/`.
@@ -98,3 +102,8 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - `npm run build`: berhasil. Vite memberi peringatan penggunaan `__dirname` di `vite.config.ts`, yang tidak didukung oleh `configLoader: 'native'`; pesan tooling menyarankan `import.meta.dirname`. Ini belum diperbaiki.
 - `npm run lint`: gagal dengan satu error `react-refresh/only-export-components` pada ekspor `buttonVariants` di `src/components/ui/button.tsx`. Error awal ini sudah diperbaiki saat implementasi UI dengan menjadikan `buttonVariants` konstanta internal.
 - Pembaruan setelah pemeriksaan awal: Git sudah diinisialisasi dan `git status` berhasil dijalankan. Skill `frontend-design` juga sudah tersedia di direktori skill proyek.
+
+## Pembaruan 12 Oktober 2026
+
+- Kontrol antarmuka telah dimigrasikan ke komponen shadcn/ui: Button, Input, Textarea, Select, ToggleGroup, Field, Dialog, AlertDialog, Badge, Separator, Empty, dan Toast.
+- Warna aplikasi memakai token tema semantik. Dialog panduan dan konfirmasi reset menggunakan manajemen fokus bawaan Base UI.

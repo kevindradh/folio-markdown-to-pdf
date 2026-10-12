@@ -1,6 +1,19 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, ChevronDown, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, X, BookOpen, PanelLeftClose } from 'lucide-react'
-import { Button } from './components/ui/button'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog'
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
+import { Toaster } from '@/components/ui/toast'
+import { toast } from '@/lib/toast'
+import { cn } from '@/lib/utils'
 
 const example = `# Ruang untuk ide yang baik
 
@@ -49,7 +62,7 @@ function Markdown({ text }: { text: string }) {
       while (++i < rows.length && !rows[i].startsWith('```')) code.push(rows[i])
       result.push(<pre key={i}><code>{code.join('\n')}</code></pre>); continue
     }
-    if (/^---+$/.test(line)) { result.push(<hr key={i} />); continue }
+    if (/^---+$/.test(line)) { result.push(<Separator key={i} className="my-5" />); continue }
     if (/^[-*] /.test(line)) {
       const items = [line.slice(2)]
       while (i + 1 < rows.length && /^[-*] /.test(rows[i + 1])) items.push(rows[++i].slice(2))
@@ -64,6 +77,46 @@ function Markdown({ text }: { text: string }) {
   return result
 }
 
+function DocumentSetting({ id, label, value, options, onChange }: {
+  id: string; label: string; value: string; options: string[]; onChange: (value: string) => void
+}) {
+  const items = options.map(option => ({ label: option, value: option }))
+  return <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
+    <FieldLabel htmlFor={id}>{label}</FieldLabel>
+    <Select items={items} value={value} onValueChange={next => { if (next) onChange(next) }}>
+      <SelectTrigger id={id} className="w-full sm:min-w-28"><SelectValue /></SelectTrigger>
+      <SelectContent alignItemWithTrigger={false}><SelectGroup>
+        {items.map(item => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}
+      </SelectGroup></SelectContent>
+    </Select>
+  </Field>
+}
+
+function MarkdownGuide() {
+  return <Dialog>
+    <DialogTrigger render={<Button variant="ghost" size="sm" />}>
+      <BookOpen data-icon="inline-start" /> Panduan Markdown
+    </DialogTrigger>
+    <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
+      <DialogHeader>
+        <DialogTitle>Sedikit sintaks. Banyak kemungkinan.</DialogTitle>
+        <DialogDescription>Format yang didukung oleh pratinjau awal ini.</DialogDescription>
+      </DialogHeader>
+      <dl className="markdown-guide">
+        <dt># Judul</dt><dd>Judul utama</dd>
+        <dt>## Subjudul</dt><dd>Judul bagian</dd>
+        <dt>**tebal** dan *miring*</dt><dd>Penekanan teks</dd>
+        <dt>- Item daftar</dt><dd>Daftar berpoin</dd>
+        <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
+        <dt>[teks](https://...)</dt><dd>Tautan</dd>
+        <dt>`kode` atau ```</dt><dd>Kode inline atau blok kode</dd>
+      </dl>
+      <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Sesuaikan ukuran kertas di dialog dan nonaktifkan header/footer browser.</p>
+      <DialogFooter><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>
+    </DialogContent>
+  </Dialog>
+}
+
 export default function App() {
   const [text, setText] = useState(example)
   const [name, setName] = useState('Catatan kreatif')
@@ -72,51 +125,121 @@ export default function App() {
   const [font, setFont] = useState('Literary')
   const [margin, setMargin] = useState('Normal')
   const [zoom, setZoom] = useState(90)
-  const [help, setHelp] = useState(false)
-  const [notice, setNotice] = useState('')
+  const [resetOpen, setResetOpen] = useState(false)
   const input = useRef<HTMLInputElement>(null)
   const editor = useRef<HTMLTextAreaElement>(null)
   const words = text.trim() ? text.trim().split(/\s+/).length : 0
+
   function insert(before: string, after = '') {
     const el = editor.current
     if (!el) return
-    const start = el.selectionStart; const end = el.selectionEnd
+    const start = el.selectionStart
+    const end = el.selectionEnd
     const selection = text.slice(start, end) || 'teks'
     setText(text.slice(0, start) + before + selection + after + text.slice(end))
-    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(start + before.length, start + before.length + selection.length) })
+    requestAnimationFrame(() => {
+      el.focus()
+      el.setSelectionRange(start + before.length, start + before.length + selection.length)
+    })
   }
+
   async function upload(file?: File) {
     if (!file) return
-    if (!/\.(md|markdown|txt)$/i.test(file.name)) { setNotice('Pilih file .md, .markdown, atau .txt.'); return }
-    try { setText(await file.text()); setName(file.name.replace(/\.[^.]+$/, '')); setNotice('File berhasil dibuka.') }
-    catch { setNotice('File tidak dapat dibaca. Coba pilih kembali.') }
+    if (!/\.(md|markdown|txt)$/i.test(file.name)) {
+      toast.add({ title: 'Pilih file .md, .markdown, atau .txt.', type: 'error' })
+      return
+    }
+    try {
+      setText(await file.text())
+      setName(file.name.replace(/\.[^.]+$/, ''))
+      toast.add({ title: 'File berhasil dibuka.', type: 'success' })
+    } catch {
+      toast.add({ title: 'File tidak dapat dibaca.', description: 'Coba pilih kembali.', type: 'error' })
+    }
   }
+
   return <div className="app-shell">
     <header className="topbar">
       <a className="brand" href="#"><span className="brand-mark"><FileText size={22} /></span>folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
-      <button className="help-button" onClick={() => setHelp(true)}><BookOpen size={16} /> Panduan Markdown</button>
+      <MarkdownGuide />
     </header>
     <main>
       <section className="workspace-heading">
         <div><div className="workspace-label"><span /> Ruang menulis kamu</div><h1>Dari ide, menjadi dokumen.</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
-        <div className="heading-actions"><Button variant="outline" className="upload-button" onClick={() => input.current?.click()}><ArrowUpFromLine size={16} /> Buka file .md</Button><Button className="export-button" onClick={() => { document.title = name || 'Dokumen'; window.print() }}><ArrowDownToLine size={17} /> Ekspor PDF</Button></div>
-        <input ref={input} type="file" accept=".md,.markdown,.txt" hidden onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
-      </section>
-      <section className={`workspace view-${view}`}>
-        <div className="workspace-bar"><div className="document-name"><FileText size={17} /><input aria-label="Nama dokumen" value={name} onChange={e => setName(e.target.value)} /><span>.md</span><span className="session-status"><Check size={13} /> Sesi lokal</span></div><div className="view-switch" aria-label="Tampilan editor">{[{ id: 'editor', icon: Code2, label: 'Editor' }, { id: 'split', icon: Columns2, label: 'Berdampingan' }, { id: 'preview', icon: Eye, label: 'Pratinjau' }].map(({ id, icon: Icon, label }) => <button key={id} title={label} aria-label={label} aria-pressed={view === id} className={view === id ? 'selected' : ''} onClick={() => setView(id)}><Icon size={16} /></button>)}</div></div>
-        <div className="panes">
-          <section className="editor-pane"><div className="pane-toolbar"><span><Code2 size={15} /> Markdown</span><button title="Muat ulang contoh" aria-label="Muat ulang contoh" onClick={() => { if (text === example || window.confirm('Ganti tulisan dengan contoh awal?')) setText(example) }}><RotateCcw size={14} /></button></div>
-            <div className="format-toolbar">{[{ icon: Heading2, label: 'Judul', before: '\n## ' }, { icon: Bold, label: 'Tebal', before: '**', after: '**' }, { icon: Italic, label: 'Miring', before: '*', after: '*' }, { icon: Link, label: 'Tautan', before: '[', after: '](https://example.com)' }, { icon: List, label: 'Daftar', before: '\n- ' }, { icon: Code2, label: 'Kode', before: '`', after: '`' }].map(({ icon: Icon, label, before, after }) => <button key={label} aria-label={label} title={label} onClick={() => insert(before, after)}><Icon size={16} /></button>)}<span>Markdown sederhana, ide tanpa batas.</span></div>
-            <div className="editor-content"><div className="line-numbers" aria-hidden="true">{text.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}</div><textarea ref={editor} aria-label="Editor Markdown" spellCheck={false} value={text} onChange={e => setText(e.target.value)} placeholder="# Mulai ceritamu di sini" /></div>
-            <div className="editor-footer"><span>{words} kata <i /> {text.length} karakter</span><span>Markdown <Check size={12} /></span></div>
-          </section>
-          <section className="preview-pane"><div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span className="live-status"><span /> Diperbarui langsung</span></div><div className="paper-stage"><article className={`paper font-${font.toLowerCase()} margin-${margin.toLowerCase()}`} style={{ zoom: zoom / 100, aspectRatio: paper === 'A4' ? '210 / 297' : '216 / 279' }}><div className="paper-topline">{name || 'Tanpa judul'}</div><div className="document-body">{text.trim() ? <Markdown text={text} /> : <p className="empty-document">Tulisanmu akan tampil di sini.</p>}</div><div className="paper-footer"><span>Dibuat dengan folio</span><span>Markdown to PDF</span></div></article></div><div className="preview-footer"><span><FileText size={13} /> {paper} <span className="paper-dimensions">{paper === 'A4' ? '210 × 297 mm' : '216 × 279 mm'}</span></span><div><button aria-label="Perkecil" disabled={zoom <= 50} onClick={() => setZoom(zoom - 10)}><Minus size={14} /></button><span>{zoom}%</span><button aria-label="Perbesar" disabled={zoom >= 120} onClick={() => setZoom(zoom + 10)}><Plus size={14} /></button></div></div></section>
+        <div className="heading-actions">
+          <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
+          <Button size="lg" onClick={() => { document.title = name || 'Dokumen'; window.print() }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
         </div>
-        <div className="settings-bar"><span className="settings-title"><PanelLeftClose size={16} /> Pengaturan dokumen</span><label>Ukuran kertas <span className="select-wrap"><select value={paper} onChange={e => setPaper(e.target.value)}><option>A4</option><option>Letter</option></select><ChevronDown size={12} /></span></label><label>Tipografi <span className="select-wrap"><select value={font} onChange={e => setFont(e.target.value)}><option>Literary</option><option>Modern</option></select><ChevronDown size={12} /></span></label><label>Margin <span className="select-wrap"><select value={margin} onChange={e => setMargin(e.target.value)}><option>Normal</option><option>Lebar</option><option>Tipis</option></select><ChevronDown size={12} /></span></label></div>
+        <Input ref={input} aria-label="Pilih file Markdown" type="file" accept=".md,.markdown,.txt" className="hidden" onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
       </section>
-      <footer className="app-footer"><span><span className="privacy-dot" /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat untuk ide yang layak dibagikan.</span></footer>
-      {notice && <div className="toast" role="status">{notice}<button aria-label="Tutup notifikasi" onClick={() => setNotice('')}><X size={16} /></button></div>}
-      {help && <div className="modal-backdrop" onClick={() => setHelp(false)}><section className="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') setHelp(false); if (e.key === 'Tab') { const buttons = e.currentTarget.querySelectorAll('button'); const first = buttons[0]; const last = buttons[buttons.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() } } }}><button autoFocus className="close-dialog" aria-label="Tutup panduan" onClick={() => setHelp(false)}><X size={20} /></button><h2 id="help-title">Sedikit sintaks. Banyak kemungkinan.</h2><p>Format yang didukung oleh pratinjau awal ini:</p><dl><dt># Judul</dt><dd>Judul utama</dd><dt>## Subjudul</dt><dd>Judul bagian</dd><dt>**tebal** dan *miring*</dt><dd>Penekanan teks</dd><dt>- Item daftar</dt><dd>Daftar berpoin</dd><dt>&gt; Kutipan</dt><dd>Blok kutipan</dd><dt>[teks](https://...)</dt><dd>Tautan</dd><dt>`kode` atau ```</dt><dd>Kode inline atau blok kode</dd></dl><p>Untuk PDF, pilih “Save as PDF” di dialog cetak. Sesuaikan ukuran kertas di dialog dan nonaktifkan header/footer browser.</p><Button className="export-button" onClick={() => setHelp(false)}>Mulai menulis</Button></section></div>}
-    </main><style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: ${margin === 'Lebar' ? '25mm' : margin === 'Tipis' ? '12mm' : '20mm'}; }`}</style>
+      <section className={cn('workspace', `view-${view}`)}>
+        <div className="workspace-bar">
+          <FieldGroup className="min-w-0 flex-1 sm:max-w-sm">
+            <Field orientation="horizontal" className="document-name-field">
+              <FieldLabel htmlFor="document-name" className="flex-none"><FileText size={17} /><span className="sr-only">Nama dokumen</span></FieldLabel>
+              <Input id="document-name" className="min-w-0 flex-1" value={name} onChange={e => setName(e.target.value)} />
+              <Badge variant="secondary" className="hidden sm:inline-flex"><Check data-icon="inline-start" /> Sesi lokal</Badge>
+            </Field>
+          </FieldGroup>
+          <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
+            {[{ id: 'editor', icon: Code2, label: 'Editor' }, { id: 'split', icon: Columns2, label: 'Berdampingan' }, { id: 'preview', icon: Eye, label: 'Pratinjau' }].map(({ id, icon: Icon, label }) => <ToggleGroupItem key={id} value={id} title={label} aria-label={label}><Icon /></ToggleGroupItem>)}
+          </ToggleGroup>
+        </div>
+        <Separator />
+        <div className="panes">
+          <section className="editor-pane">
+            <div className="pane-toolbar">
+              <span><Code2 size={15} /> Markdown</span>
+              <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+                <AlertDialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Muat ulang contoh" title="Muat ulang contoh" />}><RotateCcw /></AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader><AlertDialogTitle>Ganti tulisan dengan contoh?</AlertDialogTitle><AlertDialogDescription>Tulisan di editor akan diganti dengan contoh awal. Salin tulisanmu terlebih dahulu jika ingin menyimpannya.</AlertDialogDescription></AlertDialogHeader>
+                  <AlertDialogFooter><AlertDialogCancel>Batal</AlertDialogCancel><AlertDialogAction onClick={() => { setText(example); setResetOpen(false) }}>Muat contoh</AlertDialogAction></AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <Separator />
+            <div className="format-toolbar">
+              {[{ icon: Heading2, label: 'Judul', before: '\n## ' }, { icon: Bold, label: 'Tebal', before: '**', after: '**' }, { icon: Italic, label: 'Miring', before: '*', after: '*' }, { icon: Link, label: 'Tautan', before: '[', after: '](https://example.com)' }, { icon: List, label: 'Daftar', before: '\n- ' }, { icon: Code2, label: 'Kode', before: '`', after: '`' }].map(({ icon: Icon, label, before, after }) => <Button variant="ghost" size="icon-sm" key={label} aria-label={label} title={label} onClick={() => insert(before, after)}><Icon /></Button>)}
+              <span>Markdown sederhana, ide tanpa batas.</span>
+            </div>
+            <FieldGroup className="editor-content">
+              <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>
+                <Textarea variant="editor" id="markdown-editor" ref={editor} spellCheck={false} value={text} onChange={e => setText(e.target.value)} placeholder="# Mulai ceritamu di sini" />
+              </Field>
+            </FieldGroup>
+            <Separator />
+            <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span>Markdown <Check size={12} /></span></div>
+          </section>
+          <section className="preview-pane">
+            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><Badge variant="secondary">Diperbarui langsung</Badge></div>
+            <Separator />
+            <div className="paper-stage">
+              <article className={cn('paper', `font-${font.toLowerCase()}`, `margin-${margin.toLowerCase()}`)} style={{ zoom: zoom / 100, aspectRatio: paper === 'A4' ? '210 / 297' : '216 / 279' }}>
+                <div className="paper-topline">{name || 'Tanpa judul'}</div><Separator className="mb-5" />
+                {text.trim() ? <div className="document-body"><Markdown text={text} /></div> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
+                <div className="paper-footer"><span>Dibuat dengan folio</span><span>Markdown to PDF</span></div>
+              </article>
+            </div>
+            <Separator />
+            <div className="preview-footer"><span><FileText size={13} /> {paper}<span className="paper-dimensions">{paper === 'A4' ? '210 × 297 mm' : '216 × 279 mm'}</span></span>
+              <div><Button variant="ghost" size="icon-xs" aria-label="Perkecil" disabled={zoom <= 50} onClick={() => setZoom(zoom - 10)}><Minus /></Button><span>{zoom}%</span><Button variant="ghost" size="icon-xs" aria-label="Perbesar" disabled={zoom >= 120} onClick={() => setZoom(zoom + 10)}><Plus /></Button></div>
+            </div>
+          </section>
+        </div>
+        <Separator />
+        <div className="settings-bar">
+          <span className="settings-title"><PanelLeftClose size={16} /> Pengaturan dokumen</span>
+          <FieldGroup className="document-settings-fields">
+            <DocumentSetting id="paper-size" label="Ukuran kertas" value={paper} options={['A4', 'Letter']} onChange={setPaper} />
+            <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
+            <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
+          </FieldGroup>
+        </div>
+      </section>
+      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat untuk ide yang layak dibagikan.</span></footer>
+    </main>
+    <Toaster />
+    <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: ${margin === 'Lebar' ? '25mm' : margin === 'Tipis' ? '12mm' : '20mm'}; }`}</style>
   </div>
 }
