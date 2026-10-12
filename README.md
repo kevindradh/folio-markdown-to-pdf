@@ -18,6 +18,8 @@ Perintah lainnya:
 | `npm run build` | Memeriksa TypeScript dan membuat build produksi di `dist/`. |
 | `npm run lint` | Memeriksa kode dengan ESLint. |
 | `npm run preview` | Menjalankan pratinjau build produksi. |
+| `npm test` | Build, pemeriksaan tipe pengujian, dan regresi Chromium/WebKit serta PDF Chromium. |
+| `npm run test:chromium` | Menjalankan pengujian khusus Chromium. |
 
 ## Fitur
 
@@ -103,6 +105,20 @@ Cetak menggunakan susunan halaman, tipografi, dan warna token yang sama dengan p
 
 ## Batasan dan verifikasi
 
-Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend, penyimpanan persisten, atau script pengujian otomatis.
+Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend atau penyimpanan persisten.
 
-Build dan lint berhasil. Pengujian browser mencakup pagination A4/Letter, pengaturan dokumen, syntax highlighting, serta kode TypeScript 150 baris yang terbagi enam halaman tanpa kehilangan teks atau overflow. File PDF dari dialog cetak belum diverifikasi langsung; rincian pemeriksaan tercatat di AGENTS.md.
+Build dan lint berhasil. Pengujian browser mencakup pagination A4/Letter, pengaturan dokumen, syntax highlighting, serta kode TypeScript 150 baris yang terbagi enam halaman tanpa kehilangan teks atau overflow. File PDF dari mesin cetak Chromium telah diperiksa: jumlah halaman sesuai pratinjau pada A4/Letter, ukuran kertas benar, footer berurutan, serta penanda isi lengkap. Dialog cetak Safari/Firefox belum diverifikasi; rincian dan batas pemeriksaan tercatat di AGENTS.md.
+
+## Pengujian dan dependensi
+
+Setelah `npm ci`, pasang browser uji sekali:
+
+```sh
+npx playwright install chromium webkit
+npm run lint
+npm test -- --workers=2
+```
+
+Di Linux, gunakan `npx playwright install --with-deps chromium webkit`. Pengujian membuka build produksi pada port 4173; pastikan port tersebut tersedia. Playwright menghasilkan laporan, trace kegagalan, dan PDF uji di direktori yang diabaikan Git. PDF diuji pada Chromium; WebKit menguji layout dan tombol ekspor. Workflow GitHub menjalankan audit, lint, dan pengujian yang sama pada Node 24.
+
+Komponen UI tetap memakai shadcn/ui berbasis Base UI. CLI shadcn tidak menjadi dependensi aplikasi untuk menghapus rantai dependensi tooling yang rentan. Stylesheet resmi dipertahankan di `src/styles/shadcn.css` dengan lisensi pada `THIRD_PARTY_NOTICES.md`. CLI tetap dapat digunakan untuk pemeliharaan setelah keamanan rilisnya diperiksa. Audit dependensi proyek pada 12 Oktober 2026: **0 vulnerabilities**.

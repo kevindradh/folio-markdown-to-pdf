@@ -7,8 +7,8 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 - Tujuan proyek: membangun tool untuk mengonversi Markdown menjadi dokumen PDF. Markdown menjadi input, dan file PDF menjadi hasil konversi. Detail fitur dan alur penggunaan akan ditentukan lebih lanjut bersama pengguna.
 - Nama paket: `markdown-to-pdf`; paket privat, versi `0.0.0`, menggunakan ES modules (`type: module`).
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
-- Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; belum ada dependensi Markdown/PDF khusus. Isi editor tersimpan dalam state sesi, belum persisten.
-- Belum ada router, backend, state management eksternal, atau framework pengujian dalam konfigurasi proyek.
+- Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; rumus memakai KaTeX dan syntax highlighting memakai lowlight. Isi editor tersimpan dalam state sesi, belum persisten.
+- Belum ada router, backend, atau state management eksternal. Pengujian regresi memakai Playwright pada build produksi.
 - Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` berisi panduan menjalankan proyek, fitur, syntax highlighting, ekspor PDF, dan batasan aplikasi.
 - Repository Git sudah diinisialisasi. Periksa `git status` sebelum mengubah file agar perubahan pengguna tetap terjaga.
 
@@ -32,7 +32,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | --- | --- | --- |
 | `react`, `react-dom` | `^19.2.8` | UI React dan rendering melalui `createRoot`; entry point memakai `StrictMode`. |
 | `@base-ui/react` | `^1.9.0` | Primitive UI; komponen Button memakai `@base-ui/react/button`. |
-| `shadcn` | `^4.21.4` | Tooling komponen shadcn dan stylesheet `shadcn/tailwind.css`; konfigurasi di `components.json`. |
+| Stylesheet shadcn lokal | asal `4.21.4` | `src/styles/shadcn.css` mempertahankan stylesheet resmi tanpa memasang CLI sebagai dependensi aplikasi. Komponen shadcn tetap di `src/components/ui/`; konfigurasi di `components.json`. |
 | `tailwindcss`, `@tailwindcss/vite` | `^4.3.3` | Styling utility Tailwind v4, terintegrasi lewat plugin Vite. |
 | `class-variance-authority` | `^0.7.1` | Mendefinisikan variant dan size Button melalui `cva` serta tipe `VariantProps`. |
 | `cn` | `^0.4.0` | Helper class name yang dipakai langsung oleh Button dan diekspor ulang di `src/lib/utils.ts`. |
@@ -46,6 +46,8 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 
 | Paket | Versi deklarasi | Peran |
 | --- | --- | --- |
+| `@playwright/test` | `^1.64.0` | Pengujian browser Chromium/WebKit, assertion DOM, serta ekspor PDF Chromium. |
+| `pdfjs-dist` | `^6.4.299` | Membaca ukuran, halaman, footer, dan teks PDF dalam pengujian; tidak masuk bundle aplikasi. |
 | `vite` | `^8.3.0` | Development server, build produksi, dan preview. |
 | `@vitejs/plugin-react` | `^6.1.1` | Integrasi React pada Vite. |
 | `typescript` | `~6.0.2` | Pemeriksaan tipe melalui `tsc -b` sebelum build Vite. |
@@ -63,7 +65,8 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 - `src/main.tsx`: memasang `App` di dalam `StrictMode`.
 - `src/App.tsx`: workspace folio dan renderer Markdown dasar berbasis React; tidak merender HTML mentah.
 - `src/components/highlighted-code.tsx`: rendering token syntax highlighting dari AST lowlight ke elemen React, termasuk deteksi bahasa dan fallback teks biasa.
-- `src/style.css`: import Tailwind, animasi, shadcn, dan Inter; token warna OKLCH, radius, serta tema terang/gelap dengan kelas `.dark`. Belum ada kontrol UI untuk mengganti tema.
+- `src/styles/shadcn.css`: stylesheet resmi yang disalin dari paket shadcn 4.21.4; lisensinya di `THIRD_PARTY_NOTICES.md`.
+- `src/style.css`: import Tailwind, animasi, stylesheet shadcn lokal, dan Inter; token warna OKLCH, radius, serta tema terang/gelap dengan kelas `.dark`. Belum ada kontrol UI untuk mengganti tema.
 - `src/components/ui/button.tsx`: Button berbasis Base UI dengan variant `default`, `outline`, `secondary`, `ghost`, `destructive`, `link`, serta ukuran biasa dan ikon. Mengekspor `Button`; `buttonVariants` merupakan konstanta internal.
 - `src/components/ui/`: komponen resmi shadcn berbasis Base UI untuk kontrol, form, dialog, status, dan notifikasi. Textarea memiliki variant `editor`; helper variant Toggle dipisah ke `toggle-variants.ts` agar kompatibel dengan Fast Refresh.
 - `src/lib/toast.ts`: manager notifikasi bersama untuk komponen shadcn Toaster dan aksi aplikasi.
@@ -85,8 +88,10 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | `npm run build` | Menjalankan `tsc -b` lalu build produksi ke `dist/`. |
 | `npm run lint` | Menjalankan ESLint. |
 | `npm run preview` | Meninjau hasil build menggunakan Vite preview. |
+| `npm test` | Build, pemeriksaan tipe pengujian, lalu regresi Chromium/WebKit terhadap build produksi. |
+| `npm run test:chromium` | Pengujian build produksi khusus Chromium, termasuk PDF. |
 
-Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `engines` di `package.json`.
+Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux: tambahkan `--with-deps`). Pengujian memakai port 4173 khusus dan tidak menggunakan server dev pengguna. Workflow `.github/workflows/verify.yml` menjalankan audit, lint, dan pengujian pada Node 24. Belum ada field `engines` di `package.json`.
 
 ## Pedoman perubahan
 
@@ -144,3 +149,15 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - Pilihan Terang/Gelap memakai Field dan ToggleGroup shadcn berbasis Base UI. State `codeTheme` berada di App, default `light`, mengikuti masa sesi aplikasi.
 - `PaginatedDocument` meneruskan `data-code-theme` ke template dan semua lembar hasil clone. Token warna kode di CSS dipakai bersama oleh inline code, blok kode, syntax highlighting, dan cetak. Ukuran font tidak berubah saat mengganti tema.
 - Pengaturan dokumen ditata dua kolom pada layar kecil. Pengujian browser memeriksa tema terang/gelap dan lebar 390 px tanpa overflow horizontal. Build/lint berhasil. Cetak menggunakan print-color-adjust exact; pengguna perlu mengaktifkan background di dialog cetak bila browser mengabaikannya.
+
+## Prioritas kesiapan produksi — 12 Oktober 2026
+
+- Rantai CLI shadcn sebelumnya menghasilkan 7 entri high dari advisory `braces` [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), yang belum memiliki patch pada pemeriksaan ini. CLI dihapus dari manifest/lockfile; stylesheet resminya disalin tanpa perubahan perilaku ke `src/styles/shadcn.css`, beserta lisensi di `THIRD_PARTY_NOTICES.md`. Semua kontrol tetap menggunakan komponen shadcn/ui resmi. Audit setelah perubahan: **0 vulnerabilities**, termasuk dependensi pengujian.
+- CLI untuk pekerjaan komponen masih dapat dijalankan ad hoc melalui `npx shadcn@latest`; cache/instalasi ad hoc tersebut bukan bagian audit proyek. Periksa keamanan rilis CLI sebelum memperbarui komponen; jangan memasang kembali rantai yang rentan atau memakai `npm audit fix --force` untuk downgrade otomatis.
+- Pagination menghitung ulang clone halaman pada `beforeprint`, termasuk cetak melalui shortcut browser, agar cetak menggunakan konten dan pengaturan terbaru. Ekspor tetap menunggu font lokal selesai dimuat.
+- `tests/document.spec.ts` mencakup pemisahan sel dan alignment, batas akhir tabel, HTML dan tautan berbahaya, delimiter/rumus rusak, highlight dan kode literal, dokumen panjang, A4/Letter, margin/tipografi alternatif, tema kode, zoom, tabel dengan baris sangat panjang, kode 150 baris, footer, dan tombol ekspor. Pemeriksaan membandingkan semua teks, isi sel per kolom, dan markup rumus dengan sumber serta mendeteksi overflow.
+- Pengujian PDF mengeluarkan file PDF sebenarnya melalui mesin cetak Chromium, lalu membaca seluruh halaman dengan PDF.js. Dokumen uji 80 bagian: A4 **41 halaman**, Letter **46 halaman**, sesuai pratinjau; ukuran fisik, footer berurutan, dan seluruh 80 penanda awal/akhir serta baris tabel lengkap. Tema terang/gelap, tabel, kode, dan matriks diperiksa secara visual dari raster PDF. Ini menggantikan batas verifikasi PDF pada catatan historis di atas.
+- Cakupan browser: layout dan tombol ekspor pada Chromium serta WebKit. Pembuatan PDF otomatis hanya tersedia pada Chromium; dua kasus PDF WebKit dilewati secara eksplisit. Dialog cetak Safari/Firefox dan pengaturan printer pengguna belum diverifikasi. Kesamaan hasil tetap mensyaratkan kertas sesuai pilihan aplikasi, skala 100%, margin None, header/footer browser nonaktif, dan background aktif.
+- Artefak PDF, trace, dan laporan disimpan di `test-results/` serta `playwright-report/`, diabaikan Git dan diunggah oleh workflow bila dijalankan. Workflow CI sudah ditambahkan, tetapi belum dijalankan di GitHub pada sesi lokal ini.
+- Hasil akhir lokal: `npm run lint`, `npm run build`, pemeriksaan tipe test, dan `npm test -- --workers=2` berhasil; **14 passed, 2 skipped** (PDF WebKit). `git diff --check` bersih. Audit full dependency: **0 vulnerabilities**. Peringatan build mengenai ukuran bundle dan `__dirname` yang sudah ada tetap tercatat sebagai pekerjaan terpisah.
+- Tiga prioritas utama telah ditangani; ini bukan klaim seluruh proyek siap produksi. Penyimpanan draft, pembatas ukuran input/performa dokumen besar, ukuran bundle, kompatibilitas Markdown penuh, dan konfigurasi deployment masih perlu ditangani terpisah.

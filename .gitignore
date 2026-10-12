@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Automated browser verification artifacts
+playwright-report/
+test-results/

@@ -231,10 +231,13 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
     const frame = requestAnimationFrame(layout)
     void document.fonts.ready.then(layout)
     document.fonts.addEventListener('loadingdone', layout)
+    // Native Ctrl/Cmd+P and the export button both print the latest page clones.
+    window.addEventListener('beforeprint', layout)
     return () => {
       cancelled = true
       cancelAnimationFrame(frame)
       document.fonts.removeEventListener('loadingdone', layout)
+      window.removeEventListener('beforeprint', layout)
     }
   }, [children, name, paper, font, margin, codeTheme, onPagesChange])
 
