@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { RefreshCw, WifiOff, Check } from 'lucide-react'
+import { RefreshCw, WifiOff, CloudCheck, LoaderCircle, CloudAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { pwa } from '@/lib/pwa'
 import { toast } from '@/lib/toast'
 
@@ -28,16 +28,21 @@ export function PwaStatus({ prepareReload, cancelReload, saved, busy }: {
       toast.add({ title: 'Pembaruan belum diterapkan.', description: 'Coba lagi setelah draft tersimpan.', type: 'error' })
     } finally { if (prepared) cancelReload(); setUpdating(false) }
   }
+  const status = !online ? state.ready ? 'Offline · siap menulis' : 'Offline belum siap' : state.ready ? 'Siap digunakan offline' : state.error ? 'Offline belum tersedia; muat ulang saat online' : 'Menyiapkan penggunaan offline…'
+  const StatusIcon = !online ? WifiOff : state.ready ? CloudCheck : state.error ? CloudAlert : LoaderCircle
   return <aside className="pwa-status" aria-label="Status aplikasi">
-    <span role="status"><Badge variant="outline">
-      {!online ? <WifiOff data-icon="inline-start" /> : state.ready ? <Check data-icon="inline-start" /> : null}
-      {!online ? state.ready ? 'Offline · siap menulis' : 'Offline belum siap' : state.ready ? 'Siap digunakan offline' : state.error ? 'Offline belum tersedia; muat ulang saat online' : 'Menyiapkan penggunaan offline…'}
-    </Badge></span>
-    {state.update && <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs text-muted-foreground">Versi baru tersedia.{!saved && ' Menunggu draft tersimpan.'}</span>
-      <Button size="sm" variant="outline" disabled={!saved || busy || updating} onClick={() => void refresh()}>
-        <RefreshCw data-icon="inline-start" /> {updating ? 'Memperbarui…' : 'Perbarui aplikasi'}
-      </Button>
-    </div>}
+    <span role="status" className="sr-only">{status}</span>
+    <Tooltip>
+      <TooltipTrigger closeOnClick={false} render={<Button variant="ghost" size="icon-sm" aria-label={status} />}>
+        <StatusIcon />
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{status}</TooltipContent>
+    </Tooltip>
+    {state.update && <Tooltip>
+      <TooltipTrigger render={<span tabIndex={!saved || busy || updating ? 0 : undefined} />}>
+        <Button size="icon-sm" variant="outline" aria-label="Perbarui aplikasi" disabled={!saved || busy || updating} onClick={() => void refresh()}><RefreshCw /></Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{updating ? 'Memperbarui…' : !saved ? 'Versi baru tersedia. Menunggu draft tersimpan.' : 'Versi baru tersedia. Perbarui aplikasi.'}</TooltipContent>
+    </Tooltip>}
   </aside>
 }

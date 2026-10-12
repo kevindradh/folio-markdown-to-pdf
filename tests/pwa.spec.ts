@@ -29,7 +29,7 @@ const test = base.extend<{ site: { url: string; deploy: () => void } }>({
 })
 
 async function offlineReady(page: Page) {
-  await expect(page.getByText('Siap digunakan offline', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Siap digunakan offline', exact: true })).toBeVisible()
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
 }
 async function previewReady(page: Page) {
@@ -39,6 +39,14 @@ async function previewReady(page: Page) {
 test('production manifest and cached app preserve documents, images, fonts and export offline', async ({ page, context, site, browserName }, testInfo) => {
   await page.goto(site.url)
   await offlineReady(page)
+  const status = page.getByRole('banner').getByRole('button', { name: 'Siap digunakan offline', exact: true })
+  await status.focus()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Shift+Tab')
+  await expect(page.locator('[data-slot="tooltip-content"]')).toBeVisible()
+  await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText('Siap digunakan offline')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('[data-slot="tooltip-content"]')).toBeHidden()
   const manifest = await page.evaluate(async () => {
     const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!
     return (await fetch(link.href)).json()
@@ -57,7 +65,7 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await context.setOffline(true)
   await page.reload()
   await previewReady(page)
-  await expect(page.getByText('Offline · siap menulis', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Offline · siap menulis', exact: true })).toBeVisible()
   await expect(page.locator('.paper-pages img')).toHaveJSProperty('naturalWidth', 160)
   await expect(page.locator('.paper-pages .katex')).toHaveCount(1)
   expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('16px "Inter Variable"') })).toBe(true)
@@ -84,10 +92,11 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await expect(page.getByRole('dialog', { name: 'Riwayat versi', exact: true })).toContainText('Disimpan manual')
   await page.getByRole('dialog', { name: 'Riwayat versi', exact: true }).getByRole('button', { name: 'Close', exact: true }).click()
   await context.setOffline(false)
-  await expect(page.getByText('Siap digunakan offline', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Siap digunakan offline', exact: true })).toBeVisible()
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('pwa-mobile.png'), fullPage: true })
+  await page.screenshot({ path: testInfo.outputPath('navbar.png'), clip: { x: 0, y: 0, width: 390, height: 90 } })
 })
 
 test('new worker waits for consent, saves the latest draft and leaves other tabs open', async ({ page, context, site }) => {

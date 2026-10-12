@@ -317,6 +317,5 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .document-body .footnote-backref { margin-left: .4em; }
 .document-body sup { font-size: .75em; vertical-align: super; }
 
-.pwa-status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 24px; border-bottom: 1px solid var(--border); }
-@media(max-width: 720px) { .pwa-status { padding: 8px 16px; } }
-@media print { .pwa-status { display: none !important; } }
+.pwa-status { display: flex; align-items: center; gap: 4px; color: var(--muted-foreground); }
+@media print { .pwa-status, [data-slot="tooltip-content"] { display: none !important; } }
