@@ -13,6 +13,7 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/
 import { Toaster } from '@/components/ui/toast'
 import { toast } from '@/lib/toast'
 import { cn } from '@/lib/utils'
+import { MathExpression } from '@/components/math-expression'
 import { HighlightedCode } from '@/components/highlighted-code'
 import { PaginatedDocument } from '@/components/paginated-document'
 
@@ -43,7 +44,10 @@ Rapikan catatanmu, lihat pratinjaunya, lalu simpan sebagai PDF. Siap untuk dibag
 Selamat membuat sesuatu yang berarti.`
 
 function inline(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+  return text.split(/(`[^`]+`|\\{1,2}\([\s\S]+?\\{1,2}\)|(?<![\\$])\$(?!\s|\$)[^$\n]+?(?<!\s|\\)\$(?!\$)|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+    const math = part.match(/^\\{1,2}\(([\s\S]+)\\{1,2}\)$/)
+    if (math) return <MathExpression key={i} expression={math[1]} />
+    if (part.startsWith('$') && part.endsWith('$')) return <MathExpression key={i} expression={part.slice(1, -1)} />
     if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>
     if (part.startsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>
     if (part.startsWith('`')) return <HighlightedCode key={i} text={part.slice(1, -1)} />
@@ -63,6 +67,19 @@ function Markdown({ text }: { text: string }) {
       const code: string[] = []
       while (++i < rows.length && !rows[i].startsWith('```')) code.push(rows[i])
       result.push(<pre key={i}><HighlightedCode text={code.join('\n')} language={language} /></pre>); continue
+    }
+    const displayStart = line.trim().match(/^(\\{1,2}\[|\$\$)/)
+    if (displayStart) {
+      const closing = displayStart[0] === '$$' ? /\$\$\s*$/ : /\\{1,2}\]\s*$/
+      const formula = [line.trim().slice(displayStart[0].length)]
+      let end = i
+      while (!closing.test(formula[formula.length - 1]) && end + 1 < rows.length) formula.push(rows[++end])
+      if (closing.test(formula[formula.length - 1])) {
+        formula[formula.length - 1] = formula[formula.length - 1].replace(closing, '')
+        result.push(<div key={i} className="math-block"><MathExpression expression={formula.join('\n')} display /></div>)
+        i = end
+        continue
+      }
     }
     if (/^---+$/.test(line)) { result.push(<Separator key={i} className="my-5" />); continue }
     if (/^[-*] /.test(line)) {
@@ -110,6 +127,8 @@ function MarkdownGuide() {
         <dt>**tebal** dan *miring*</dt><dd>Penekanan teks</dd>
         <dt>- Item daftar</dt><dd>Daftar berpoin</dd>
         <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
+        <dt>{String.raw`\(x^2\) atau $x^2$`}</dt><dd>Rumus inline</dd>
+        <dt>{String.raw`\[...\] atau $$...$$`}</dt><dd>Rumus terpisah, termasuk matriks dan pecahan. Bisa ditulis dalam beberapa baris.</dd>
         <dt>[teks](https://...)</dt><dd>Tautan</dd>
         <dt>`kode` atau ```javascript</dt><dd>Kode berwarna. Tulis nama bahasa setelah tiga backtick, misalnya javascript, ts, python, atau css. Tanpa nama bahasa, deteksi otomatis; gunakan text untuk teks biasa.</dd>
       </dl>

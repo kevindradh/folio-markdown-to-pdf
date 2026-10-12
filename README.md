@@ -26,6 +26,7 @@ Perintah lainnya:
 - Pratinjau beberapa halaman sesuai ukuran A4 atau Letter, dengan nomor halaman.
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
 - Syntax highlighting untuk kode inline dan blok kode.
+- Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
 - Pemrosesan lokal di browser; isi editor hanya tersimpan selama sesi aplikasi.
 
 Kontrol antarmuka menggunakan shadcn/ui berbasis Base UI. Panduan pengembangan berada di [AGENTS.md](AGENTS.md).
@@ -50,6 +51,28 @@ def greet(name):
 Bahasa umum seperti JavaScript (`js`, `jsx`), TypeScript (`ts`, `tsx`), Python, HTML, CSS, JSON, Bash, dan SQL tersedia. Kode inline di antara backtick dan blok tanpa nama bahasa memakai deteksi otomatis. Deteksi otomatis bisa keliru; tulis nama bahasa untuk hasil yang lebih tepat. Gunakan `text` untuk menonaktifkan warna pada sebuah blok. Bahasa yang tidak dikenali ditampilkan sebagai teks biasa.
 
 Warna membedakan token seperti keyword, string, angka, nama fungsi, dan komentar. Highlighting tidak menjalankan kode atau memvalidasi kesalahan program. Kode dirender sebagai elemen React dari AST lowlight, tanpa menyisipkan HTML mentah.
+
+## Rumus matematika
+
+Gunakan `\(...\)` atau `$...$` untuk rumus inline. Gunakan `\[...\]` atau `$$...$$` untuk rumus terpisah. Blok rumus dapat ditulis dalam beberapa baris:
+
+```latex
+\[
+A = \begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & i
+\end{bmatrix}
+\]
+
+\[
+\boxed{A^{-1} = \frac{1}{\det(A)}\operatorname{adj}(A)}
+\]
+```
+
+Masukkan sintaks tersebut langsung ke editor tanpa pagar kode jika ingin merender rumus. Rumus di dalam backtick atau pagar kode tetap berupa kode. Rumus yang tidak valid ditampilkan sebagai sumber berwarna merah dengan penjelasan saat diarahkan kursor; delimiter yang belum ditutup tetap berupa teks. KaTeX mendukung sintaks matematikanya, bukan seluruh paket atau dokumen LaTeX.
+
+Pagination mempertahankan rumus sebagai satu kesatuan. Rumus blok yang melebihi ukuran area cetak diperkecil agar muat dalam lembar; rumus sangat besar sebaiknya dipecah menjadi beberapa persamaan terpisah.
 
 ## Menyimpan PDF
 

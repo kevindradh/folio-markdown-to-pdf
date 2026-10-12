@@ -1,10 +1,23 @@
 import { createPortal } from 'react-dom'
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 
+// Formula DOM contains duplicate accessible text and positioning elements. Treat it as
+// one indivisible character so page splitting preserves the entire rendered formula.
+function flowText(node: Node): string {
+  if (node instanceof HTMLElement && node.dataset.math) return '\ufffc'
+  if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? ''
+  return Array.from(node.childNodes).map(flowText).join('')
+}
+
 /** Slice text while retaining every ancestor, including a single list item or emphasis. */
 function sliceBlock(block: HTMLElement, start: number, end: number) {
   let offset = 0
   function copy(node: Node): Node | null {
+    if (node instanceof HTMLElement && node.dataset.math) {
+      const included = offset >= start && offset < end
+      offset++
+      return included ? node.cloneNode(true) : null
+    }
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent ?? ''
       const from = Math.max(0, start - offset)
@@ -57,6 +70,10 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   for (let index = 0; index < blocks.length; index++) {
     let block = blocks[index]
     body.append(block)
+    if (block.classList.contains('math-block')) {
+      const ratio = Math.min(1, body.clientWidth / Math.max(1, block.scrollWidth), (body.clientHeight - 2) / Math.max(1, block.offsetHeight))
+      if (ratio < 1) block.style.fontSize = `${parseFloat(getComputedStyle(block).fontSize) * ratio * .98}px`
+    }
     // Keep a heading with at least the first two lines of the next block.
     if (/^H[1-3]$/.test(block.tagName) && blocks[index + 1]) {
       const reserve = document.createElement('div')
@@ -77,14 +94,23 @@ function paginate(template: HTMLElement, host: HTMLElement) {
       const heading = body.lastElementChild
       const carryHeading = heading && /^H[1-3]$/.test(heading.tagName) ? heading : null
       carryHeading?.remove()
-      body = newPage()
+      if (body.children.length) body = newPage()
       if (carryHeading) body.append(carryHeading)
       body.append(block)
       if (fits()) continue
       block.remove()
     }
-    while (block.textContent?.length) {
-      const length = block.textContent.length
+    // An oversized display formula must shrink as a whole, never slice its layout DOM.
+    if (block.classList.contains('math-block')) {
+      body.append(block)
+      for (let attempt = 0; !fits() && attempt < 20; attempt++) {
+        block.style.fontSize = `${parseFloat(getComputedStyle(block).fontSize) * .85}px`
+      }
+      continue
+    }
+    while (flowText(block).length) {
+      const content = flowText(block)
+      const length = content.length
       let low = 0
       let high = length
       while (low < high) {
@@ -99,7 +125,7 @@ function paginate(template: HTMLElement, host: HTMLElement) {
       // Move the break to a word boundary where possible, preserving all whitespace.
       let cut = Math.max(1, low)
       if (cut < length) {
-        const prefix = block.textContent.slice(0, cut)
+        const prefix = content.slice(0, cut)
         const boundary = prefix.search(/\s+\S*$/)
         if (boundary > cut / 2) cut = boundary + 1
       }

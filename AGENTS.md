@@ -36,6 +36,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | `tailwindcss`, `@tailwindcss/vite` | `^4.3.3` | Styling utility Tailwind v4, terintegrasi lewat plugin Vite. |
 | `class-variance-authority` | `^0.7.1` | Mendefinisikan variant dan size Button melalui `cva` serta tipe `VariantProps`. |
 | `cn` | `^0.4.0` | Helper class name yang dipakai langsung oleh Button dan diekspor ulang di `src/lib/utils.ts`. |
+| `katex` | `^0.19.0` | Merender rumus LaTeX ke HTML/MathML beserta font lokal untuk pratinjau dan cetak. |
 | `lowlight` | `^3.3.0` | Syntax highlighting berbasis AST highlight.js, dirender sebagai elemen React tanpa HTML mentah. |
 | `lucide-react` | `^1.55.0` | Library ikon yang dipilih di konfigurasi shadcn dan digunakan di antarmuka aplikasi. |
 | `tw-animate-css` | `^1.4.0` | Stylesheet utility animasi, diimpor oleh CSS global. |
@@ -123,3 +124,10 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - Bahasa setelah fence (misalnya `javascript`, `ts`, `python`, `css`, `html`, `jsx`, atau `tsx`) digunakan secara eksplisit. `text` dan bahasa yang tidak dikenali tetap berupa teks biasa. Highlighting memberi warna token, bukan validasi atau diagnosis kesalahan program.
 - Warna token berada di CSS bersama untuk pratinjau dan cetak. Pagination mempertahankan span token, teks, dan indentasi ketika kode panjang terbagi halaman.
 - Verifikasi: build/lint berhasil; browser menguji kode inline, JavaScript, Python, HTML, teks biasa, bahasa tak dikenal, dan blok TypeScript 150 baris yang menjadi enam halaman. Teks identik dengan sumber dan tidak ada overflow. Konten HTML dalam kode tidak dieksekusi. Verifikasi PDF langsung masih mengikuti batasan pada bagian pagination.
+
+## Dukungan matematika
+
+- `src/components/math-expression.tsx` merender rumus dengan KaTeX, CSS/font lokal, `trust: false`, pembatas ekspansi macro, serta fallback untuk input salah. Hanya HTML hasil KaTeX yang disisipkan; HTML Markdown pengguna tetap tidak dirender.
+- Inline: `\(...\)` atau `$...$`. Blok: `\[...\]` atau `$$...$$`, termasuk beberapa baris; delimiter dengan dua backslash juga diterima. Kode dalam backtick/fence tidak diproses sebagai matematika.
+- Pagination memakai satu karakter logis untuk tiap rumus dan mengkloning seluruh subtree HTML/MathML. Rumus blok dipindahkan sebagai satu kesatuan dan diperkecil bila melampaui area kertas. Jangan membelah subtree KaTeX berdasarkan teks DOM.
+- Verifikasi browser: matriks 3×3, invers, boxed, determinan, inline, dan penjumlahan. Dokumen 24 halaman dengan 540 rumus mempertahankan seluruh markup rumus identik dengan sumber, tanpa overflow atau error rendering. Hasil PDF langsung belum diverifikasi.

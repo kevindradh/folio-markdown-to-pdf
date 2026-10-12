@@ -246,3 +246,10 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .syntax-code .hljs-comment, .syntax-code .hljs-quote { color: #596579; }
 .syntax-code .hljs-meta, .syntax-code .hljs-type, .syntax-code .hljs-tag, .syntax-code .hljs-name { color: #92400e; }
 .syntax-code .hljs-variable, .syntax-code .hljs-template-variable, .syntax-code .hljs-deletion { color: #a6264c; }
+
+.math-expression { display: inline-block; max-width: 100%; vertical-align: baseline; overflow-wrap: normal; }
+.math-block { margin: 12pt 0; break-inside: avoid; text-align: center; }
+.math-block .math-expression { display: block; }
+.math-block .katex-display { margin: 0; }
+.math-block .katex-display > .katex { white-space: nowrap; }
+.math-expression .katex-error { white-space: pre-wrap; overflow-wrap: anywhere; }
