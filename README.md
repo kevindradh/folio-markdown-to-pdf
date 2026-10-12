@@ -29,6 +29,8 @@ Perintah lainnya:
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
 - Syntax highlighting untuk kode inline dan blok kode, dengan pilihan tema Terang/Gelap.
 - Tabel Markdown dengan header, perataan kolom, serta kelanjutan antarhalaman.
+- Gambar lokal PNG/JPEG/WebP yang dipulihkan setelah reload.
+- Daftar bernomor/bertingkat, checklist, dan catatan kaki bertautan.
 - Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
 - Pemrosesan lokal di browser dan draft otomatis untuk tulisan, nama, serta pengaturan dokumen.
 
@@ -105,7 +107,7 @@ Cetak menggunakan susunan halaman, tipografi, dan warna token yang sama dengan p
 
 ## Batasan dan verifikasi
 
-Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend atau sinkronisasi cloud. Draft memakai penyimpanan lokal browser.
+Parser memakai markdown-it dengan dukungan judul, paragraf, daftar bernomor/bertingkat, checklist, kutipan, pemisah, tautan, penekanan teks, kode, tabel, rumus, gambar lokal, dan catatan kaki. HTML mentah tidak dijalankan; bukan renderer dokumen LaTeX penuh. Belum ada backend atau sinkronisasi cloud. Draft memakai penyimpanan lokal browser.
 
 Build dan lint berhasil. Pengujian browser mencakup pagination A4/Letter, pengaturan dokumen, syntax highlighting, serta kode TypeScript 150 baris yang terbagi enam halaman tanpa kehilangan teks atau overflow. File PDF dari mesin cetak Chromium telah diperiksa: jumlah halaman sesuai pratinjau pada A4/Letter, ukuran kertas benar, footer berurutan, serta penanda isi lengkap. Dialog cetak Safari/Firefox belum diverifikasi; rincian dan batas pemeriksaan tercatat di AGENTS.md.
 
@@ -137,4 +139,39 @@ Pratinjau diperbarui setelah jeda mengetik 250 ms. Pagination dikerjakan bertaha
 
 Blok kode lebih dari 8.000 karakter tetap dicetak utuh dengan tema pilihan, tetapi tanpa warna token. Rumus lebih dari 2.000 karakter ditampilkan sebagai sumber dengan petunjuk untuk membaginya. Pengukuran dokumen tetap menggunakan thread utama browser; batas input dan jeda pemrosesan mengurangi risiko tersendat pada dokumen besar.
 
-Verifikasi terbaru: **40 pengujian lulus, 2 kasus PDF WebKit dilewati**; build dan lint berhasil. Pengujian meliputi pemulihan draft, unduhan, storage gagal, batas input, respons pagination, cetak terbaru, dan tampilan mobile, selain seluruh regresi dokumen sebelumnya.
+Verifikasi terbaru: **53 pengujian lulus, 3 kasus PDF WebKit dilewati**; build dan lint berhasil. Pengujian meliputi pemulihan draft, unduhan, storage gagal, batas input, respons pagination, cetak terbaru, dan tampilan mobile, selain seluruh regresi dokumen sebelumnya.
+
+## Gambar lokal
+
+Klik ikon **Sisipkan gambar** pada toolbar editor, lalu pilih PNG, JPEG, atau WebP. Folio menyimpan gambar di browser dan menyisipkan referensi seperti `![Diagram](folio-image:...)`. Gambar tetap tersedia setelah reload, termasuk pada PDF.
+
+Untuk Markdown impor yang berisi `![Diagram](./gambar/diagram.png)`, pilih file lokal `diagram.png` melalui tombol yang sama. Folio menghubungkannya berdasarkan nama file tanpa menambahkan salinan gambar ke tulisan.
+
+Batas: 2 MiB per gambar, 4.096 piksel per sisi, dan total penyimpanan gambar 10 MiB. Ukuran gambar pada kertas menyesuaikan ruang dengan rasio tetap. Gambar yang belum tersedia ditandai dan tombol PDF menunggu sampai gambar dilengkapi. Gambar eksternal tidak diambil otomatis.
+
+Unduhan `.md` berisi teks/referensi, bukan file gambar. Simpan gambar aslinya untuk memindahkan dokumen ke perangkat lain. Aset lokal hilang jika data browser dihapus.
+
+## Daftar bernomor, bertingkat, dan checklist
+
+```markdown
+1. Langkah pertama
+    - Penjelasan tambahan
+    - [x] Bagian selesai
+    - [ ] Bagian yang perlu dikerjakan
+2. Langkah kedua
+```
+
+Gunakan indentasi sesuai posisi teks item induk. Daftar dapat mencampur nomor dan poin; nomor serta tingkatnya dipertahankan ketika berpindah halaman. Checklist ditampilkan sebagai status statis pada dokumen; ubah `[ ]` menjadi `[x]` di editor untuk mencentangnya.
+
+## Catatan kaki
+
+```markdown
+Penjelasan dengan sumber[^sumber]. Sumber yang sama dapat disebut lagi[^sumber].
+
+[^sumber]: Keterangan **sumber** dengan rumus $x^2$.
+    Baris lanjutan ditulis dengan empat spasi.
+```
+
+Catatan diberi nomor sesuai referensi dan ditampilkan di akhir dokumen. Pratinjau memiliki tautan menuju catatan dan kembali ke referensi.
+
+Verifikasi fitur Markdown terbaru: **53 pengujian lulus, 3 kasus PDF WebKit dilewati**. Build/lint berhasil dan audit dependensi bersih. PDF Chromium telah diperiksa untuk gambar tertanam, isi daftar, checklist, serta catatan kaki.

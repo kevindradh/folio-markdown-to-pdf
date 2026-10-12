@@ -61,7 +61,7 @@ test('table parsing preserves escaped pipes, code spans and alignment', () => {
 
 test('safe Markdown, math delimiters, code highlighting and table boundaries', async ({ page }) => {
   await page.locator('#markdown-editor').fill([
-    '# Sintaks', '**tebal** dan *miring*', '[bahaya](javascript:alert(1))', '<img src=x onerror=alert(1)>',
+    '# Sintaks', '**tebal** dan *miring*', '[bahaya](javascript:alert(1))', '[aman](https://example.com)', '<img src=x onerror=alert(1)>',
     '| Besaran | Alat | Pemasangan |', '|---|---|---|',
     '| Arus | Amperemeter | Seri |', '| Tegangan | Voltmeter | Paralel |', '| Hambatan | Ohmmeter | Tanpa daya |',
     '', '### Setelah tabel', String.raw`\(x^2\) dan $x^2$`,
@@ -75,7 +75,8 @@ test('safe Markdown, math delimiters, code highlighting and table boundaries', a
   await expect(body.locator('.katex')).toHaveCount(4)
   await expect(body.locator('.katex-error')).toHaveCount(1)
   await expect(body.locator('.hljs-keyword')).toContainText(['const'])
-  await expect(body.locator('a')).not.toHaveAttribute('href')
+  await expect(body.locator('a[href^="javascript:"]')).toHaveCount(0)
+  await expect(body.locator('a[href="https://example.com"]')).toHaveAttribute('rel', 'noreferrer')
   await expect(body.locator('img, script')).toHaveCount(0)
   await expect(body).toContainText('\\[belum ditutup')
   await expect(body.locator('pre').last()).toHaveText('$x^2$')

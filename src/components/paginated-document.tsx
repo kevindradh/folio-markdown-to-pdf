@@ -1,10 +1,11 @@
 import { createPortal } from 'react-dom'
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { listFragments } from '@/lib/list-fragments'
 
 // Formula DOM contains duplicate accessible text and positioning elements. Treat it as
 // one indivisible character so page splitting preserves the entire rendered formula.
 function flowText(node: Node): string {
-  if (node instanceof HTMLElement && node.dataset.math) return '\ufffc'
+  if (node instanceof HTMLElement && (node.dataset.math || node.dataset.atomic)) return '\ufffc'
   if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? ''
   return Array.from(node.childNodes).map(flowText).join('')
 }
@@ -13,7 +14,7 @@ function flowText(node: Node): string {
 function sliceBlock(block: HTMLElement, start: number, end: number) {
   let offset = 0
   function copy(node: Node): Node | null {
-    if (node instanceof HTMLElement && node.dataset.math) {
+    if (node instanceof HTMLElement && (node.dataset.math || node.dataset.atomic)) {
       const included = offset >= start && offset < end
       offset++
       return included ? node.cloneNode(true) : null
@@ -25,11 +26,13 @@ function sliceBlock(block: HTMLElement, start: number, end: number) {
       offset += text.length
       return to > from ? document.createTextNode(text.slice(from, to)) : null
     }
+    const nodeStart = offset
     const clone = node.cloneNode(false)
     for (const child of node.childNodes) {
       const part = copy(child)
       if (part) clone.appendChild(part)
     }
+    if (clone instanceof HTMLLIElement && start > nodeStart) clone.classList.add('list-context-item')
     return clone.hasChildNodes() ? clone : null
   }
   const clone = (copy(block) ?? block.cloneNode(false)) as HTMLElement
@@ -41,13 +44,8 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
   host.replaceChildren()
   const blocks = Array.from(template.querySelector('.document-body')!.children).flatMap(node => {
     // Allow lists to continue on the next page without keeping the whole list together.
-    if (node.tagName !== 'UL') return [node.cloneNode(true) as HTMLElement]
-    return Array.from(node.children).map(item => {
-      const list = node.cloneNode(false) as HTMLElement
-      list.append(item.cloneNode(true))
-      list.classList.add('list-fragment')
-      return list
-    })
+    if (/^(UL|OL)$/.test(node.tagName)) return listFragments(node as HTMLElement)
+    return [node.cloneNode(true) as HTMLElement]
   })
   const bodies: HTMLElement[] = []
   function newPage() {
@@ -113,6 +111,7 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
         let low = 0
         let high = Math.max(...content.map((text, i) => text.length - offsets[i]))
         while (low < high) {
+          yield
           const mid = Math.ceil((low + high) / 2)
           const candidate = fragment(mid)
           table.tBodies[0].append(candidate)
@@ -189,6 +188,7 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
       let low = 0
       let high = length
       while (low < high) {
+        yield
         const mid = Math.ceil((low + high) / 2)
         const candidate = sliceBlock(block, 0, mid)
         body.append(candidate)
@@ -214,6 +214,11 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
   }
   host.querySelectorAll('.paper-page-number').forEach((node, index) => {
     node.textContent = `${index + 1} / ${bodies.length}`
+  })
+  // Measurement markup has no IDs; assign each footnote destination once in the output.
+  const anchors = new Set<string>()
+  host.querySelectorAll<HTMLElement>('[data-anchor]').forEach(node => {
+    if (!anchors.has(node.dataset.anchor!)) { node.id = node.dataset.anchor!; anchors.add(node.id) }
   })
   return bodies.length
 }
@@ -262,8 +267,18 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
       void run()
     }
     // Keep the previous complete preview visible until the new layout is ready.
-    void document.fonts.ready.then(() => layout())
-    const fontsLoaded = () => layout()
+    const waitForImages = async () => {
+      if (!template.current) return
+      await Promise.all(Array.from(template.current.querySelectorAll('img')).map(image => {
+        if (image.complete) return Promise.resolve()
+        return new Promise<void>(resolve => {
+          image.addEventListener('load', () => resolve(), { once: true })
+          image.addEventListener('error', () => resolve(), { once: true })
+        })
+      }))
+    }
+    void Promise.all([document.fonts.ready, waitForImages()]).then(() => layout())
+    const fontsLoaded = () => { void waitForImages().then(() => layout()) }
     const beforePrint = () => layout(true)
     document.fonts.addEventListener('loadingdone', fontsLoaded)
     window.addEventListener('beforeprint', beforePrint)

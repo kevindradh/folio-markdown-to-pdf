@@ -7,7 +7,7 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 - Tujuan proyek: membangun tool untuk mengonversi Markdown menjadi dokumen PDF. Markdown menjadi input, dan file PDF menjadi hasil konversi. Detail fitur dan alur penggunaan akan ditentukan lebih lanjut bersama pengguna.
 - Nama paket: `markdown-to-pdf`; paket privat, versi `0.0.0`, menggunakan ES modules (`type: module`).
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
-- Editor, unggah file Markdown, pratinjau sintaks dasar, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; rumus memakai KaTeX dan syntax highlighting memakai lowlight. Tulisan, nama dokumen, dan pengaturan tersimpan otomatis sebagai satu draft lokal di browser; tombol Unduh .md menyediakan salinan file.
+- Editor, unggah file Markdown, pratinjau Markdown terstruktur, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; rumus memakai KaTeX dan syntax highlighting memakai lowlight. Tulisan, nama dokumen, dan pengaturan tersimpan otomatis sebagai satu draft lokal di browser; tombol Unduh .md menyediakan salinan file.
 - Belum ada router, backend, atau state management eksternal. Pengujian regresi memakai Playwright pada build produksi.
 - Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` berisi panduan menjalankan proyek, fitur, syntax highlighting, ekspor PDF, dan batasan aplikasi.
 - Repository Git sudah diinisialisasi. Periksa `git status` sebelum mengubah file agar perubahan pengguna tetap terjaga.
@@ -37,6 +37,8 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | `class-variance-authority` | `^0.7.1` | Mendefinisikan variant dan size Button melalui `cva` serta tipe `VariantProps`. |
 | `cn` | `^0.4.0` | Helper class name yang dipakai langsung oleh Button dan diekspor ulang di `src/lib/utils.ts`. |
 | `katex` | `^0.19.0` | Merender rumus LaTeX ke HTML/MathML beserta font lokal untuk pratinjau dan cetak. |
+| `markdown-it` | `^15.0.2` | Parser token Markdown terstruktur; tabel kompatibel folio dan rule matematika/checklist ditambahkan secara lokal. |
+| `markdown-it-footnote` | `^4.0.0` | Definisi serta referensi catatan kaki bernomor, termasuk referensi berulang. |
 | `lowlight` | `^3.3.0` | Syntax highlighting berbasis AST highlight.js, dirender sebagai elemen React tanpa HTML mentah. |
 | `lucide-react` | `^1.55.0` | Library ikon yang dipilih di konfigurasi shadcn dan digunakan di antarmuka aplikasi. |
 | `tw-animate-css` | `^1.4.0` | Stylesheet utility animasi, diimpor oleh CSS global. |
@@ -46,6 +48,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 
 | Paket | Versi deklarasi | Peran |
 | --- | --- | --- |
+| `@types/markdown-it`, `@types/markdown-it-footnote` | `^14.2.0`, `^3.0.4` | Tipe untuk kompatibilitas plugin footnote; token renderer memakai tipe parser markdown-it 15 yang sudah bundled. |
 | `@playwright/test` | `^1.64.0` | Pengujian browser Chromium/WebKit, assertion DOM, serta ekspor PDF Chromium. |
 | `pdfjs-dist` | `^6.4.299` | Membaca ukuran, halaman, footer, dan teks PDF dalam pengujian; tidak masuk bundle aplikasi. |
 | `vite` | `^8.3.0` | Development server, build produksi, dan preview. |
@@ -63,7 +66,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 
 - `index.html`: elemen mount `#root`, entry `/src/main.tsx`, favicon, dan pemuatan CSS global lewat `<link href="/src/style.css">`. CSS tidak diimpor dari `main.tsx` saat ini.
 - `src/main.tsx`: memasang `App` di dalam `StrictMode`.
-- `src/App.tsx`: workspace folio dan renderer Markdown dasar berbasis React; tidak merender HTML mentah.
+- `src/App.tsx`: workspace folio, draft, pengaturan, impor Markdown/gambar, serta ekspor; renderer dokumen dipisahkan ke `src/components/markdown-document.tsx`.
 - `src/components/highlighted-code.tsx`: rendering token syntax highlighting dari AST lowlight ke elemen React, termasuk deteksi bahasa dan fallback teks biasa.
 - `src/styles/shadcn.css`: stylesheet resmi yang disalin dari paket shadcn 4.21.4; lisensinya di `THIRD_PARTY_NOTICES.md`.
 - `src/style.css`: import Tailwind, animasi, stylesheet shadcn lokal, dan Inter; token warna OKLCH, radius, serta tema terang/gelap dengan kelas `.dark`. Belum ada kontrol UI untuk mengganti tema.
@@ -142,7 +145,7 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 ## Tabel Markdown
 
 - `src/lib/markdown-table.ts` memisahkan sel, mempertahankan pipe yang di-escape dan pipe dalam code span, serta memvalidasi baris pemisah dengan minimal tiga tanda minus per kolom. Jumlah kolom pemisah harus sama dengan header.
-- Renderer di `src/App.tsx` menghasilkan tabel HTML semantik untuk isi dokumen (bukan kontrol UI), dengan `thead`, `tbody`, header `scope="col"`, dan perataan dari titik dua. Inline formatting, syntax highlighting, dan matematika tetap tersedia dalam sel.
+- Renderer di `src/components/markdown-document.tsx` menghasilkan tabel HTML semantik untuk isi dokumen (bukan kontrol UI), dengan `thead`, `tbody`, header `scope="col"`, dan perataan dari titik dua. Inline formatting, syntax highlighting, dan matematika tetap tersedia dalam sel.
 - Pagination membagi tabel per baris dan mengulang header. Baris melebihi satu halaman dibagi per sel menggunakan pemotongan logis yang mempertahankan formula dan markup inline. Lebar kolom tetap konsisten antarhalaman melalui table-layout fixed.
 - Verifikasi browser: contoh alat ukur tiga baris; tabel 100 baris pada delapan halaman, header berulang, 100 rumus utuh, isi identik, dan tanpa overflow. Satu baris panjang pada tujuh halaman mempertahankan isi setiap sel tanpa overflow. Build/lint berhasil.
 
@@ -181,3 +184,17 @@ Pasang browser uji sekali dengan `npx playwright install chromium webkit` (Linux
 
 - Judul browser: `folio. – Markdown to PDF`. Ikon `public/favicon.svg` berupa kertas berhuruf f dengan latar biru; aset yang sama digunakan di navbar dan favicon. Ikon navbar dekoratif (`alt=""`) karena nama folio sudah tersedia pada tautan.
 - Ekspor memakai nama dokumen sebagai judul sementara untuk nama PDF, lalu mengembalikan judul aplikasi melalui `afterprint`, termasuk saat dialog cetak ditutup.
+
+## Markdown lebih lengkap — gambar, daftar, checklist, catatan kaki
+
+- Parser awal diganti dengan token `markdown-it` di `src/lib/markdown-parser.ts`. `src/components/markdown-document.tsx` menyusun token menjadi elemen React; HTML mentah tetap nonaktif, dan tautan hanya diaktifkan untuk HTTP(S), mailto, atau anchor internal. Soft line break dipertahankan sebagai `<br>`. Kedalaman parsing dibatasi 30; batas dokumen 100 KiB/5.000 baris tetap berlaku.
+- Rule matematika lokal mempertahankan `$...$`, `\(...\)`, `$$...$$`, serta `\[...\]`, termasuk delimiter dua backslash. Fenced/inline code tetap memakai lowlight. Rule tabel mempertahankan `tableCells`/`tableAlignment`, termasuk pipe dalam code span, sel kosong, dan batas minimum pemisah yang sudah digunakan proyek.
+- Daftar `ol`/`ul` dapat bertingkat dan dicampur. `src/lib/list-fragments.ts` memecah item sesuai urutan dokumen, mempertahankan indentasi dan nilai nomor eksplisit, serta menyembunyikan marker pada konteks induk/kelanjutan tanpa mengulang isi. Indentasi Markdown mengikuti posisi teks item induk; gunakan contoh empat spasi untuk subdaftar.
+- Checklist `- [ ]`/`- [x]` merupakan isi dokumen statis, bukan kontrol form; status ditampilkan sebagai simbol berlabel aksesibel. Pengguna mengubah status pada sumber Markdown. Marker, rumus, gambar, line break, dan referensi catatan kaki menjadi unit atomik saat pagination.
+- Catatan kaki memakai `[^label]` dan definisi `[^label]: ...`, termasuk kelanjutan berindentasi serta referensi berulang. Catatan ditampilkan pada akhir dokumen, bukan di footer setiap halaman. Target `folio-footnote-N` dan `folio-ref-N-M` ditetapkan sekali pada output pagination; template pengukuran tidak memiliki ID yang dapat menduplikasi tujuan tautan.
+- Tombol shadcn **Sisipkan gambar** pada toolbar membuka Input file lokal. Format PNG/JPEG/WebP divalidasi melalui MIME, signature, decoding, ukuran maksimal **2 MiB**, dan dimensi maksimal **4.096 × 4.096 px**. SVG tidak diterima sebagai lampiran gambar dokumen. Gambar disimpan di IndexedDB `folio-images`, store `images`, berupa ArrayBuffer beserta MIME/nama/ID/waktu; format ini telah diuji pada Chromium dan WebKit. Total penyimpanan gambar dibatasi **10 MiB**.
+- Markdown yang disisipkan memakai `![nama](folio-image:UUID)`. Referensi relatif pada Markdown impor dapat dihubungkan dengan memilih gambar yang nama filenya sesuai; pemilihan tersebut tidak menambahkan gambar duplikat. Alias nama yang sama memakai gambar terakhir disimpan, sedangkan referensi UUID tetap merujuk asetnya sendiri. Blob URL hanya digunakan selama sesi dan dibuat ulang setelah reload; tidak ada unggah atau fetch gambar eksternal.
+- Pagination menunggu font serta gambar sumber selesai dimuat, mempertahankan rasio dan batas ukuran gambar, serta memperlakukan subtree gambar sebagai unit utuh saat paragraf terbagi halaman. Gambar yang belum tersedia menampilkan pesan dan menonaktifkan tombol PDF sampai dilengkapi. Native shortcut cetak tetap sebaiknya dipakai setelah pratinjau siap.
+- `Unduh .md` masih mengunduh teks dan referensi, **bukan paket gambar**. Simpan file gambar asli jika ingin memindahkan Markdown ke browser/perangkat lain. Menghapus data browser menghapus aset lokal; referensi UUID di file Markdown tidak membawa data gambar. Gambar HTTP/data URL tidak dimuat pada tahap fitur lokal ini.
+- Verifikasi: **53 passed / 3 skipped** (tiga kasus PDF WebKit), build, lint, tipe test, dan audit **0 vulnerabilities**. Pengujian baru mencakup 80 item bernomor mulai 7 beserta tiga tingkat/checklist, teks identik tanpa overflow, catatan multiline dan referensi ulang dengan target unik, pemulihan gambar/Markdown setelah reload, penolakan file palsu/oversize, pipe dalam kode tabel, elemen atomik pada paragraf/footnote panjang, serta PDF Chromium dengan gambar benar-benar tertanam. PDF contoh telah diraster dan diperiksa visual untuk gambar, penomoran, checklist, serta catatan kaki. Regresi draft, matematika, tabel, dan PDF A4/Letter tetap lulus.
+- Build utama sekarang sekitar 996 KB sebelum gzip (sekitar 324 KB gzip). Pengurangan bundle tetap pekerjaan penyempurnaan terpisah; penambahan parser tidak menghilangkan batas input/performance yang sudah ada.

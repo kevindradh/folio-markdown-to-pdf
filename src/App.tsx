@@ -1,6 +1,6 @@
 import { flushSync } from 'react-dom'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,10 +13,11 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
 import { Toaster } from '@/components/ui/toast'
 import { toast } from '@/lib/toast'
-import { tableCells, tableAlignment } from '@/lib/markdown-table'
 import { cn } from '@/lib/utils'
-import { MathExpression } from '@/components/math-expression'
-import { HighlightedCode } from '@/components/highlighted-code'
+import { MarkdownDocument } from '@/components/markdown-document'
+import { imageTokens, resolveImage } from '@/lib/image-references'
+import { markdownParser } from '@/lib/markdown-parser'
+import { useLocalImages } from '@/hooks/use-local-images'
 import { useDocumentDraft } from '@/hooks/use-document-draft'
 import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
@@ -47,78 +48,6 @@ Rapikan catatanmu, lihat pratinjaunya, lalu simpan sebagai PDF. Siap untuk dibag
 
 Selamat membuat sesuatu yang berarti.`
 
-function inline(text: string): ReactNode[] {
-  return text.split(/(`[^`]+`|\\{1,2}\([\s\S]+?\\{1,2}\)|(?<![\\$])\$(?!\s|\$)[^$\n]+?(?<!\s|\\)\$(?!\$)|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
-    const math = part.match(/^\\{1,2}\(([\s\S]+)\\{1,2}\)$/)
-    if (math) return <MathExpression key={i} expression={math[1]} />
-    if (part.startsWith('$') && part.endsWith('$')) return <MathExpression key={i} expression={part.slice(1, -1)} />
-    if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>
-    if (part.startsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>
-    if (part.startsWith('`')) return <HighlightedCode key={i} text={part.slice(1, -1)} />
-    const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
-    if (link) return <a key={i} href={/^https?:\/\//.test(link[2]) ? link[2] : undefined} target="_blank" rel="noreferrer">{link[1]}</a>
-    return part
-  })
-}
-
-function Markdown({ text }: { text: string }) {
-  const rows = text.split('\n'); const result: ReactNode[] = []
-  // Unclosed display delimiters must not rescan the remaining document for every line.
-  const bracketEnd = rows.findLastIndex(row => /\\{1,2}\]\s*$/.test(row))
-  const dollarEnd = rows.findLastIndex(row => /\$\$\s*$/.test(row))
-  for (let i = 0; i < rows.length; i++) {
-    const line = rows[i]
-    if (!line.trim()) continue
-    if (line.startsWith('```')) {
-      const language = line.slice(3).trim().split(/\s+/)[0]
-      const code: string[] = []
-      while (++i < rows.length && !rows[i].startsWith('```')) code.push(rows[i])
-      result.push(<pre key={i}><HighlightedCode text={code.join('\n')} language={language} /></pre>); continue
-    }
-    const displayStart = line.trim().match(/^(\\{1,2}\[|\$\$)/)
-    if (displayStart && (displayStart[0] === '$$' ? dollarEnd : bracketEnd) >= i) {
-      const closing = displayStart[0] === '$$' ? /\$\$\s*$/ : /\\{1,2}\]\s*$/
-      const formula = [line.trim().slice(displayStart[0].length)]
-      let end = i
-      while (!closing.test(formula[formula.length - 1]) && end + 1 < rows.length) formula.push(rows[++end])
-      if (closing.test(formula[formula.length - 1])) {
-        formula[formula.length - 1] = formula[formula.length - 1].replace(closing, '')
-        result.push(<div key={i} className="math-block"><MathExpression expression={formula.join('\n')} display /></div>)
-        i = end
-        continue
-      }
-    }
-    const alignment = tableAlignment(line, rows[i + 1])
-    if (alignment) {
-      const headers = tableCells(line)
-      const entries: string[][] = []
-      const key = i
-      i++
-      while (i + 1 < rows.length && rows[i + 1].trim() && rows[i + 1].includes('|')) {
-        const cells = tableCells(rows[++i])
-        entries.push(headers.map((_, column) => cells[column] ?? ''))
-      }
-      result.push(<table key={key} className="markdown-table">
-        <thead><tr>{headers.map((cell, column) => <th key={column} scope="col" style={{ textAlign: alignment[column] }}>{inline(cell)}</th>)}</tr></thead>
-        <tbody>{entries.map((cells, row) => <tr key={row}>{cells.map((cell, column) => <td key={column} style={{ textAlign: alignment[column] }}>{inline(cell)}</td>)}</tr>)}</tbody>
-      </table>)
-      continue
-    }
-    if (/^---+$/.test(line)) { result.push(<Separator key={i} className="my-5" />); continue }
-    if (/^[-*] /.test(line)) {
-      const items = [line.slice(2)]
-      while (i + 1 < rows.length && /^[-*] /.test(rows[i + 1])) items.push(rows[++i].slice(2))
-      result.push(<ul key={i}>{items.map((item, n) => <li key={n}>{inline(item)}</li>)}</ul>); continue
-    }
-    if (line.startsWith('### ')) result.push(<h3 key={i}>{inline(line.slice(4))}</h3>)
-    else if (line.startsWith('## ')) result.push(<h2 key={i}>{inline(line.slice(3))}</h2>)
-    else if (line.startsWith('# ')) result.push(<h1 key={i}>{inline(line.slice(2))}</h1>)
-    else if (line.startsWith('> ')) result.push(<blockquote key={i}>{inline(line.slice(2))}</blockquote>)
-    else result.push(<p key={i}>{inline(line)}</p>)
-  }
-  return result
-}
-
 function DocumentSetting({ id, label, value, options, onChange }: {
   id: string; label: string; value: string; options: string[]; onChange: (value: string) => void
 }) {
@@ -148,7 +77,10 @@ function MarkdownGuide() {
         <dt># Judul</dt><dd>Judul utama</dd>
         <dt>## Subjudul</dt><dd>Judul bagian</dd>
         <dt>**tebal** dan *miring*</dt><dd>Penekanan teks</dd>
-        <dt>- Item daftar</dt><dd>Daftar berpoin</dd>
+        <dt>- Item atau 1. Item</dt><dd>Daftar berpoin/bernomor; indentasikan daftar di dalamnya dengan 2–4 spasi sesuai posisi teks item induk.</dd>
+        <dt>- [ ] Tugas dan - [x] Selesai</dt><dd>Checklist statis pada dokumen.</dd>
+        <dt>![Deskripsi](gambar.png)</dt><dd>Pilih PNG/JPEG/WebP melalui Sisipkan gambar. Gambar disimpan lokal, maksimal 2 MiB dan 4.096 px per sisi. Untuk file Markdown impor, pilih gambar dengan nama yang sesuai.</dd>
+        <dt>Teks[^sumber] dan [^sumber]: Keterangan</dt><dd>Catatan kaki bernomor pada akhir dokumen, dengan tautan kembali.</dd>
         <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
         <dt>| Kolom | Kolom |</dt><dd>Tabel: tambahkan baris pemisah |---|---| di bawah header. Gunakan :---:, atau ---: untuk perataan.</dd>
         <dt>{String.raw`\(x^2\) atau $x^2$`}</dt><dd>Rumus inline</dd>
@@ -165,6 +97,7 @@ function MarkdownGuide() {
 export default function App() {
   const { draft, update, setDraft, saved } = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
   const { text, name, paper, font, margin, codeTheme } = draft
+  const { images, loading: imagesLoading, addImage } = useLocalImages()
   const setName = (value: string) => update('name', value)
   const setPaper = (value: string) => update('paper', value)
   const setFont = (value: string) => update('font', value)
@@ -173,6 +106,7 @@ export default function App() {
   const [view, setView] = useState('split')
   const [previewText, setPreviewText] = useState(text)
   const [layoutPending, setLayoutPending] = useState(true)
+  const [imageSaving, setImageSaving] = useState(false)
   useEffect(() => {
     if (text === previewText) return
     const timer = window.setTimeout(() => { setLayoutPending(true); setPreviewText(text) }, 250)
@@ -190,8 +124,10 @@ export default function App() {
     window.addEventListener('afterprint', restoreTitle)
     return () => window.removeEventListener('afterprint', restoreTitle)
   }, [])
-  const previewContent = useMemo(() => previewText.trim() ? <Markdown text={previewText} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>, [previewText])
-  const previewPending = text !== previewText || layoutPending
+  const previewTokens = useMemo(() => markdownParser.parse(previewText, {}), [previewText])
+  const missingImages = imageTokens(previewTokens).some(token => !resolveImage(String(token.attrGet('src') ?? ''), images))
+  const previewContent = useMemo(() => previewText.trim() ? <MarkdownDocument text={previewText} parsed={previewTokens} images={images} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>, [previewText, images, previewTokens])
+  const previewPending = text !== previewText || layoutPending || imagesLoading || missingImages || imageSaving
   function setText(next: string) {
     const error = inputError(next)
     if (error) { toast.add({ title: 'Tulisan tidak ditambahkan.', description: error, type: 'error' }); return false }
@@ -211,6 +147,8 @@ export default function App() {
   const [pageCount, setPageCount] = useState(1)
   const input = useRef<HTMLInputElement>(null)
   const editor = useRef<HTMLTextAreaElement>(null)
+  const imageInput = useRef<HTMLInputElement>(null)
+  const imageSelection = useRef({ start: 0, end: 0 })
   const words = text.trim() ? text.trim().split(/\s+/).length : 0
 
   function insert(before: string, after = '') {
@@ -224,6 +162,38 @@ export default function App() {
       el.focus()
       el.setSelectionRange(start + before.length, start + before.length + selection.length)
     })
+  }
+
+  async function uploadImage(file?: File) {
+    if (!file) return
+    setImageSaving(true)
+    try {
+      const reference = await addImage(file)
+      setDraft(previous => {
+        const matches = imageTokens(markdownParser.parse(previous.text, {})).filter(token => {
+          const source = String(token.attrGet('src') ?? '')
+          let filename = source.split('/').at(-1) ?? ''
+          try { filename = decodeURIComponent(filename) } catch { /* Keep the original name. */ }
+          return filename === file.name || source.startsWith('folio-image:') && token.content === file.name.replace(/\.[^.]+$/, '')
+        })
+        let next = previous.text
+        if (matches.length) {
+          for (const match of matches) {
+            const source = String(match.attrGet('src'))
+            if (source.startsWith('folio-image:')) next = next.replaceAll(source, reference)
+          }
+        } else {
+          const { start, end } = imageSelection.current
+          const alt = file.name.replace(/\.[^.]+$/, '').replace(/[\]\\[]/g, '')
+          const syntax = `\n\n![${alt}](${reference})\n\n`
+          next = previous.text === text ? next.slice(0, start) + syntax + next.slice(end) : next + syntax
+        }
+        return inputError(next) ? previous : { ...previous, text: next }
+      })
+      toast.add({ title: 'Gambar tersimpan di browser.', type: 'success' })
+    } catch (error) {
+      toast.add({ title: 'Gambar tidak ditambahkan.', description: error instanceof Error ? error.message : 'Coba pilih kembali.', type: 'error' })
+    } finally { setImageSaving(false) }
   }
 
   async function upload(file?: File) {
@@ -288,8 +258,13 @@ export default function App() {
               </AlertDialog></div>
             </div>
             <Separator />
+            <Input ref={imageInput} aria-label="Pilih gambar lokal" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={event => { void uploadImage(event.target.files?.[0]); event.target.value = '' }} />
             <div className="format-toolbar">
               {[{ icon: Heading2, label: 'Judul', before: '\n## ' }, { icon: Bold, label: 'Tebal', before: '**', after: '**' }, { icon: Italic, label: 'Miring', before: '*', after: '*' }, { icon: Link, label: 'Tautan', before: '[', after: '](https://example.com)' }, { icon: List, label: 'Daftar', before: '\n- ' }, { icon: Code2, label: 'Kode', before: '`', after: '`' }].map(({ icon: Icon, label, before, after }) => <Button variant="ghost" size="icon-sm" key={label} aria-label={label} title={label} onClick={() => insert(before, after)}><Icon /></Button>)}
+              <Button variant="ghost" size="icon-sm" aria-label="Sisipkan gambar" title="Sisipkan gambar lokal" onClick={() => {
+                imageSelection.current = { start: editor.current?.selectionStart ?? text.length, end: editor.current?.selectionEnd ?? text.length }
+                imageInput.current?.click()
+              }}><ImagePlus /></Button>
             </div>
             <FieldGroup className="editor-content">
               <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>
@@ -308,7 +283,7 @@ export default function App() {
             <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span id="draft-status" role="status">{saved ? 'Draft tersimpan' : 'Draft belum tersimpan; unduh .md'}</span></div>
           </section>
           <section className="preview-pane">
-            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{previewPending ? 'Memperbarui halaman…' : ''}</span></div>
+            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{imagesLoading ? 'Memuat gambar…' : missingImages ? 'Gambar belum tersedia' : previewPending ? 'Memperbarui halaman…' : ''}</span></div>
             <Separator />
             <PaginatedDocument onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} zoom={zoom} onPagesChange={setPageCount}>
               {previewContent}

@@ -268,3 +268,18 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 
 /* Draft status can wrap without squeezing counters on narrow screens. */
 .editor-footer { flex-wrap: wrap; gap: 6px 12px; padding-top: 8px; padding-bottom: 8px; }
+
+.document-body ol { list-style: decimal; padding-left: 22pt; margin: 6pt 0 12pt; }
+.document-body ul ul { list-style: circle; }
+.document-body ul ul ul { list-style: square; }
+.document-body li > ul, .document-body li > ol { margin-top: 4pt; margin-bottom: 4pt; }
+.document-body .list-context-item { list-style: none; }
+.document-body .continued-block .list-leaf::marker { content: ''; }
+.document-body .task-item { list-style: none; position: relative; }
+.task-marker { display: inline-block; width: 1.2em; margin-left: -1.2em; font-family: var(--font-sans); }
+.document-body .markdown-image { display: block; max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; margin: 8pt 0; }
+.document-body .image-unavailable { display: block; padding: 8pt; border: 1px dashed var(--border); color: var(--muted-foreground); font-size: .9em; }
+.document-body .footnotes { margin-top: 16pt; font-size: .85em; }
+.document-body .footnotes ol { padding-left: 22pt; }
+.document-body .footnote-backref { margin-left: .4em; }
+.document-body sup { font-size: .75em; vertical-align: super; }
