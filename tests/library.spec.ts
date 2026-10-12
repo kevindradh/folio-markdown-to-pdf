@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type Page } from './fixtures'
 import { DRAFT_KEY } from '../src/lib/document-draft'
 import { LIBRARY_DB, MAX_LIBRARY_BYTES, type Project, type LibraryDocument, type DocumentVersion } from '../src/lib/document-library'
 

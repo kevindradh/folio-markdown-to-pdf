@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type Page } from './fixtures'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { tableCells, tableAlignment } from '../src/lib/markdown-table'
 

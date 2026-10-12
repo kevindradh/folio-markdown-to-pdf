@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.21 — 2026-10-13
+
+Tur aplikasi untuk pengguna baru
+
+- Tur singkat menyorot editor, pratinjau, pengaturan, pengelolaan dokumen, dan ekspor PDF pada kunjungan pertama.
+- Tur dapat dilewati dan dibuka kembali melalui Panduan Markdown, termasuk saat offline.
+
 ## v0.0.20 — 2026-10-13
 
 Versi aplikasi dan changelog

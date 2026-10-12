@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 import { DRAFT_KEY, inputError, markdownFilename, MAX_DOCUMENT_BYTES } from '../src/lib/document-draft'
 
 test('input limits use UTF-8 bytes and line count; download names are safe', () => {

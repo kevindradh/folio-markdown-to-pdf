@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.21",
+    "date": "2026-10-13",
+    "title": "Tur aplikasi untuk pengguna baru",
+    "changes": [
+      "Tur singkat menyorot editor, pratinjau, pengaturan, pengelolaan dokumen, dan ekspor PDF pada kunjungan pertama.",
+      "Tur dapat dilewati dan dibuka kembali melalui Panduan Markdown, termasuk saat offline."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.20",
     "date": "2026-10-13",
     "title": "Versi aplikasi dan changelog",

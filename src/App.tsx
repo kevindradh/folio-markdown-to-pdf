@@ -22,6 +22,8 @@ import { useDocumentDraft } from '@/hooks/use-document-draft'
 import { inputError, MAX_DOCUMENT_BYTES, markdownFilename } from '@/lib/document-draft'
 import { PaginatedDocument } from '@/components/paginated-document'
 import { AppReleases } from '@/components/app-releases'
+import { AppTour } from '@/components/app-tour'
+import { isFirstVisit } from '@/lib/app-tour'
 import { PwaStatus } from '@/components/pwa-status'
 import { DocumentLibraryBar } from '@/components/document-library'
 
@@ -66,9 +68,10 @@ function DocumentSetting({ id, label, value, options, onChange }: {
   </Field>
 }
 
-function MarkdownGuide() {
-  return <Dialog>
-    <DialogTrigger render={<Button variant="ghost" size="sm" />}>
+function MarkdownGuide({ onStartTour }: { onStartTour: () => void }) {
+  const [open, setOpen] = useState(false)
+  return <Dialog open={open} onOpenChange={setOpen}>
+    <DialogTrigger render={<Button id="markdown-guide-trigger" variant="ghost" size="sm" />}>
       <BookOpen data-icon="inline-start" /> Panduan Markdown
     </DialogTrigger>
     <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
@@ -92,12 +95,14 @@ function MarkdownGuide() {
         <dt>`kode` atau ```javascript</dt><dd>Kode berwarna. Tulis nama bahasa setelah tiga backtick, misalnya javascript, ts, python, atau css. Tanpa nama bahasa, deteksi otomatis; gunakan text untuk teks biasa.</dd>
       </dl>
       <p className="text-sm text-muted-foreground">Untuk PDF, pilih “Save as PDF” di dialog cetak. Gunakan ukuran kertas yang dipilih di aplikasi, skala 100%, margin “None”, dan nonaktifkan header/footer browser agar hasilnya sesuai pratinjau. Aktifkan pencetakan background untuk mempertahankan latar tema kode.</p>
-      <DialogFooter><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>
+      <DialogFooter><Button variant="outline" onClick={() => { setOpen(false); onStartTour() }}>Tur aplikasi</Button><DialogClose render={<Button />}>Mulai menulis</DialogClose></DialogFooter>
     </DialogContent>
   </Dialog>
 }
 
 export default function App() {
+  const [tourOpen, setTourOpen] = useState(isFirstVisit)
+  const previousView = useRef('split')
   const library = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
   const { draft, update, setDraft, saved } = library
   const { text, name, paper, font, margin, codeTheme } = draft
@@ -233,7 +238,7 @@ export default function App() {
       <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={39} height={39} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
       <div className="flex items-center gap-1">
         <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
-        <MarkdownGuide />
+        <MarkdownGuide onStartTour={() => { previousView.current = view; setView('split'); setTourOpen(true) }} />
       </div>
     </header>
     <main>
@@ -241,7 +246,7 @@ export default function App() {
         <div><div className="workspace-label"><span /> Alat Konversi</div><h1>Konversi Markdown Menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
           <Button variant="outline" size="lg" disabled={library.busy || imageSaving || fileLoading} onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
-          <Button size="lg" disabled={previewPending} onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
+          <Button id="export-pdf" size="lg" disabled={previewPending} onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
         </div>
         <Input ref={input} aria-label="Pilih file Markdown" type="file" accept=".md,.markdown,.txt" className="hidden" onChange={e => { void upload(e.target.files?.[0]); e.target.value = '' }} />
       </section>
@@ -329,6 +334,7 @@ export default function App() {
       </section>
       <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><AppReleases /><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
     </main>
+    {tourOpen && <AppTour open onClose={() => { setTourOpen(false); setView(previousView.current) }} />}
     <Toaster />
     <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: 0; }`}</style>
   </div>

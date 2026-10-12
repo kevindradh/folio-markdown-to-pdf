@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type Page } from './fixtures'
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 async function ready(page: Page) {

@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test'
+import { test as base, expect, type Page } from './fixtures'
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { resolve, extname } from 'node:path'
@@ -100,6 +100,12 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await page.keyboard.press('Escape')
   await expect(changelog).toBeHidden()
   await expect(versionButton).toBeFocused()
+  await page.getByRole('button', { name: 'Panduan Markdown', exact: true }).click()
+  await page.getByRole('button', { name: 'Tur aplikasi', exact: true }).click()
+  const offlineTour = page.locator('[role="dialog"].coachmark')
+  await expect(offlineTour).toContainText('Mulai dari tulisanmu')
+  await offlineTour.getByRole('button', { name: 'Lewati', exact: true }).click()
+  await expect(offlineTour).toHaveCount(0)
   await page.getByLabel('Pilih file Markdown').setInputFiles({ name: 'offline.md', mimeType: 'text/markdown', buffer: Buffer.from('# Impor offline\n\n![Diagram](diagram.png)') })
   await previewReady(page)
   await expect(page.locator('.paper-pages h1')).toHaveText('Impor offline')

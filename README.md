@@ -228,6 +228,12 @@ npm run preview
 
 Buka URL preview, tunggu status offline siap, lalu putuskan koneksi dan muat ulang halaman. Server pengembangan pada port 5173 tidak mengaktifkan PWA. Pengujian `tests/pwa.spec.ts` memakai build produksi dan mencakup reload/tab baru offline, dokumen/gambar/font/rumus, impor dan riwayat offline, unduhan, PDF Chromium, pembaruan atas tindakan pengguna, tab lain, serta kegagalan penyimpanan.
 
+## Tur aplikasi
+
+Pada kunjungan pertama tanpa draft sebelumnya, tur singkat menyorot editor, pratinjau, pengaturan dokumen, Project/Riwayat, dan Ekspor PDF. Gunakan **Lanjut** atau **Kembali**, lalu **Mulai menulis** di langkah terakhir. **Lewati** atau Escape menutup tur; pilihan tersebut diingat di browser dan origin yang sama.
+
+Pengguna yang sudah memiliki draft tidak mendapat tur otomatis. Tur dapat dibuka kembali melalui **Panduan Markdown → Tur aplikasi**, termasuk saat offline. Tur tidak mengubah tulisan atau pengaturan dokumen. Jika tampilan editor/pratinjau sedang dipilih, tur menampilkan keduanya sementara dan mengembalikan pilihan tampilan setelah ditutup. Tur tidak ikut tercetak pada PDF. Jika penyimpanan browser tidak tersedia, tur tetap dapat dibuka manual dan ditutup.
+
 ## Versi aplikasi dan changelog
 
 Klik nomor versi dan **Catatan pembaruan** di footer untuk melihat perubahan aplikasi. Riwayat ini tersedia offline. Nomor tersebut mengikuti build yang sedang dibuka; ketika ada pembaruan PWA, nomor berubah setelah pengguna menekan **Perbarui aplikasi** dan aplikasi dimuat ulang.
