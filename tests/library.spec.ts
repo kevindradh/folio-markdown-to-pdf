@@ -156,6 +156,8 @@ test('bounded history and content budget do not discard current documents', asyn
 })
 
 test('project and history dialogs fit mobile, keep keyboard focus, and remain outside printed pages', async ({ page }, testInfo) => {
+  // Keep coverage for normal overlay animations despite reduced motion in general regressions.
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   await project(page, 'Dokumentasi')
@@ -181,14 +183,19 @@ test('project and history dialogs fit mobile, keep keyboard focus, and remain ou
   await expect(page.locator('.library-bar')).toBeHidden()
 })
 
-test('history retains only the latest 20 distinct versions and the last document gets a blank replacement', async ({ page }) => {
+test('history retains only the latest 20 distinct versions and the last document gets a blank replacement', async ({ page, browserName }) => {
+  // Twenty-one complete save/open/close cycles need a larger budget on Linux CI.
+  if (process.env.CI && browserName === 'webkit') test.slow()
   await page.goto('/')
   for (let i = 1; i <= 21; i++) {
     await page.locator('#markdown-editor').fill(`# Versi ${i}`)
     await page.getByRole('button', { name: 'Riwayat', exact: true }).click()
     await page.getByRole('button', { name: 'Simpan versi', exact: true }).click()
     await expect.poll(async () => (await stored(page)).versions.some(version => version.draft.text === `# Versi ${i}`)).toBe(true)
-    await page.getByRole('dialog', { name: 'Riwayat versi', exact: true }).getByRole('button', { name: 'Close', exact: true }).click()
+    const history = page.getByRole('dialog', { name: 'Riwayat versi', exact: true })
+    await history.getByRole('button', { name: 'Close', exact: true }).click()
+    await expect(history).toBeHidden()
+    await expect(page.getByRole('button', { name: 'Riwayat', exact: true })).toBeFocused()
   }
   const before = await stored(page)
   expect(before.versions).toHaveLength(20)

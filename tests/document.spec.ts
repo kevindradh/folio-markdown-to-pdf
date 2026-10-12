@@ -83,7 +83,9 @@ test('safe Markdown, math delimiters, code highlighting and table boundaries', a
 })
 
 for (const paper of ['A4', 'Letter']) {
-  test(`${paper}: long documents retain text, formulas and pagination at all zoom levels`, async ({ page }) => {
+  test(`${paper}: long documents retain text, formulas and pagination at all zoom levels`, async ({ page, browserName }) => {
+    // Repeated pagination plus synchronous print layout is expensive on Linux WebKit.
+    if (process.env.CI && browserName === 'webkit') test.slow()
     if (paper === 'Letter') {
       await page.locator('#paper-size').click()
       await page.getByRole('option', { name: 'Letter', exact: true }).click()
@@ -92,16 +94,19 @@ for (const paper of ['A4', 'Letter']) {
       await page.locator('#document-margin').click()
       await page.getByRole('option', { name: 'Lebar', exact: true }).click()
     }
-    await ready(page, source())
-    const count = await integrity(page)
+    await test.step('Render all 80 sections', () => ready(page, source()))
+    const count = await test.step('Check text, formulas, tables and page overflow', () => integrity(page))
     await page.getByRole('button', { name: 'Gelap', exact: true }).click()
     await expect(page.locator('.paper-pages article').first()).toHaveAttribute('data-code-theme', 'dark')
+    await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
     expect(await integrity(page)).toBe(count)
     await page.getByRole('button', { name: /Perbesar/ }).click()
     expect(await integrity(page)).toBe(count)
     // beforeprint also covers the native keyboard shortcut, independent of the button.
-    await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
-    expect(await integrity(page)).toBe(count)
+    await test.step('Recompute print layout and verify all content', async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
+      expect(await integrity(page)).toBe(count)
+    })
   })
 }
 

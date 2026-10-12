@@ -144,10 +144,10 @@ Setelah `npm ci`, pasang browser uji sekali:
 ```sh
 npx playwright install chromium webkit
 npm run lint
-npm test -- --workers=2
+npm test
 ```
 
-Di Linux, gunakan `npx playwright install --with-deps chromium webkit`. Pengujian membuka build produksi pada port 4173; pastikan port tersebut tersedia. Playwright menghasilkan laporan, trace kegagalan, dan PDF uji di direktori yang diabaikan Git. PDF diuji pada Chromium; WebKit menguji layout dan tombol ekspor. Workflow GitHub menjalankan audit, lint, dan pengujian yang sama pada Node 24.
+Di Linux, gunakan `npx playwright install --with-deps chromium webkit`. Pengujian membuka build produksi pada port 4173; pastikan port tersebut tersedia. Playwright menghasilkan laporan, trace kegagalan, dan PDF uji di direktori yang diabaikan Git. PDF diuji pada Chromium; WebKit menguji layout dan tombol ekspor. Workflow GitHub menjalankan audit, lint, dan pengujian yang sama pada Node 24. Playwright memakai dua worker lokal dan satu worker saat CI untuk mengurangi perebutan CPU/memori. Regresi umum memakai reduced motion; pengujian layout/fokus dialog tetap memeriksa animasi normal. Kasus pagination panjang dan 21 siklus riwayat pada WebKit CI diberi batas 180 detik, sedangkan kasus lainnya tetap 60 detik.
 
 Komponen UI tetap memakai shadcn/ui berbasis Base UI. CLI shadcn tidak menjadi dependensi aplikasi untuk menghapus rantai dependensi tooling yang rentan. Stylesheet resmi dipertahankan di `src/styles/shadcn.css` dengan lisensi pada `THIRD_PARTY_NOTICES.md`. CLI tetap dapat digunakan untuk pemeliharaan setelah keamanan rilisnya diperiksa. Audit dependensi proyek pada 12 Oktober 2026: **0 vulnerabilities**.
 

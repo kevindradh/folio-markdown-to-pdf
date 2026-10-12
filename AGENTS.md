@@ -243,3 +243,12 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - Dua kasus regresi di tests/library.spec.ts gagal sebelum perbaikan dan lulus setelah perbaikan di kedua browser. Verifikasi akhir: build, lint, tipe test, **75 passed / 3 skipped** (PDF WebKit), npm audit **0 vulnerabilities**, diff-check bersih. Dialog project mobile dan riwayat desktop diperiksa visual.
 - Remote main diperiksa setelah fetch dan merupakan ancestor beta sehingga penggabungan dapat dilakukan tanpa konflik pada titik pemeriksaan. Fitur folder gambar tetap hanya berada pada codex/image-local-storage; tidak masuk beta.
 - Peringatan bundle besar yang sudah ada tetap muncul. Hasil CI Linux untuk commit perbaikan belum tersedia karena belum di-push; tidak ada merge/deployment yang dilakukan dalam pemeriksaan ini.
+
+
+## Penyesuaian timeout WebKit di CI — 12 Oktober 2026
+
+- Log GitHub Linux yang diberikan pengguna menunjukkan timeout 60 detik pada pagination Letter dan 21 siklus riwayat; kasus kedua berhenti saat menunggu tombol Close stabil. Tidak ada assertion isi salah dalam log tersebut. Trace CI belum tersedia di workspace, sehingga CPU/animasi merupakan diagnosis berdasarkan log, bukan akar masalah yang sudah dibuktikan dari trace.
+- Playwright sekarang menggunakan satu worker saat CI dan dua worker lokal; workflow memanggil npm test tanpa override --workers=2. Regresi umum memakai reducedMotion reduce untuk menghindari ketergantungan pada waktu animasi; kasus layout/fokus dialog secara eksplisit tetap menggunakan no-preference. CSS aplikasi tidak diubah.
+- Pagination panjang A4/Letter dan 21 siklus riwayat memakai test.slow khusus WebKit CI: budget total 180 detik, kasus lain tetap 60 detik dan assertion 15 detik. Tidak ada force click, tambahan retry, pengurangan data uji, atau skip baru.
+- Loop riwayat memeriksa dialog tersembunyi dan fokus kembali sebelum putaran berikutnya. Pagination menunggu tombol PDF siap setelah perubahan tema dan memiliki test.step untuk memperjelas tahap kegagalan (render, integritas, cetak sinkron).
+- Verifikasi lokal pada macOS: lint, build, tipe test, dan CI=true npm test berhasil dengan satu worker (**75 passed / 3 skipped**, 2,9 menit). Dua kasus WebKit yang dilaporkan gagal diulang masing-masing tiga kali: **6 passed**, 53,2 detik. Diff-check bersih. Pengujian ini memverifikasi konfigurasi CI secara lokal; hasil runner Linux GitHub tetap perlu diperiksa setelah push oleh pengguna.
