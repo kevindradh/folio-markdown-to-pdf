@@ -3,7 +3,6 @@ import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
@@ -102,7 +101,7 @@ function MarkdownGuide() {
     </DialogTrigger>
     <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Sedikit sintaks. Banyak kemungkinan.</DialogTitle>
+        <DialogTitle>Panduan Markdown</DialogTitle>
         <DialogDescription>Format yang didukung oleh pratinjau awal ini.</DialogDescription>
       </DialogHeader>
       <dl className="markdown-guide">
@@ -169,7 +168,7 @@ export default function App() {
     </header>
     <main>
       <section className="workspace-heading">
-        <div><div className="workspace-label"><span /> Ruang menulis kamu</div><h1>Dari ide, menjadi dokumen.</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
+        <div><div className="workspace-label"><span /> alat konversi</div><h1>Konversi markdown menjadi PDF</h1><p>Tulis dalam Markdown. Jadikan PDF yang rapi dan siap dibagikan.</p></div>
         <div className="heading-actions">
           <Button variant="outline" size="lg" onClick={() => input.current?.click()}><ArrowUpFromLine data-icon="inline-start" /> Buka file .md</Button>
           <Button size="lg" onClick={async () => { await document.fonts.ready; document.title = name || 'Dokumen'; requestAnimationFrame(() => window.print()) }}><ArrowDownToLine data-icon="inline-start" /> Ekspor PDF</Button>
@@ -182,7 +181,6 @@ export default function App() {
             <Field orientation="horizontal" className="document-name-field">
               <FieldLabel htmlFor="document-name" className="flex-none"><FileText size={17} /><span className="sr-only">Nama dokumen</span></FieldLabel>
               <Input id="document-name" className="min-w-0 flex-1" value={name} onChange={e => setName(e.target.value)} />
-              <Badge variant="secondary" className="hidden sm:inline-flex"><Check data-icon="inline-start" /> Sesi lokal</Badge>
             </Field>
           </FieldGroup>
           <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
@@ -216,7 +214,7 @@ export default function App() {
             <div className="editor-footer"><span>{words} kata <span aria-hidden="true">·</span> {text.length} karakter</span><span>Markdown <Check size={12} /></span></div>
           </section>
           <section className="preview-pane">
-            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><Badge variant="secondary">Diperbarui langsung</Badge></div>
+            <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span></div>
             <Separator />
             <PaginatedDocument name={name} paper={paper} font={font} margin={margin} zoom={zoom} onPagesChange={setPageCount}>
               {text.trim() ? <Markdown text={text} /> : <Empty><EmptyHeader><EmptyMedia variant="icon"><FileText /></EmptyMedia><EmptyTitle>Mulai dengan sebuah ide</EmptyTitle><EmptyDescription>Tulis Markdown di editor. Pratinjau dokumenmu akan muncul di sini.</EmptyDescription></EmptyHeader></Empty>}
@@ -237,7 +235,7 @@ export default function App() {
           </FieldGroup>
         </div>
       </section>
-      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat untuk ide yang layak dibagikan.</span></footer>
+      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><span>Dibuat oleh (github: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
     </main>
     <Toaster />
     <style>{`@page { size: ${paper === 'A4' ? 'A4' : 'letter'}; margin: 0; }`}</style>
