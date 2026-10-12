@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
 import { Toaster } from '@/components/ui/toast'
 import { toast } from '@/lib/toast'
+import { tableCells, tableAlignment } from '@/lib/markdown-table'
 import { cn } from '@/lib/utils'
 import { MathExpression } from '@/components/math-expression'
 import { HighlightedCode } from '@/components/highlighted-code'
@@ -81,6 +82,22 @@ function Markdown({ text }: { text: string }) {
         continue
       }
     }
+    const alignment = tableAlignment(line, rows[i + 1])
+    if (alignment) {
+      const headers = tableCells(line)
+      const entries: string[][] = []
+      const key = i
+      i++
+      while (i + 1 < rows.length && rows[i + 1].trim() && rows[i + 1].includes('|')) {
+        const cells = tableCells(rows[++i])
+        entries.push(headers.map((_, column) => cells[column] ?? ''))
+      }
+      result.push(<table key={key} className="markdown-table">
+        <thead><tr>{headers.map((cell, column) => <th key={column} scope="col" style={{ textAlign: alignment[column] }}>{inline(cell)}</th>)}</tr></thead>
+        <tbody>{entries.map((cells, row) => <tr key={row}>{cells.map((cell, column) => <td key={column} style={{ textAlign: alignment[column] }}>{inline(cell)}</td>)}</tr>)}</tbody>
+      </table>)
+      continue
+    }
     if (/^---+$/.test(line)) { result.push(<Separator key={i} className="my-5" />); continue }
     if (/^[-*] /.test(line)) {
       const items = [line.slice(2)]
@@ -127,6 +144,7 @@ function MarkdownGuide() {
         <dt>**tebal** dan *miring*</dt><dd>Penekanan teks</dd>
         <dt>- Item daftar</dt><dd>Daftar berpoin</dd>
         <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
+        <dt>| Kolom | Kolom |</dt><dd>Tabel: tambahkan baris pemisah |---|---| di bawah header. Gunakan :---:, atau ---: untuk perataan.</dd>
         <dt>{String.raw`\(x^2\) atau $x^2$`}</dt><dd>Rumus inline</dd>
         <dt>{String.raw`\[...\] atau $$...$$`}</dt><dd>Rumus terpisah, termasuk matriks dan pecahan. Bisa ditulis dalam beberapa baris.</dd>
         <dt>[teks](https://...)</dt><dd>Tautan</dd>
@@ -222,7 +240,6 @@ export default function App() {
             <Separator />
             <div className="format-toolbar">
               {[{ icon: Heading2, label: 'Judul', before: '\n## ' }, { icon: Bold, label: 'Tebal', before: '**', after: '**' }, { icon: Italic, label: 'Miring', before: '*', after: '*' }, { icon: Link, label: 'Tautan', before: '[', after: '](https://example.com)' }, { icon: List, label: 'Daftar', before: '\n- ' }, { icon: Code2, label: 'Kode', before: '`', after: '`' }].map(({ icon: Icon, label, before, after }) => <Button variant="ghost" size="icon-sm" key={label} aria-label={label} title={label} onClick={() => insert(before, after)}><Icon /></Button>)}
-              <span>Markdown sederhana, ide tanpa batas.</span>
             </div>
             <FieldGroup className="editor-content">
               <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>

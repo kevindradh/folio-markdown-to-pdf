@@ -131,3 +131,10 @@ Belum ada script `test` dan belum ada versi Node yang dipatok melalui field `eng
 - Inline: `\(...\)` atau `$...$`. Blok: `\[...\]` atau `$$...$$`, termasuk beberapa baris; delimiter dengan dua backslash juga diterima. Kode dalam backtick/fence tidak diproses sebagai matematika.
 - Pagination memakai satu karakter logis untuk tiap rumus dan mengkloning seluruh subtree HTML/MathML. Rumus blok dipindahkan sebagai satu kesatuan dan diperkecil bila melampaui area kertas. Jangan membelah subtree KaTeX berdasarkan teks DOM.
 - Verifikasi browser: matriks 3×3, invers, boxed, determinan, inline, dan penjumlahan. Dokumen 24 halaman dengan 540 rumus mempertahankan seluruh markup rumus identik dengan sumber, tanpa overflow atau error rendering. Hasil PDF langsung belum diverifikasi.
+
+## Tabel Markdown
+
+- `src/lib/markdown-table.ts` memisahkan sel, mempertahankan pipe yang di-escape dan pipe dalam code span, serta memvalidasi baris pemisah dengan minimal tiga tanda minus per kolom. Jumlah kolom pemisah harus sama dengan header.
+- Renderer di `src/App.tsx` menghasilkan tabel HTML semantik untuk isi dokumen (bukan kontrol UI), dengan `thead`, `tbody`, header `scope="col"`, dan perataan dari titik dua. Inline formatting, syntax highlighting, dan matematika tetap tersedia dalam sel.
+- Pagination membagi tabel per baris dan mengulang header. Baris melebihi satu halaman dibagi per sel menggunakan pemotongan logis yang mempertahankan formula dan markup inline. Lebar kolom tetap konsisten antarhalaman melalui table-layout fixed.
+- Verifikasi browser: contoh alat ukur tiga baris; tabel 100 baris pada delapan halaman, header berulang, 100 rumus utuh, isi identik, dan tanpa overflow. Satu baris panjang pada tujuh halaman mempertahankan isi setiap sel tanpa overflow. Build/lint berhasil.

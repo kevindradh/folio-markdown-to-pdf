@@ -67,8 +67,75 @@ function paginate(template: HTMLElement, host: HTMLElement) {
   let body = newPage()
   // A small reserve accommodates subpixel rounding in the browser's print pipeline.
   const fits = () => body.scrollHeight <= body.clientHeight
+  function paginateTable(source: HTMLTableElement) {
+    const rows = Array.from(source.tBodies[0]?.rows ?? [])
+    function tableShell() {
+      const table = source.cloneNode(true) as HTMLTableElement
+      table.tBodies[0].replaceChildren()
+      body.append(table)
+      return table
+    }
+    let table = tableShell()
+    for (const row of rows) {
+      table.tBodies[0].append(row)
+      if (fits()) continue
+      row.remove()
+      // Continue at a row boundary and repeat the column headers on each page.
+      if (table.tBodies[0].rows.length || body.children.length > 1) {
+        const firstRow = !table.tBodies[0].rows.length
+        if (firstRow) table.remove()
+        const heading = firstRow ? body.lastElementChild : null
+        const carryHeading = heading && /^H[1-3]$/.test(heading.tagName) ? heading : null
+        carryHeading?.remove()
+        if (body.children.length) body = newPage()
+        if (carryHeading) body.append(carryHeading)
+        table = tableShell()
+      }
+      table.tBodies[0].append(row)
+      if (fits()) continue
+      row.remove()
+      // A row taller than one page continues cell by cell without losing formatting.
+      const cells = Array.from(row.cells)
+      const content = cells.map(flowText)
+      const offsets = cells.map(() => 0)
+      while (content.some((text, i) => offsets[i] < text.length)) {
+        function fragment(length: number) {
+          const next = row.cloneNode(false) as HTMLTableRowElement
+          cells.forEach((cell, i) => next.append(sliceBlock(cell, offsets[i], Math.min(content[i].length, offsets[i] + length))))
+          return next
+        }
+        let low = 0
+        let high = Math.max(...content.map((text, i) => text.length - offsets[i]))
+        while (low < high) {
+          const mid = Math.ceil((low + high) / 2)
+          const candidate = fragment(mid)
+          table.tBodies[0].append(candidate)
+          const ok = fits()
+          candidate.remove()
+          if (ok) low = mid
+          else high = mid - 1
+        }
+        const cut = Math.max(1, low)
+        const next = fragment(cut)
+        table.tBodies[0].append(next)
+        // Preserve an unusually tall inline formula as a whole while making it fit.
+        for (let attempt = 0; !fits() && attempt < 20; attempt++) {
+          next.style.fontSize = `${parseFloat(getComputedStyle(next).fontSize) * .85}px`
+        }
+        offsets.forEach((offset, i) => { offsets[i] = Math.min(content[i].length, offset + cut) })
+        if (content.some((text, i) => offsets[i] < text.length)) {
+          body = newPage()
+          table = tableShell()
+        }
+      }
+    }
+  }
   for (let index = 0; index < blocks.length; index++) {
     let block = blocks[index]
+    if (block instanceof HTMLTableElement) {
+      paginateTable(block)
+      continue
+    }
     body.append(block)
     if (block.classList.contains('math-block')) {
       const ratio = Math.min(1, body.clientWidth / Math.max(1, block.scrollWidth), (body.clientHeight - 2) / Math.max(1, block.offsetHeight))

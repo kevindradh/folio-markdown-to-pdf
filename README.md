@@ -26,6 +26,7 @@ Perintah lainnya:
 - Pratinjau beberapa halaman sesuai ukuran A4 atau Letter, dengan nomor halaman.
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
 - Syntax highlighting untuk kode inline dan blok kode.
+- Tabel Markdown dengan header, perataan kolom, serta kelanjutan antarhalaman.
 - Rumus LaTeX inline dan blok melalui KaTeX, termasuk matriks, pecahan, dan operator.
 - Pemrosesan lokal di browser; isi editor hanya tersimpan selama sesi aplikasi.
 
@@ -51,6 +52,22 @@ def greet(name):
 Bahasa umum seperti JavaScript (`js`, `jsx`), TypeScript (`ts`, `tsx`), Python, HTML, CSS, JSON, Bash, dan SQL tersedia. Kode inline di antara backtick dan blok tanpa nama bahasa memakai deteksi otomatis. Deteksi otomatis bisa keliru; tulis nama bahasa untuk hasil yang lebih tepat. Gunakan `text` untuk menonaktifkan warna pada sebuah blok. Bahasa yang tidak dikenali ditampilkan sebagai teks biasa.
 
 Warna membedakan token seperti keyword, string, angka, nama fungsi, dan komentar. Highlighting tidak menjalankan kode atau memvalidasi kesalahan program. Kode dirender sebagai elemen React dari AST lowlight, tanpa menyisipkan HTML mentah.
+
+## Tabel Markdown
+
+Gunakan baris header dan baris pemisah, diikuti isi tabel:
+
+```markdown
+| Besaran | Alat | Pemasangan |
+|---|---|---|
+| Arus | Amperemeter | Seri dengan jalur arus |
+| Tegangan | Voltmeter | Paralel dengan komponen |
+| Hambatan | Ohmmeter | Pada kedua ujung komponen tanpa daya luar |
+```
+
+Pemisah `:---`, `:---:`, dan `---:` mengatur perataan kiri, tengah, dan kanan. Teks tebal, miring, kode, tautan, serta rumus inline dapat digunakan dalam sel. Untuk karakter pipe sebagai isi, tulis `\|`. Sel yang kurang diisi menjadi kosong; sel tambahan di luar jumlah kolom header diabaikan.
+
+Tabel panjang dilanjutkan pada halaman berikutnya dengan header berulang. Baris dipertahankan utuh jika muat pada satu halaman; baris yang lebih tinggi dari satu halaman dilanjutkan per sel agar seluruh teks tetap tersedia. Tampilan tabel yang sama digunakan saat mencetak.
 
 ## Rumus matematika
 
@@ -84,6 +101,6 @@ Cetak menggunakan susunan halaman, tipografi, dan warna token yang sama dengan p
 
 ## Batasan dan verifikasi
 
-Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk tabel dan gambar. Belum ada backend, penyimpanan persisten, atau script pengujian otomatis.
+Parser saat ini mendukung judul, paragraf, daftar berpoin, kutipan, pemisah, tautan, penekanan teks, dan kode. Belum mendukung seluruh spesifikasi Markdown, termasuk gambar. Belum ada backend, penyimpanan persisten, atau script pengujian otomatis.
 
 Build dan lint berhasil. Pengujian browser mencakup pagination A4/Letter, pengaturan dokumen, syntax highlighting, serta kode TypeScript 150 baris yang terbagi enam halaman tanpa kehilangan teks atau overflow. File PDF dari dialog cetak belum diverifikasi langsung; rincian pemeriksaan tercatat di AGENTS.md.

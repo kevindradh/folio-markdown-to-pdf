@@ -253,3 +253,9 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .math-block .katex-display { margin: 0; }
 .math-block .katex-display > .katex { white-space: nowrap; }
 .math-expression .katex-error { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.document-body .markdown-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 10pt 0 14pt; font-size: .9em; line-height: 1.55; }
+.markdown-table th, .markdown-table td { border: 1px solid var(--border); padding: 7pt 8pt; vertical-align: top; overflow-wrap: anywhere; }
+.markdown-table th { background: var(--secondary); color: var(--foreground); font-weight: 700; }
+.markdown-table tr { break-inside: avoid; }
+.markdown-table .math-expression { max-width: 100%; }
