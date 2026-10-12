@@ -105,14 +105,18 @@ export function useDocumentDraft(fallback: Draft) {
   }
   function update<K extends keyof Draft>(key: K, value: Draft[K]) { setDraft(previous => ({ ...previous, [key]: value })) }
 
-  async function action<T>(work: () => Promise<T>): Promise<T | undefined> {
+  async function action<T>(work: () => Promise<T>, selectDocument?: (result: T) => string): Promise<T | undefined> {
     if (!available || blocked.current) return
     blocked.current = true; setBusy(true)
     try {
       await queue.current.catch(() => {})
       await persist(currentId.current, currentDraft.current)
       const result = await work()
-      adopt(await storage.loadLibrary(initial.current))
+      const refreshed = await storage.loadLibrary(initial.current)
+      // The shared last-opened document belongs to reloads, not unrelated actions in this tab.
+      const activeId = selectDocument ? selectDocument(result) : currentId.current
+      if (refreshed.documents.some(document => document.id === activeId)) refreshed.activeId = activeId
+      adopt(refreshed)
       setHistoryTick(value => value + 1)
       return result
     } catch (reason) {
@@ -129,11 +133,11 @@ export function useDocumentDraft(fallback: Draft) {
     openDocument: (id: string) => action(async () => {
       await storage.saveVersion(currentId.current, 'automatic')
       await storage.selectDocument(id); return true
-    }),
+    }, () => id),
     newDocument: (projectId: string, value = blank) => action(async () => {
       await storage.saveVersion(currentId.current, 'automatic')
       return storage.createDocument(projectId, value)
-    }),
+    }, created => created.id),
     newProject: (name: string) => action(() => storage.createProject(name)),
     renameProject: (id: string, name: string) => action(async () => { await storage.renameProject(id, name); return true }),
     moveDocument: (id: string, projectId: string) => action(async () => { await storage.moveDocument(id, projectId); return true }),

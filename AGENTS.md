@@ -233,3 +233,13 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - Saat IndexedDB tidak tersedia, kontrol library dinonaktifkan tetapi editor dan unduh .md masih dapat dipakai dengan salinan localStorage jika tersedia. Status tersimpan untuk fitur library berarti transaksi IndexedDB berhasil; penulisan localStorage yang gagal tidak menghalangi IndexedDB.
 - `tests/library.spec.ts` mencakup migrasi draft kosong/pengaturan, project/dokumen independen, impor tanpa mengganti isi, pemindahan dengan riwayat, versi otomatis/manual dan pemulihan, konflik dua tab, localStorage tidak tersedia, penolakan hapus project berisi dokumen, pengganti dokumen terakhir, pemangkasan 20 versi/kapasitas, salinan pending sesuai revision, dialog mobile/desktop, fokus keyboard, dan pengecualian dari cetak.
 - Verifikasi akhir: build, lint, tipe test, **71 passed / 3 skipped** (PDF WebKit). Pemeriksaan visual dialog mobile 390 px dan desktop 1440 px berhasil; perubahan ukuran layar menunggu layout stabil, tidak ada isi dialog terpotong. Fokus kembali ke tombol pembuka setelah Escape. Pengujian ukuran dialog diulang khusus pada Chromium/WebKit dan lulus. Peringatan bundle besar masih ada (~1.022 KB sebelum gzip / 331 KB gzip); perubahan tidak menambah dependensi.
+
+
+## Pemeriksaan beta sebelum main — 12 Oktober 2026
+
+- Dua bug ditemukan dan direproduksi pada Chromium/WebKit: aksi riwayat dapat mengganti dokumen aktif mengikuti tab lain; target pemulihan dapat berubah ketika riwayat otomatis diperbarui selama dialog konfirmasi terbuka.
+- Hook mempertahankan dokumen aktif milik tab setelah aksi project/riwayat; aksi buka/buat/impor memilih ID dokumen hasil aksi secara eksplisit, bukan mengambil pilihan terakhir tab lain dari metadata bersama. Jika dokumen aktif dihapus, pengganti yang tersedia tetap digunakan.
+- Dialog konfirmasi menyimpan snapshot target versi ketika pengguna menekan Pulihkan versi ini. Refresh riwayat otomatis tidak mengubah ID target yang dikonfirmasi.
+- Dua kasus regresi di tests/library.spec.ts gagal sebelum perbaikan dan lulus setelah perbaikan di kedua browser. Verifikasi akhir: build, lint, tipe test, **75 passed / 3 skipped** (PDF WebKit), npm audit **0 vulnerabilities**, diff-check bersih. Dialog project mobile dan riwayat desktop diperiksa visual.
+- Remote main diperiksa setelah fetch dan merupakan ancestor beta sehingga penggabungan dapat dilakukan tanpa konflik pada titik pemeriksaan. Fitur folder gambar tetap hanya berada pada codex/image-local-storage; tidak masuk beta.
+- Peringatan bundle besar yang sudah ada tetap muncul. Hasil CI Linux untuk commit perbaikan belum tersedia karena belum di-push; tidak ada merge/deployment yang dilakukan dalam pemeriksaan ini.

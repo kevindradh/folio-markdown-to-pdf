@@ -119,7 +119,7 @@ function HistoryDialog({ controller: c, open, onOpenChange }: { controller: Docu
   const [versions, setVersions] = useState<DocumentVersion[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [error, setError] = useState('')
-  const [restoreOpen, setRestoreOpen] = useState(false)
+  const [restoreTarget, setRestoreTarget] = useState<DocumentVersion | null>(null)
   const selected = versions.find(version => version.id === selectedId) ?? versions[0]
   useEffect(() => {
     if (!open || !c.library.activeId) return
@@ -141,10 +141,10 @@ function HistoryDialog({ controller: c, open, onOpenChange }: { controller: Docu
       </div>}
       <DialogFooter>
         <Button variant="outline" disabled={c.busy} onClick={async () => { if (await c.saveVersion()) toast.add({ title: 'Versi saat ini tersimpan.', type: 'success' }) }}><Plus data-icon="inline-start" /> Simpan versi</Button>
-        <Button disabled={c.busy || !selected || Boolean(error)} onClick={() => setRestoreOpen(true)}><RotateCcw data-icon="inline-start" /> Pulihkan versi ini</Button>
+        <Button disabled={c.busy || !selected || Boolean(error)} onClick={() => { if (selected) setRestoreTarget(selected) }}><RotateCcw data-icon="inline-start" /> Pulihkan versi ini</Button>
       </DialogFooter>
-      <AlertDialog open={restoreOpen} onOpenChange={setRestoreOpen}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Pulihkan versi ini?</AlertDialogTitle><AlertDialogDescription>Isi, nama, dan pengaturan dokumen akan kembali ke versi pilihan. Perubahan saat ini disimpan sebagai versi sebelum pemulihan.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={c.busy}>Batal</AlertDialogCancel><AlertDialogAction disabled={c.busy} onClick={async () => {
-        if (selected && await c.restoreVersion(selected.id)) { setRestoreOpen(false); onOpenChange(false); toast.add({ title: 'Versi berhasil dipulihkan.', type: 'success' }) }
+      <AlertDialog open={Boolean(restoreTarget)} onOpenChange={value => { if (!value) setRestoreTarget(null) }}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Pulihkan versi ini?</AlertDialogTitle><AlertDialogDescription>Isi, nama, dan pengaturan dokumen akan kembali ke versi pilihan. Perubahan saat ini disimpan sebagai versi sebelum pemulihan.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={c.busy}>Batal</AlertDialogCancel><AlertDialogAction disabled={c.busy} onClick={async () => {
+        if (restoreTarget && await c.restoreVersion(restoreTarget.id)) { setRestoreTarget(null); onOpenChange(false); toast.add({ title: 'Versi berhasil dipulihkan.', type: 'success' }) }
       }}>Pulihkan</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     </DialogContent>
   </Dialog>

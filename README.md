@@ -171,7 +171,7 @@ Pratinjau diperbarui setelah jeda mengetik 250 ms. Pagination dikerjakan bertaha
 
 Blok kode lebih dari 8.000 karakter tetap dicetak utuh dengan tema pilihan, tetapi tanpa warna token. Rumus lebih dari 2.000 karakter ditampilkan sebagai sumber dengan petunjuk untuk membaginya. Pengukuran dokumen tetap menggunakan thread utama browser; batas input dan jeda pemrosesan mengurangi risiko tersendat pada dokumen besar.
 
-Verifikasi terbaru: **71 pengujian lulus, 3 kasus PDF WebKit dilewati**; build, lint, dan pemeriksaan tipe test berhasil. Pengujian mencakup project, impor/pemindahan dokumen, riwayat otomatis/manual, pemulihan aman, konflik antar-tab, batas riwayat/kapasitas, migrasi draft, unduhan, storage gagal, batas input, pagination, cetak, serta tampilan desktop/mobile. PDF Chromium tetap diuji langsung.
+Verifikasi terbaru: **75 pengujian lulus, 3 kasus PDF WebKit dilewati**; build, lint, dan pemeriksaan tipe test berhasil. Pengujian mencakup project, impor/pemindahan dokumen, riwayat otomatis/manual, pemulihan aman, konflik antar-tab, batas riwayat/kapasitas, migrasi draft, unduhan, storage gagal, batas input, pagination, cetak, serta tampilan desktop/mobile. PDF Chromium tetap diuji langsung. Regresi dua tab memastikan aksi riwayat tidak mengganti dokumen aktif mengikuti tab lain; konfirmasi pemulihan mempertahankan versi pilihan meskipun riwayat otomatis diperbarui.
 
 ## Gambar lokal
 
