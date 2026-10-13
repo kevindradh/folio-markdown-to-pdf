@@ -19,7 +19,7 @@ export function useDocumentDraft(fallback: Draft) {
   const queue = useRef<Promise<unknown>>(Promise.resolve())
   const blocked = useRef(false)
   const generation = useRef(0)
-  const blank: Draft = { text: '', name: 'Dokumen baru', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' }
+  const blank: Draft = { text: '', name: 'Dokumen baru', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light', inlineCodeTheme: 'light' }
 
   function adopt(value: storage.Library) {
     records.current = new Map(value.documents.map(document => [document.id, document]))

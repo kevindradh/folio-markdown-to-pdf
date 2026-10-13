@@ -263,11 +263,12 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 
 
 /* Container queries suppress intrinsic inline size: give the settings an explicit width. */
-.document-settings-fields { width: 552px; flex: 0 0 552px; flex-direction: row; gap: 20px; }
+.document-settings-fields { width: 708px; flex: 0 0 708px; flex-direction: row; gap: 20px; }
 .document-name-field > [data-slot="field-label"] { flex: 0 0 auto; }
 @media (max-width: 720px) {
   .document-settings-fields { width: 100%; flex: 1 1 100%; gap: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .document-settings-fields > [data-slot="field"] { width: auto; min-width: 0; flex: 1 1 0; }
+  .document-settings-fields > [data-slot="field"]:nth-child(3) { grid-column: 1 / -1; }
   .document-settings-fields [data-slot="select-trigger"] { min-width: 0; }
 }
 
@@ -296,10 +297,10 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .markdown-table .math-expression { max-width: 100%; }
 
 /* Code themes are scoped to document pages; they also apply to printed page clones. */
-.paper { --code-background: var(--muted); --code-foreground: var(--foreground); --code-keyword: #a6264c; --code-string: #21613b; --code-number: #075985; --code-title: #6f42a1; --code-comment: #596579; --code-meta: #92400e; }
-.paper[data-code-theme="dark"] { --code-background: #1e293b; --code-foreground: #f1f5f9; --code-keyword: #fda4af; --code-string: #a7f3d0; --code-number: #7dd3fc; --code-title: #d8b4fe; --code-comment: #cbd5e1; --code-meta: #fdba74; }
+.document-body pre, .document-body .syntax-code { --code-background: var(--muted); --code-foreground: var(--foreground); --code-keyword: #a6264c; --code-string: #21613b; --code-number: #075985; --code-title: #6f42a1; --code-comment: #596579; --code-meta: #92400e; }
+.paper[data-code-theme="dark"] pre, .paper[data-code-theme="dark"] pre .syntax-code, .paper[data-inline-code-theme="dark"] :not(pre) > .syntax-code { --code-background: #1e293b; --code-foreground: #f1f5f9; --code-keyword: #fda4af; --code-string: #a7f3d0; --code-number: #7dd3fc; --code-title: #d8b4fe; --code-comment: #cbd5e1; --code-meta: #fdba74; }
 .document-body pre, .document-body .syntax-code { background: var(--code-background); color: var(--code-foreground); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-@media (min-width: 721px) and (max-width: 950px) { .settings-bar { flex-wrap: wrap; } .settings-title { width: 100%; } .document-settings-fields { width: 100%; flex: 1 1 100%; } }
+@media (min-width: 721px) and (max-width: 1100px) { .settings-bar { flex-wrap: wrap; } .settings-title { width: 100%; } .document-settings-fields { width: 100%; flex: 1 1 100%; flex-wrap: wrap; } }
 
 /* Draft status can wrap without squeezing counters on narrow screens. */
 .editor-footer { flex-wrap: wrap; gap: 6px 12px; padding-top: 8px; padding-bottom: 8px; }

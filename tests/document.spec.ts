@@ -96,7 +96,7 @@ for (const paper of ['A4', 'Letter']) {
     }
     await test.step('Render all 80 sections', () => ready(page, source()))
     const count = await test.step('Check text, formulas, tables and page overflow', () => integrity(page))
-    await page.getByRole('button', { name: 'Gelap', exact: true }).click()
+    await page.getByRole('group', { name: 'Blok kode', exact: true }).getByRole('button', { name: 'Gelap', exact: true }).click()
     await expect(page.locator('.paper-pages article').first()).toHaveAttribute('data-code-theme', 'dark')
     await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
     expect(await integrity(page)).toBe(count)
@@ -130,7 +130,7 @@ test(`${paper} PDF has the preview page count, physical size, text and footer or
   if (paper === 'Letter') {
     await page.locator('#paper-size').click()
     await page.getByRole('option', { name: 'Letter', exact: true }).click()
-    await page.getByRole('button', { name: 'Gelap', exact: true }).click()
+    await page.getByRole('group', { name: 'Blok kode', exact: true }).getByRole('button', { name: 'Gelap', exact: true }).click()
   }
   await ready(page, source())
   const previewCount = await integrity(page)

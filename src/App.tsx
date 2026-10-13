@@ -103,15 +103,15 @@ function MarkdownGuide({ onStartTour }: { onStartTour: () => void }) {
 export default function App() {
   const [tourOpen, setTourOpen] = useState(isFirstVisit)
   const previousView = useRef('split')
-  const library = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light' })
+  const library = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light', inlineCodeTheme: 'light' })
   const { draft, update, setDraft, saved } = library
-  const { text, name, paper, font, margin, codeTheme } = draft
+  const { text, name, paper, font, margin, codeTheme, inlineCodeTheme = codeTheme } = draft
   const { images, loading: imagesLoading, addImage } = useLocalImages()
   const setName = (value: string) => update('name', value)
   const setPaper = (value: string) => update('paper', value)
   const setFont = (value: string) => update('font', value)
   const setMargin = (value: string) => update('margin', value)
-  const setCodeTheme = (value: string) => update('codeTheme', value)
+  const setCodeTheme = (value: string) => setDraft(previous => ({ ...previous, inlineCodeTheme: previous.inlineCodeTheme ?? previous.codeTheme, codeTheme: value }))
   const [view, setView] = useState('split')
   const [previewText, setPreviewText] = useState(text)
   const [layoutPending, setLayoutPending] = useState(true)
@@ -306,7 +306,7 @@ export default function App() {
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{imagesLoading ? 'Memuat gambar…' : missingImages ? 'Gambar belum tersedia' : previewPending ? 'Memperbarui halaman…' : ''}</span></div>
             <Separator />
-            <PaginatedDocument onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} zoom={zoom} onPagesChange={setPageCount}>
+            <PaginatedDocument onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} inlineCodeTheme={inlineCodeTheme} zoom={zoom} onPagesChange={setPageCount}>
               {previewContent}
             </PaginatedDocument>
             <Separator />
@@ -323,7 +323,14 @@ export default function App() {
             <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
             <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
             <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
-              <FieldLabel id="code-theme-label">Tema kode</FieldLabel>
+              <FieldLabel id="inline-code-theme-label">Kode inline</FieldLabel>
+              <ToggleGroup aria-labelledby="inline-code-theme-label" value={[inlineCodeTheme]} onValueChange={values => { if (values.length) update('inlineCodeTheme', values[0]) }} variant="outline" spacing={0}>
+                <ToggleGroupItem value="light">Terang</ToggleGroupItem>
+                <ToggleGroupItem value="dark">Gelap</ToggleGroupItem>
+              </ToggleGroup>
+            </Field>
+            <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
+              <FieldLabel id="code-theme-label">Blok kode</FieldLabel>
               <ToggleGroup aria-labelledby="code-theme-label" value={[codeTheme]} onValueChange={values => { if (values.length) setCodeTheme(values[0]) }} variant="outline" spacing={0}>
                 <ToggleGroupItem value="light">Terang</ToggleGroupItem>
                 <ToggleGroupItem value="dark">Gelap</ToggleGroupItem>

@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.22 — 2026-10-13
+
+Tema kode inline dan blok yang terpisah
+
+- Tema terang atau gelap dapat dipilih secara terpisah untuk kode inline dan blok kode.
+- Pilihan tersimpan bersama dokumen serta riwayatnya, dan berlaku pada pratinjau maupun cetak. Dokumen lama mempertahankan tema sebelumnya untuk kedua jenis kode.
+
 ## v0.0.21 — 2026-10-13
 
 Tur aplikasi untuk pengguna baru

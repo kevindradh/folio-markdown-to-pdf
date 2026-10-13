@@ -81,7 +81,7 @@ def greet(name):
 
 Bahasa umum seperti JavaScript (`js`, `jsx`), TypeScript (`ts`, `tsx`), Python, HTML, CSS, JSON, Bash, dan SQL tersedia. Kode inline di antara backtick dan blok tanpa nama bahasa memakai deteksi otomatis. Deteksi otomatis bisa keliru; tulis nama bahasa untuk hasil yang lebih tepat. Gunakan `text` untuk menonaktifkan warna pada sebuah blok. Bahasa yang tidak dikenali ditampilkan sebagai teks biasa.
 
-Pilih **Tema kode → Terang** atau **Gelap** pada Pengaturan dokumen. Pilihan berlaku untuk kode inline dan blok kode pada pratinjau serta cetak PDF; tema awal adalah Terang. Tema hanya mengubah warna, bukan ukuran teks atau pembagian halaman.
+Pada Pengaturan dokumen, pilih **Terang** atau **Gelap** secara terpisah untuk **Kode inline** (di antara satu backtick) dan **Blok kode** (fence tiga backtick atau kode berindentasi). Blok tetap memakai tema blok walaupun isinya hanya satu baris. Pilihan berlaku pada pratinjau serta cetak PDF dan tersimpan bersama dokumen/riwayatnya; tema awal keduanya Terang. Dokumen lama memakai tema sebelumnya untuk keduanya sampai diubah. Tema hanya mengubah warna, bukan ukuran teks atau pembagian halaman.
 
 Warna membedakan token seperti keyword, string, angka, nama fungsi, dan komentar. Highlighting tidak menjalankan kode atau memvalidasi kesalahan program. Kode dirender sebagai elemen React dari AST lowlight, tanpa menyisipkan HTML mentah.
 

@@ -223,8 +223,8 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
   return bodies.length
 }
 
-export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, zoom, onPagesChange, onPendingChange }: {
-  children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; zoom: number
+export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, inlineCodeTheme, zoom, onPagesChange, onPendingChange }: {
+  children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; inlineCodeTheme: string; zoom: number
   onPagesChange: (pages: number) => void; onPendingChange: (pending: boolean) => void
 }) {
   const template = useRef<HTMLElement>(null)
@@ -288,7 +288,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
       document.fonts.removeEventListener('loadingdone', fontsLoaded)
       window.removeEventListener('beforeprint', beforePrint)
     }
-  }, [children, name, paper, font, margin, codeTheme, onPagesChange, onPendingChange])
+  }, [children, name, paper, font, margin, codeTheme, inlineCodeTheme, onPagesChange, onPendingChange])
 
   useEffect(() => {
     const element = stage.current
@@ -307,7 +307,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
 
   return <div ref={stage} className="paper-stage" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
     {createPortal(<div className="paper-measurement" aria-hidden="true" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
-      <article ref={template} data-code-theme={codeTheme} className={`paper paper-template font-${font.toLowerCase()} margin-${margin.toLowerCase()}`}>
+      <article ref={template} data-code-theme={codeTheme} data-inline-code-theme={inlineCodeTheme} className={`paper paper-template font-${font.toLowerCase()} margin-${margin.toLowerCase()}`}>
         <header className="paper-topline">{name || 'Tanpa judul'}</header>
         <div className="document-body">{children}</div>
         <footer className="paper-footer"><span>Dibuat dengan folio</span><span className="paper-page-number" /></footer>
