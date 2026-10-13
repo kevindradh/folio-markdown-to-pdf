@@ -5,6 +5,10 @@ import { HighlightedCode } from '@/components/highlighted-code'
 import { MathExpression } from '@/components/math-expression'
 import { Separator } from '@/components/ui/separator'
 
+function sourceLines(token: Token) {
+  return token.map ? { 'data-source-start': token.map[0], 'data-source-end': token.map[1] } : {}
+}
+
 function render(tokens: Token[], images: LocalImages): ReactNode[] {
   let index = 0
   function children(): ReactNode[] {
@@ -18,7 +22,7 @@ function render(tokens: Token[], images: LocalImages): ReactNode[] {
         if (token.hidden) { output.push(<Fragment key={key}>{content}</Fragment>); continue }
         if (token.type === 'footnote_block_open') { output.push(<section key={key} className="footnotes" aria-label="Catatan kaki"><Separator /><ol>{content}</ol></section>); continue }
         if (token.type === 'footnote_open') { output.push(<li key={key} value={Number(token.meta?.id ?? 0) + 1} data-anchor={`folio-footnote-${Number(token.meta?.id ?? 0) + 1}`}>{content}</li>); continue }
-        const props: Record<string, unknown> = { key }
+        const props: Record<string, unknown> = { key, ...sourceLines(token) }
         if (token.type === 'link_open') {
           const href = String(token.attrGet('href') ?? '')
           props.href = /^(https?:\/\/|mailto:|#)/i.test(href) ? href : undefined
@@ -40,10 +44,10 @@ function render(tokens: Token[], images: LocalImages): ReactNode[] {
       else if (token.type === 'text') output.push(token.content)
       else if (token.type === 'softbreak' || token.type === 'hardbreak') output.push(<br key={key} data-atomic="true" />)
       else if (token.type === 'code_inline') output.push(<HighlightedCode key={key} text={token.content} />)
-      else if (token.type === 'fence' || token.type === 'code_block') output.push(<pre key={key}><HighlightedCode text={token.content.replace(/\n$/, '')} language={token.info.trim().split(/\s+/)[0] || undefined} /></pre>)
+      else if (token.type === 'fence' || token.type === 'code_block') output.push(<pre key={key} {...sourceLines(token)}><HighlightedCode text={token.content.replace(/\n$/, '')} language={token.info.trim().split(/\s+/)[0] || undefined} /></pre>)
       else if (token.type === 'math_inline') output.push(<MathExpression key={key} expression={token.content} />)
-      else if (token.type === 'math_block') output.push(<div key={key} className="math-block"><MathExpression expression={token.content} display /></div>)
-      else if (token.type === 'hr') output.push(<Separator key={key} className="my-5" />)
+      else if (token.type === 'math_block') output.push(<div key={key} {...sourceLines(token)} className="math-block"><MathExpression expression={token.content} display /></div>)
+      else if (token.type === 'hr') output.push(<Separator key={key} {...sourceLines(token)} className="my-5" />)
       else if (token.type === 'image') {
         const source = String(token.attrGet('src') ?? '')
         const image = resolveImage(source, images)

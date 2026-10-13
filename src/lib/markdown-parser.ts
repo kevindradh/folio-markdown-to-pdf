@@ -16,8 +16,8 @@ markdownParser.block.ruler.at('table', (state, start, end, silent) => {
   const alignments = alignment
   const headers = tableCells(line(start))
   const table = state.push('table_open', 'table', 1)
-  function row(cells: string[], tag: 'th' | 'td') {
-    state.push('tr_open', 'tr', 1)
+  function row(cells: string[], tag: 'th' | 'td', sourceLine: number) {
+    state.push('tr_open', 'tr', 1).map = [sourceLine, sourceLine + 1]
     headers.forEach((_, i) => {
       state.push(`${tag}_open`, tag, 1).attrSet('style', `text-align:${alignments[i]}`)
       const inline = state.push('inline', '', 0)
@@ -28,11 +28,14 @@ markdownParser.block.ruler.at('table', (state, start, end, silent) => {
     state.push('tr_close', 'tr', -1)
   }
   state.push('thead_open', 'thead', 1)
-  row(headers, 'th')
+  row(headers, 'th', start)
   state.push('thead_close', 'thead', -1)
   state.push('tbody_open', 'tbody', 1)
   let next = start + 2
-  while (next < end && state.sCount[next] >= state.blkIndent && line(next).trim() && line(next).includes('|')) row(tableCells(line(next++)), 'td')
+  while (next < end && state.sCount[next] >= state.blkIndent && line(next).trim() && line(next).includes('|')) {
+    row(tableCells(line(next)), 'td', next)
+    next++
+  }
   state.push('tbody_close', 'tbody', -1)
   state.push('table_close', 'table', -1)
   table.map = [start, next]

@@ -329,3 +329,9 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 
 .pwa-status { display: flex; align-items: center; gap: 4px; color: var(--muted-foreground); }
 @media print { .pwa-status, [data-slot="tooltip-content"] { display: none !important; } }
+
+.workspace-view-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+@media (max-width: 900px) { .scroll-sync-label { display: none; } }
+@media (max-width: 480px) { .workspace-bar { flex-wrap: wrap; } .workspace-bar > [data-slot="field-group"] { flex-basis: 100%; } .workspace-view-controls { margin-left: auto; } }
+
+@media print { .scroll-sync-measurement { display: none !important; } }

@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.26",
+    "date": "2026-10-13",
+    "title": "Scroll editor dan pratinjau tersinkronisasi",
+    "changes": [
+      "Kontrol Sinkronkan scroll menghubungkan posisi editor dan pratinjau berdasarkan bagian Markdown, termasuk saat dokumen terbagi halaman atau zoom berubah.",
+      "Sinkronisasi bisa diaktifkan atau dinonaktifkan; pilihan diingat di browser dan berlaku saat kedua panel ditampilkan."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.25",
     "date": "2026-10-13",
     "title": "Indikator offline tetap terlihat pada mode pengembangan",

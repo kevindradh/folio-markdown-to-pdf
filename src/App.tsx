@@ -1,12 +1,15 @@
 import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend } from '@/components/ui/field'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
+import { Toggle } from '@/components/ui/toggle'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useScrollSync } from '@/hooks/use-scroll-sync'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog'
@@ -157,6 +160,8 @@ export default function App() {
   const [pageCount, setPageCount] = useState(1)
   const input = useRef<HTMLInputElement>(null)
   const editor = useRef<HTMLTextAreaElement>(null)
+  const previewScroll = useRef<HTMLDivElement>(null)
+  const scrollSync = useScrollSync(editor, previewScroll, text, !previewPending, view === 'split')
   const imageInput = useRef<HTMLInputElement>(null)
   const imageSelection = useRef({ start: 0, end: 0 })
   const words = text.trim() ? text.trim().split(/\s+/).length : 0
@@ -260,9 +265,17 @@ export default function App() {
               <Input maxLength={120} id="document-name" className="min-w-0 flex-1" disabled={library.busy} value={name} onChange={e => setName(e.target.value)} />
             </Field>
           </FieldGroup>
+          <div className="workspace-view-controls">
+          <Tooltip>
+            <TooltipTrigger closeOnClick={false} render={<Toggle variant="outline" size="sm" aria-label="Sinkronkan scroll" pressed={scrollSync.enabled} onPressedChange={scrollSync.setEnabled} />}>
+              <Link2 data-icon="inline-start" /><span className="scroll-sync-label">Sinkronkan scroll</span>
+            </TooltipTrigger>
+            <TooltipContent>{view !== 'split' ? 'Berlaku saat editor dan pratinjau ditampilkan bersama.' : scrollSync.enabled ? 'Scroll editor dan pratinjau mengikuti bagian dokumen yang sama. Klik untuk menonaktifkan.' : 'Aktifkan agar scroll editor dan pratinjau saling mengikuti.'}</TooltipContent>
+          </Tooltip>
           <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
             {[{ id: 'editor', icon: Code2, label: 'Editor' }, { id: 'split', icon: Columns2, label: 'Berdampingan' }, { id: 'preview', icon: Eye, label: 'Pratinjau' }].map(({ id, icon: Icon, label }) => <ToggleGroupItem key={id} value={id} title={label} aria-label={label}><Icon /></ToggleGroupItem>)}
           </ToggleGroup>
+          </div>
         </div>
         <Separator />
         <div className="panes">
@@ -306,7 +319,7 @@ export default function App() {
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{imagesLoading ? 'Memuat gambar…' : missingImages ? 'Gambar belum tersedia' : previewPending ? 'Memperbarui halaman…' : ''}</span></div>
             <Separator />
-            <PaginatedDocument onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} inlineCodeTheme={inlineCodeTheme} zoom={zoom} onPagesChange={setPageCount}>
+            <PaginatedDocument scrollRef={previewScroll} onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} inlineCodeTheme={inlineCodeTheme} zoom={zoom} onPagesChange={setPageCount}>
               {previewContent}
             </PaginatedDocument>
             <Separator />

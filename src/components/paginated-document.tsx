@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom'
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { listFragments } from '@/lib/list-fragments'
 
 // Formula DOM contains duplicate accessible text and positioning elements. Treat it as
@@ -223,8 +223,9 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
   return bodies.length
 }
 
-export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, inlineCodeTheme, zoom, onPagesChange, onPendingChange }: {
+export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, inlineCodeTheme, zoom, onPagesChange, onPendingChange, scrollRef }: {
   children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; inlineCodeTheme: string; zoom: number
+  scrollRef?: RefObject<HTMLDivElement | null>
   onPagesChange: (pages: number) => void; onPendingChange: (pending: boolean) => void
 }) {
   const template = useRef<HTMLElement>(null)
@@ -305,7 +306,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
     return () => observer.disconnect()
   }, [paper, zoom])
 
-  return <div ref={stage} className="paper-stage" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
+  return <div ref={node => { stage.current = node; if (scrollRef) scrollRef.current = node }} className="paper-stage" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
     {createPortal(<div className="paper-measurement" aria-hidden="true" style={{ '--paper-width': paper === 'A4' ? '210mm' : '215.9mm', '--paper-height': paper === 'A4' ? '297mm' : '279.4mm' } as CSSProperties}>
       <article ref={template} data-code-theme={codeTheme} data-inline-code-theme={inlineCodeTheme} className={`paper paper-template font-${font.toLowerCase()} margin-${margin.toLowerCase()}`}>
         <header className="paper-topline">{name || 'Tanpa judul'}</header>

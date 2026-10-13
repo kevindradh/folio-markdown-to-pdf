@@ -51,6 +51,7 @@ Perintah lainnya:
 
 - Editor Markdown, toolbar format, impor file `.md`, `.markdown`, atau `.txt`, dan unduhan `.md`.
 - Mode editor, pratinjau, atau tampilan berdampingan.
+- Sinkronisasi scroll dua arah yang bisa diaktifkan atau dinonaktifkan.
 - Pratinjau beberapa halaman sesuai ukuran A4 atau Letter, dengan nomor halaman.
 - Pilihan tipografi Literary/Modern, margin Normal/Lebar/Tipis, dan zoom.
 - Syntax highlighting untuk kode inline dan blok kode, dengan pilihan tema Terang/Gelap.
@@ -245,3 +246,9 @@ Penomoran dimulai dari commit pertama pada `main`: **v0.0.1**. Sebanyak 19 commi
 Untuk perubahan berikutnya pada `main`, naikkan nomor patch dengan `npm version patch --no-git-tag-version`, lalu tambahkan entri terbaru di `src/data/releases.json` dengan nomor yang sama, tanggal, judul, dan daftar perubahan untuk pengguna. Gunakan `commit: null` untuk entri yang belum memiliki commit dan `retrospective: false` untuk catatan baru. Pertahankan nomor dan isi catatan historis. Jalankan `npm run changelog` untuk memperbarui CHANGELOG.md, lalu build, lint, dan pengujian yang relevan sebelum commit. Penomoran berlanjut sebagai v0.0.21, v0.0.22, dan seterusnya; satu perubahan yang dikomit ke main mendapat satu entri baru.
 
 Versi berasal dari `package.json`; isi changelog antarmuka dan Markdown berasal dari data yang sama. Build memeriksa kecocokan versi, lockfile, urutan catatan, serta CHANGELOG.md tanpa membutuhkan riwayat Git lengkap pada CI. Nomor versi aplikasi terpisah dari versi format penyimpanan dokumen.
+
+## Sinkronisasi scroll
+
+Aktifkan **Sinkronkan scroll** di sebelah pilihan tampilan untuk membuat editor dan pratinjau saling mengikuti. Kondisi awal nonaktif; pilihan diingat pada browser dan origin yang sama, terpisah dari isi dokumen. Pada layar sempit, kontrol berupa ikon rantai dengan tooltip.
+
+Sinkronisasi berlaku ketika kedua panel ditampilkan, termasuk tampilan bertumpuk di ponsel. Posisi mengikuti rentang baris Markdown serta fragmen halaman, bukan persentase panjang kedua panel. Posisi di dalam blok panjang merupakan perkiraan; markup, rumus, dan gambar dapat membuat tinggi sumber dan hasil berbeda. Saat pratinjau diperbarui, sinkronisasi menunggu halaman terbaru siap. Mode Editor atau Pratinjau saja menjeda sinkronisasi tanpa menghapus pilihan.

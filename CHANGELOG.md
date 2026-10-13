@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.26 — 2026-10-13
+
+Scroll editor dan pratinjau tersinkronisasi
+
+- Kontrol Sinkronkan scroll menghubungkan posisi editor dan pratinjau berdasarkan bagian Markdown, termasuk saat dokumen terbagi halaman atau zoom berubah.
+- Sinkronisasi bisa diaktifkan atau dinonaktifkan; pilihan diingat di browser dan berlaku saat kedua panel ditampilkan.
+
 ## v0.0.25 — 2026-10-13
 
 Indikator offline tetap terlihat pada mode pengembangan
