@@ -40,7 +40,8 @@ function render(tokens: Token[], images: LocalImages): ReactNode[] {
         } else output.push(createElement(token.tag, props, ...content))
         continue
       }
-      if (token.type === 'inline') output.push(<Fragment key={key}>{render(token.children ?? [], images)}</Fragment>)
+      if (token.type === 'folio_page_break') output.push(<div key={key} data-page-break="true" className="manual-page-break" {...sourceLines(token)} />)
+      else if (token.type === 'inline') output.push(<Fragment key={key}>{render(token.children ?? [], images)}</Fragment>)
       else if (token.type === 'text') output.push(token.content)
       else if (token.type === 'softbreak' || token.type === 'hardbreak') output.push(<br key={key} data-atomic="true" />)
       else if (token.type === 'code_inline') output.push(<HighlightedCode key={key} text={token.content} />)

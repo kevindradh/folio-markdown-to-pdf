@@ -267,6 +267,7 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .settings-section { min-width: 0; gap: 12px; }
 .page-settings-fields, .code-settings-fields { display: grid; gap: 16px; }
 .page-settings-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page-settings-fields > [data-slot="field"]:last-child { grid-column: 1 / -1; }
 .code-settings-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .settings-divider { align-self: stretch; height: auto; }
 .document-name-field > [data-slot="field-label"] { flex: 0 0 auto; }
@@ -276,7 +277,7 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 }
 @media (max-width: 480px) {
   .page-settings-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .page-settings-fields > [data-slot="field"]:last-child { grid-column: 1 / -1; }
+  .page-settings-fields > [data-slot="field"]:nth-child(3) { grid-column: 1 / -1; }
   .page-settings-fields, .code-settings-fields { gap: 12px; }
 }
 
@@ -335,3 +336,5 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 @media (max-width: 480px) { .workspace-bar { flex-wrap: wrap; } .workspace-bar > [data-slot="field-group"] { flex-basis: 100%; } .workspace-view-controls { margin-left: auto; } }
 
 @media print { .scroll-sync-measurement { display: none !important; } }
+
+.manual-page-break { display: none; }

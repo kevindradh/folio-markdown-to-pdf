@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.27 — 2026-10-13
+
+Pemisah halaman dan awal bab
+
+- Sisipkan pemisah halaman dari toolbar atau tulis <!-- pagebreak --> pada baris tersendiri untuk memulai bagian berikutnya pada halaman baru.
+- Pengaturan Awal bab dapat memulai judul # atau # dan ## pada halaman baru, berlaku pada pratinjau dan PDF serta tersimpan bersama dokumen.
+
 ## v0.0.26 — 2026-10-13
 
 Scroll editor dan pratinjau tersinkronisasi

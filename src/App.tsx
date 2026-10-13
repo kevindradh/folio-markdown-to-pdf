@@ -1,6 +1,6 @@
 import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2 } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -57,9 +57,9 @@ Rapikan catatanmu, lihat pratinjaunya, lalu simpan sebagai PDF. Siap untuk dibag
 Selamat membuat sesuatu yang berarti.`
 
 function DocumentSetting({ id, label, value, options, onChange }: {
-  id: string; label: string; value: string; options: string[]; onChange: (value: string) => void
+  id: string; label: string; value: string; options: (string | { label: string; value: string })[]; onChange: (value: string) => void
 }) {
-  const items = options.map(option => ({ label: option, value: option }))
+  const items = options.map(option => typeof option === 'string' ? { label: option, value: option } : option)
   return <Field className="min-w-0">
     <FieldLabel htmlFor={id}>{label}</FieldLabel>
     <Select items={items} value={value} onValueChange={next => { if (next) onChange(next) }}>
@@ -90,6 +90,7 @@ function MarkdownGuide({ onStartTour }: { onStartTour: () => void }) {
         <dt>- [ ] Tugas dan - [x] Selesai</dt><dd>Checklist statis pada dokumen.</dd>
         <dt>![Deskripsi](gambar.png)</dt><dd>Pilih PNG/JPEG/WebP melalui Sisipkan gambar. Gambar disimpan lokal, maksimal 2 MiB dan 4.096 px per sisi. Untuk file Markdown impor, pilih gambar dengan nama yang sesuai.</dd>
         <dt>Teks[^sumber] dan [^sumber]: Keterangan</dt><dd>Catatan kaki bernomor pada akhir dokumen, dengan tautan kembali.</dd>
+        <dt>{'<!-- pagebreak -->'}</dt><dd>Pemisah halaman pada baris tersendiri di luar kode, daftar, dan kutipan. Isi berikutnya dimulai pada halaman baru. Opsi Awal bab di Pengaturan dokumen dapat memulai judul # atau # dan ## pada halaman baru.</dd>
         <dt>&gt; Kutipan</dt><dd>Blok kutipan</dd>
         <dt>| Kolom | Kolom |</dt><dd>Tabel: tambahkan baris pemisah |---|---| di bawah header. Gunakan :---:, atau ---: untuk perataan.</dd>
         <dt>{String.raw`\(x^2\) atau $x^2$`}</dt><dd>Rumus inline</dd>
@@ -108,7 +109,7 @@ export default function App() {
   const previousView = useRef('split')
   const library = useDocumentDraft({ text: example, name: 'Catatan kreatif', paper: 'A4', font: 'Literary', margin: 'Normal', codeTheme: 'light', inlineCodeTheme: 'light' })
   const { draft, update, setDraft, saved } = library
-  const { text, name, paper, font, margin, codeTheme, inlineCodeTheme = codeTheme } = draft
+  const { text, name, paper, font, margin, codeTheme, inlineCodeTheme = codeTheme, chapterStart = 'none' } = draft
   const { images, loading: imagesLoading, addImage } = useLocalImages()
   const setName = (value: string) => update('name', value)
   const setPaper = (value: string) => update('paper', value)
@@ -177,6 +178,15 @@ export default function App() {
       el.focus()
       el.setSelectionRange(start + before.length, start + before.length + selection.length)
     })
+  }
+
+  function insertPageBreak() {
+    const el = editor.current
+    if (!el) return
+    const start = el.selectionStart
+    const syntax = '\n\n<!-- pagebreak -->\n\n'
+    if (!setText(text.slice(0, start) + syntax + text.slice(start))) return
+    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(start + syntax.length, start + syntax.length) })
   }
 
   async function uploadImage(file?: File) {
@@ -299,6 +309,7 @@ export default function App() {
                 imageSelection.current = { start: editor.current?.selectionStart ?? text.length, end: editor.current?.selectionEnd ?? text.length }
                 imageInput.current?.click()
               }}><ImagePlus /></Button>
+              <Button variant="ghost" size="icon-sm" aria-label="Sisipkan pemisah halaman" title="Sisipkan pemisah halaman" onClick={insertPageBreak}><BetweenHorizontalStart /></Button>
             </div>
             <FieldGroup className="editor-content">
               <Field className="h-full"><FieldLabel htmlFor="markdown-editor" className="sr-only">Editor Markdown</FieldLabel>
@@ -319,7 +330,7 @@ export default function App() {
           <section className="preview-pane">
             <div className="pane-toolbar"><span><Eye size={15} /> Pratinjau</span><span role="status">{imagesLoading ? 'Memuat gambar…' : missingImages ? 'Gambar belum tersedia' : previewPending ? 'Memperbarui halaman…' : ''}</span></div>
             <Separator />
-            <PaginatedDocument scrollRef={previewScroll} onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} inlineCodeTheme={inlineCodeTheme} zoom={zoom} onPagesChange={setPageCount}>
+            <PaginatedDocument scrollRef={previewScroll} onPendingChange={setLayoutPending} name={name} paper={paper} font={font} margin={margin} codeTheme={codeTheme} inlineCodeTheme={inlineCodeTheme} chapterStart={chapterStart} zoom={zoom} onPagesChange={setPageCount}>
               {previewContent}
             </PaginatedDocument>
             <Separator />
@@ -338,6 +349,7 @@ export default function App() {
               <DocumentSetting id="paper-size" label="Ukuran kertas" value={paper} options={['A4', 'Letter']} onChange={setPaper} />
               <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
               <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
+              <DocumentSetting id="chapter-start" label="Awal bab" value={chapterStart} options={[{ value: 'none', label: 'Alur biasa' }, { value: 'h1', label: 'Halaman baru untuk #' }, { value: 'h2', label: 'Halaman baru untuk # dan ##' }]} onChange={value => update('chapterStart', value)} />
               </FieldGroup>
             </FieldSet>
             <Separator className="settings-divider" orientation="vertical" />

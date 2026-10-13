@@ -58,7 +58,8 @@ function validate(draft: Draft) {
   if (!draft || typeof draft.text !== 'string' || typeof draft.name !== 'string' || draft.name.length > 120 || inputError(draft.text)
     || !['A4', 'Letter'].includes(draft.paper) || !['Literary', 'Modern'].includes(draft.font)
     || !['Normal', 'Lebar', 'Tipis'].includes(draft.margin) || !['light', 'dark'].includes(draft.codeTheme)
-    || draft.inlineCodeTheme !== undefined && !['light', 'dark'].includes(draft.inlineCodeTheme)) {
+    || draft.inlineCodeTheme !== undefined && !['light', 'dark'].includes(draft.inlineCodeTheme)
+    || draft.chapterStart !== undefined && !['none', 'h1', 'h2'].includes(draft.chapterStart)) {
     throw new Error('Dokumen tidak valid atau melewati batas ukuran.')
   }
 }

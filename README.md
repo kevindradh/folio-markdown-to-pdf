@@ -252,3 +252,21 @@ Versi berasal dari `package.json`; isi changelog antarmuka dan Markdown berasal 
 Aktifkan **Sinkronkan scroll** di sebelah pilihan tampilan untuk membuat editor dan pratinjau saling mengikuti. Kondisi awal nonaktif; pilihan diingat pada browser dan origin yang sama, terpisah dari isi dokumen. Pada layar sempit, kontrol berupa ikon rantai dengan tooltip.
 
 Sinkronisasi berlaku ketika kedua panel ditampilkan, termasuk tampilan bertumpuk di ponsel. Posisi mengikuti rentang baris Markdown serta fragmen halaman, bukan persentase panjang kedua panel. Posisi di dalam blok panjang merupakan perkiraan; markup, rumus, dan gambar dapat membuat tinggi sumber dan hasil berbeda. Saat pratinjau diperbarui, sinkronisasi menunggu halaman terbaru siap. Mode Editor atau Pratinjau saja menjeda sinkronisasi tanpa menghapus pilihan.
+
+## Pemisah halaman dan awal bab
+
+Klik **Sisipkan pemisah halaman** pada toolbar editor, atau tulis penanda berikut pada baris tersendiri, di luar kode, daftar, dan kutipan:
+
+```markdown
+Isi bagian sebelumnya.
+
+<!-- pagebreak -->
+
+## Lampiran
+
+Isi lampiran dimulai pada halaman baru.
+```
+
+Penanda tidak tercetak. Pemisah di awal/akhir dokumen atau beberapa pemisah berurutan tidak menghasilkan halaman kosong tambahan. `---` tetap menjadi garis horizontal biasa. Penanda di dalam blok kode, kode inline, kutipan, atau daftar ditampilkan sebagai teks; HTML lain tetap tidak dirender.
+
+Pada **Pengaturan dokumen → Halaman → Awal bab**, pilih **Alur biasa**, **Halaman baru untuk #**, atau **Halaman baru untuk # dan ##**. Pilihan berlaku untuk judul tingkat tersebut di luar daftar/kutipan, termasuk judul Setext, dan tersimpan bersama dokumen serta riwayat. Pratinjau dan PDF menggunakan pembagian halaman yang sama. Pemisah manual tetap berlaku ketika pilihan awal bab aktif, tanpa menambahkan halaman kosong ganda. Untuk memulai bagian kode pada halaman baru, letakkan penanda sebelum pembuka fence. Unduhan `.md` mempertahankan penanda manual; pilihan awal bab adalah pengaturan aplikasi dan tidak disisipkan ke file `.md`.

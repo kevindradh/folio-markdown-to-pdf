@@ -3,7 +3,7 @@ export const MAX_DOCUMENT_LINES = 5000
 export const DRAFT_KEY = 'folio:draft:v1'
 
 export type Draft = {
-  text: string; name: string; paper: string; font: string; margin: string; codeTheme: string; inlineCodeTheme?: string
+  text: string; name: string; paper: string; font: string; margin: string; codeTheme: string; inlineCodeTheme?: string; chapterStart?: string
 }
 
 export function inputError(text: string): string | null {
@@ -25,6 +25,7 @@ export function readDraft(fallback: Draft): Draft {
       paper: ['A4', 'Letter'].includes(value.paper) ? value.paper : fallback.paper,
       font: ['Literary', 'Modern'].includes(value.font) ? value.font : fallback.font,
       margin: ['Normal', 'Lebar', 'Tipis'].includes(value.margin) ? value.margin : fallback.margin,
+      chapterStart: ['none', 'h1', 'h2'].includes(value.chapterStart) ? value.chapterStart : 'none',
       codeTheme: ['light', 'dark'].includes(value.codeTheme) ? value.codeTheme : fallback.codeTheme,
       inlineCodeTheme: ['light', 'dark'].includes(value.inlineCodeTheme) ? value.inlineCodeTheme
         : ['light', 'dark'].includes(value.codeTheme) ? value.codeTheme : fallback.inlineCodeTheme ?? fallback.codeTheme,

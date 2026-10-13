@@ -40,7 +40,7 @@ function sliceBlock(block: HTMLElement, start: number, end: number) {
 }
 
 /** Lay out the same DOM that is later printed, at its unscaled physical size. */
-function* paginate(template: HTMLElement, host: HTMLElement) {
+function* paginate(template: HTMLElement, host: HTMLElement, chapterStart: string) {
   host.replaceChildren()
   const blocks = Array.from(template.querySelector('.document-body')!.children).flatMap(node => {
     // Allow lists to continue on the next page without keeping the whole list together.
@@ -135,9 +135,15 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
       }
     }
   }
+  let manualBreak = false
   for (let index = 0; index < blocks.length; index++) {
     yield
     let block = blocks[index]
+    if (block.dataset.pageBreak) { manualBreak = true; continue }
+    const chapter = chapterStart === 'h1' ? block.tagName === 'H1' : chapterStart === 'h2' && /^H[12]$/.test(block.tagName)
+    // Delay a requested break until actual content arrives: no leading, trailing or duplicate blank pages.
+    if ((manualBreak || chapter) && body.children.length) body = newPage()
+    manualBreak = false
     if (block instanceof HTMLTableElement) {
       yield* paginateTable(block)
       continue
@@ -223,9 +229,10 @@ function* paginate(template: HTMLElement, host: HTMLElement) {
   return bodies.length
 }
 
-export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, inlineCodeTheme, zoom, onPagesChange, onPendingChange, scrollRef }: {
+export function PaginatedDocument({ children, name, paper, font, margin, codeTheme, inlineCodeTheme, chapterStart = 'none', zoom, onPagesChange, onPendingChange, scrollRef }: {
   children: ReactNode; name: string; paper: string; font: string; margin: string; codeTheme: string; inlineCodeTheme: string; zoom: number
   scrollRef?: RefObject<HTMLDivElement | null>
+  chapterStart?: string
   onPagesChange: (pages: number) => void; onPendingChange: (pending: boolean) => void
 }) {
   const template = useRef<HTMLElement>(null)
@@ -240,7 +247,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
     const layout = (synchronous = false) => {
       if (cancelled || !template.current || !measurement.current || !pages.current) return
       const current = ++revision
-      const iterator = paginate(template.current, measurement.current)
+      const iterator = paginate(template.current, measurement.current, chapterStart)
       const publish = (count: number) => {
         if (cancelled || current !== revision || !pages.current || !measurement.current) return
         pages.current.replaceChildren(...Array.from(measurement.current.children))
@@ -289,7 +296,7 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
       document.fonts.removeEventListener('loadingdone', fontsLoaded)
       window.removeEventListener('beforeprint', beforePrint)
     }
-  }, [children, name, paper, font, margin, codeTheme, inlineCodeTheme, onPagesChange, onPendingChange])
+  }, [children, name, paper, font, margin, codeTheme, inlineCodeTheme, chapterStart, onPagesChange, onPendingChange])
 
   useEffect(() => {
     const element = stage.current

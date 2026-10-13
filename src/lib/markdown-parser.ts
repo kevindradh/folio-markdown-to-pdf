@@ -6,6 +6,18 @@ export const markdownParser = new MarkdownIt({ html: false, breaks: true, maxNes
 const validateLink = markdownParser.validateLink
 markdownParser.validateLink = url => /^folio-image:[a-z\d-]+$/i.test(url) || validateLink(url)
 
+// An exact standalone directive, not arbitrary HTML. Fences/code and nested blocks remain literal.
+markdownParser.block.ruler.before('paragraph', 'folio_page_break', (state, start, _end, silent) => {
+  if (state.level !== 0 || state.sCount[start] - state.blkIndent >= 4) return false
+  const line = state.src.slice(state.bMarks[start] + state.tShift[start], state.eMarks[start])
+  if (!/^<!--\s*pagebreak\s*-->\s*$/i.test(line)) return false
+  if (silent) return true
+  const token = state.push('folio_page_break', '', 0)
+  token.map = [start, start + 1]
+  state.line = start + 1
+  return true
+}, { alt: ['paragraph'] })
+
 // Retain folio's established table behavior, including literal pipes inside code spans.
 markdownParser.block.ruler.at('table', (state, start, end, silent) => {
   if (start + 1 >= end || state.sCount[start] - state.blkIndent >= 4) return false

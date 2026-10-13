@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.27",
+    "date": "2026-10-13",
+    "title": "Pemisah halaman dan awal bab",
+    "changes": [
+      "Sisipkan pemisah halaman dari toolbar atau tulis <!-- pagebreak --> pada baris tersendiri untuk memulai bagian berikutnya pada halaman baru.",
+      "Pengaturan Awal bab dapat memulai judul # atau # dan ## pada halaman baru, berlaku pada pratinjau dan PDF serta tersimpan bersama dokumen."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.26",
     "date": "2026-10-13",
     "title": "Scroll editor dan pratinjau tersinkronisasi",
