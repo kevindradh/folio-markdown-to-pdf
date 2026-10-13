@@ -292,3 +292,9 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - PaginatedDocument meneruskan data-inline-code-theme ke template dan clone cetak. CSS mendefinisikan token warna pada pre/code dan memilih aturan gelap terpisah, tanpa mengubah ukuran font atau isi kode. Pengaturan responsif menempatkan kedua kontrol tema berdampingan pada ponsel.
 - tests/code-themes.spec.ts menguji warna independen, reload, riwayat, mode cetak, mobile, migrasi localStorage serta dokumen IndexedDB lama tanpa properti baru. Pemeriksaan dokumen/PDF dan draft lama memakai grup Blok kode untuk menghindari tombol Terang/Gelap yang ambigu.
 - Verifikasi: build, lint, tipe test, regresi terarah dokumen/PDF/draft **44 passed / 2 skipped** (PDF WebKit), serta tema/library/coachmark **32 passed**. Pengujian tema diulang pada build final dengan viewport 390/730/900/1280 px; screenshot pengaturan mobile diperiksa visual. Peringatan ukuran bundle yang sudah ada tetap muncul. Tidak ada push.
+
+## Perbaikan teks kode tanpa hasil deteksi — 13 Oktober 2026
+
+- v0.0.23 memperbaiki HighlightedCode: lowlight.highlightAuto dapat menghasilkan tree.children kosong dengan relevance 0 untuk sumber nonkosong seperti Console.WriteLine(), Program, atau eko. Renderer kini memakai teks asli ketika tree kosong. Perbaikan berlaku pada inline code dan blok tanpa bahasa; warna highlighting yang dikenali tetap tersedia.
+- Pengujian regresi memakai lima contoh pengguna, blok otomatis serta C# eksplisit, kedua tema inline, hasil pagination/beforeprint, dan ekstraksi teks PDF Chromium sebenarnya. Build, lint, dan tipe test berhasil. Tidak ada perubahan format penyimpanan atau dependensi.
+- Kasus baru lulus pada Chromium/WebKit setelah cleanup PDF pengujian disesuaikan ke loadingTask.destroy(); regresi dokumen dan tema lainnya lulus, dengan dua PDF WebKit dilewati sesuai keterbatasan Playwright. Peringatan bundle besar tetap ada; tidak ada push.

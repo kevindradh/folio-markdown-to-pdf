@@ -51,6 +51,32 @@ async function integrity(page: Page) {
 
 test.beforeEach(async ({ page }) => { await page.goto('/') })
 
+test('unrecognized inline code and automatic blocks preserve their text in preview and print', async ({ page, browserName }, testInfo) => {
+  const snippets = ['Console.WriteLine("Jamal")', 'Console.WriteLine()', 'Program', 'eko', '"eko"']
+  await page.locator('#markdown-editor').fill(snippets.map(text => `\`${text}\``).join('\n\n') + '\n\n```\nConsole.WriteLine()\nProgram\neko\n```\n\n```csharp\nConsole.WriteLine();\n```')
+  await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
+  await expect(page.locator('.paper-template p > code')).toHaveText(snippets)
+  await expect(page.locator('.paper-pages p > code')).toHaveText(snippets)
+  await expect(page.locator('.paper-pages pre > code').first()).toHaveText('Console.WriteLine()\nProgram\neko\n')
+  await expect(page.locator('.paper-pages pre > code').last()).toHaveText('Console.WriteLine();\n')
+  await expect(page.locator('.paper-pages p > code').first().locator('.hljs-string')).toHaveText('"Jamal"')
+  for (const theme of ['Gelap', 'Terang']) {
+    await page.getByRole('group', { name: 'Kode inline', exact: true }).getByRole('button', { name: theme, exact: true }).click()
+    await expect(page.locator('.paper-pages p > code')).toHaveText(snippets)
+  }
+  await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')))
+  await expect(page.locator('.paper-pages p > code')).toHaveText(snippets)
+  if (browserName === 'chromium') {
+    const bytes = await page.pdf({ path: testInfo.outputPath('inline-code.pdf'), preferCSSPageSize: true, printBackground: true })
+    const task = getDocument({ data: new Uint8Array(bytes), useSystemFonts: true })
+    const pdf = await task.promise
+    const content = await pdf.getPage(1).then(sheet => sheet.getTextContent())
+    const text = content.items.map(item => 'str' in item ? item.str : '').join('')
+    for (const snippet of snippets) expect(text).toContain(snippet)
+    await task.destroy()
+  }
+})
+
 test('table parsing preserves escaped pipes, code spans and alignment', () => {
   expect(tableCells('| a\\|b | `x|y` |')).toEqual(['a|b', '`x|y`'])
   expect(tableCells('| ``x`|y`` | z |')).toEqual(['``x`|y``', 'z'])

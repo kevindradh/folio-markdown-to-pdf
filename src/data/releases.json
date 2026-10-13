@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.23",
+    "date": "2026-10-13",
+    "title": "Perbaikan kode yang hilang saat bahasa tidak terdeteksi",
+    "changes": [
+      "Kode inline seperti Console.WriteLine(), Program, dan eko kini tetap tampil ketika bahasa tidak dikenali otomatis.",
+      "Blok kode tanpa nama bahasa juga mempertahankan teks asli jika deteksi highlighting menghasilkan keluaran kosong."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.22",
     "date": "2026-10-13",
     "title": "Tema kode inline dan blok yang terpisah",

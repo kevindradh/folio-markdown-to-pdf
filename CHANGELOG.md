@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.23 — 2026-10-13
+
+Perbaikan kode yang hilang saat bahasa tidak terdeteksi
+
+- Kode inline seperti Console.WriteLine(), Program, dan eko kini tetap tampil ketika bahasa tidak dikenali otomatis.
+- Blok kode tanpa nama bahasa juga mempertahankan teks asli jika deteksi highlighting menghasilkan keluaran kosong.
+
 ## v0.0.22 — 2026-10-13
 
 Tema kode inline dan blok yang terpisah

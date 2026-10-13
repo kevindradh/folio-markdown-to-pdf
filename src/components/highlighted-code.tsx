@@ -27,7 +27,8 @@ export function HighlightedCode({ text, language }: { text: string; language?: s
     const tree = selected
       ? highlighter.highlight(selected, text)
       : highlighter.highlightAuto(text, { subset: autoLanguages })
-    return renderTokens(tree.children)
+    // Autodetection returns an empty tree when no grammar has positive relevance.
+    return tree.children.length ? renderTokens(tree.children) : text
   }, [text, language])
 
   return <code className="syntax-code" data-language={language || 'auto'}>{tokens}</code>
