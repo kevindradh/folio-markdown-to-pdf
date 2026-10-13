@@ -38,6 +38,7 @@ test('inline and block themes are independent across preview, print, reload and 
   for (const width of [730, 900, 1280, 390]) {
     await page.setViewportSize({ width, height: 844 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.locator('.settings-bar').screenshot({ path: testInfo.outputPath(`settings-${width}.png`) })
   }
   await block.scrollIntoViewIfNeeded()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

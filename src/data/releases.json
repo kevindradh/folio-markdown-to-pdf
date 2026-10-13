@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.24",
+    "date": "2026-10-13",
+    "title": "Pengaturan dokumen yang lebih rapi",
+    "changes": [
+      "Pengaturan dikelompokkan menjadi Halaman dan Tema kode, dengan label serta kontrol yang sejajar.",
+      "Tata letak menyesuaikan layar desktop, tablet, dan ponsel agar pengaturan tetap mudah dibaca."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.23",
     "date": "2026-10-13",
     "title": "Perbaikan kode yang hilang saat bahasa tidak terdeteksi",

@@ -204,8 +204,8 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .paper.margin-lebar { padding: 25mm; }
 .paper.margin-tipis { padding: 12mm; }
 .paper-dimensions { font-size: 9px; }
-.settings-bar { min-height: 82px; display: flex; align-items: center; gap: 28px; padding: 16px 20px; }
-.settings-title { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); margin-right: auto; font-size: 12px; }
+.settings-bar { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+.settings-title { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 12px; }
 .app-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; color: var(--muted-foreground); font-size: 10px; padding: 19px 1px 23px; }
 .app-footer > span:first-child { display: flex; align-items: center; gap: 7px; }
 .coachmark[data-slot="dialog-content"] { width: 360px; max-height: calc(100dvh - 32px); overflow-y: auto; translate: none; animation: none; transition: none; }
@@ -248,8 +248,8 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .markdown-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px; padding: 16px 0; }
 .markdown-guide dt { font-family: monospace; color: var(--primary); overflow-wrap: anywhere; }
 @media(min-width: 1500px) { .editor-content { height: 655px; } .paper-stage { height: 695px; } }
-@media(max-width: 1050px) { .format-toolbar > span { display: none; } .settings-bar { gap: 16px; } .paper-stage { padding: 20px 16px; } }
-@media(max-width: 720px) { .topbar { height: 65px; padding: 0 16px; } .brand-description { display: none; } main { padding: 25px 16px 0; } .workspace-heading { align-items: flex-start; flex-direction: column; gap: 4px; margin-bottom: 20px; } .workspace-heading h1 { font-size: 27px; } .workspace-heading p { line-height: 1.6; max-width: 310px; } .heading-actions { width: 100%; padding-top: 12px; } .heading-actions > button { flex: 1; } .panes { grid-template-columns: 1fr; } .editor-pane { border-right: none; border-bottom: 1px solid var(--border); } .editor-content { height: 340px; } .paper-stage { height: 580px; } .workspace-bar { padding: 12px; gap: 8px; } .settings-bar { flex-wrap: wrap; gap: 12px; padding: 15px; } .settings-title { width: 100%; } .app-footer { line-height: 1.6; font-size: 9px; } .app-footer > span:last-child { display: none; } }
+@media(max-width: 1050px) { .format-toolbar > span { display: none; } .paper-stage { padding: 20px 16px; } }
+@media(max-width: 720px) { .topbar { height: 65px; padding: 0 16px; } .brand-description { display: none; } main { padding: 25px 16px 0; } .workspace-heading { align-items: flex-start; flex-direction: column; gap: 4px; margin-bottom: 20px; } .workspace-heading h1 { font-size: 27px; } .workspace-heading p { line-height: 1.6; max-width: 310px; } .heading-actions { width: 100%; padding-top: 12px; } .heading-actions > button { flex: 1; } .panes { grid-template-columns: 1fr; } .editor-pane { border-right: none; border-bottom: 1px solid var(--border); } .editor-content { height: 340px; } .paper-stage { height: 580px; } .workspace-bar { padding: 12px; gap: 8px; } .settings-bar { padding: 16px; } .app-footer { line-height: 1.6; font-size: 9px; } .app-footer > span:last-child { display: none; } }
 @media(prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print {
   body, :root { background: white; }
@@ -262,14 +262,22 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 }
 
 
-/* Container queries suppress intrinsic inline size: give the settings an explicit width. */
-.document-settings-fields { width: 708px; flex: 0 0 708px; flex-direction: row; gap: 20px; }
+/* Settings use intrinsic grids so every control aligns without fixed widths. */
+.settings-groups { display: grid; grid-template-columns: minmax(0, 3fr) auto minmax(0, 2fr); align-items: start; gap: 24px; }
+.settings-section { min-width: 0; gap: 12px; }
+.page-settings-fields, .code-settings-fields { display: grid; gap: 16px; }
+.page-settings-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.code-settings-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-divider { align-self: stretch; height: auto; }
 .document-name-field > [data-slot="field-label"] { flex: 0 0 auto; }
-@media (max-width: 720px) {
-  .document-settings-fields { width: 100%; flex: 1 1 100%; gap: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .document-settings-fields > [data-slot="field"] { width: auto; min-width: 0; flex: 1 1 0; }
-  .document-settings-fields > [data-slot="field"]:nth-child(3) { grid-column: 1 / -1; }
-  .document-settings-fields [data-slot="select-trigger"] { min-width: 0; }
+@media (max-width: 900px) {
+  .settings-groups { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .settings-divider { width: 100%; height: 1px; }
+}
+@media (max-width: 480px) {
+  .page-settings-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-settings-fields > [data-slot="field"]:last-child { grid-column: 1 / -1; }
+  .page-settings-fields, .code-settings-fields { gap: 12px; }
 }
 
 /* Token colors are shared by preview and print; highlighting never changes font metrics. */
@@ -300,7 +308,6 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .document-body pre, .document-body .syntax-code { --code-background: var(--muted); --code-foreground: var(--foreground); --code-keyword: #a6264c; --code-string: #21613b; --code-number: #075985; --code-title: #6f42a1; --code-comment: #596579; --code-meta: #92400e; }
 .paper[data-code-theme="dark"] pre, .paper[data-code-theme="dark"] pre .syntax-code, .paper[data-inline-code-theme="dark"] :not(pre) > .syntax-code { --code-background: #1e293b; --code-foreground: #f1f5f9; --code-keyword: #fda4af; --code-string: #a7f3d0; --code-number: #7dd3fc; --code-title: #d8b4fe; --code-comment: #cbd5e1; --code-meta: #fdba74; }
 .document-body pre, .document-body .syntax-code { background: var(--code-background); color: var(--code-foreground); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-@media (min-width: 721px) and (max-width: 1100px) { .settings-bar { flex-wrap: wrap; } .settings-title { width: 100%; } .document-settings-fields { width: 100%; flex: 1 1 100%; flex-wrap: wrap; } }
 
 /* Draft status can wrap without squeezing counters on narrow screens. */
 .editor-footer { flex-wrap: wrap; gap: 6px 12px; padding-top: 8px; padding-bottom: 8px; }

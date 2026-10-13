@@ -298,3 +298,9 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - v0.0.23 memperbaiki HighlightedCode: lowlight.highlightAuto dapat menghasilkan tree.children kosong dengan relevance 0 untuk sumber nonkosong seperti Console.WriteLine(), Program, atau eko. Renderer kini memakai teks asli ketika tree kosong. Perbaikan berlaku pada inline code dan blok tanpa bahasa; warna highlighting yang dikenali tetap tersedia.
 - Pengujian regresi memakai lima contoh pengguna, blok otomatis serta C# eksplisit, kedua tema inline, hasil pagination/beforeprint, dan ekstraksi teks PDF Chromium sebenarnya. Build, lint, dan tipe test berhasil. Tidak ada perubahan format penyimpanan atau dependensi.
 - Kasus baru lulus pada Chromium/WebKit setelah cleanup PDF pengujian disesuaikan ke loadingTask.destroy(); regresi dokumen dan tema lainnya lulus, dengan dua PDF WebKit dilewati sesuai keterbatasan Playwright. Peringatan bundle besar tetap ada; tidak ada push.
+
+## Tata letak pengaturan dokumen — 13 Oktober 2026
+
+- v0.0.24 mengelompokkan pengaturan memakai FieldSet/FieldLegend shadcn: Halaman (kertas, tipografi, margin) dan Tema kode (inline, blok). Grid intrinsik menggantikan lebar tetap dan pembungkusan flex yang membuat kontrol berpindah tidak konsisten. Kontrol tema memiliki dua segmen berlebar sama.
+- Desktop menampilkan dua kelompok berdampingan dengan Separator; hingga 900 px kelompok ditumpuk dan pemisah horizontal. Ponsel hingga 480 px memakai dua kolom halaman dengan margin selebar kelompok. Pilihan pengaturan, penyimpanan, dan cetak mengikuti perilaku sebelumnya; target coachmark .settings-bar tetap tersedia.
+- Verifikasi: build, lint, tipe test, sepuluh kasus tema/coachmark Chromium/WebKit lulus. Screenshot pengaturan 390/730/900/1280 px diperiksa; tidak ada overflow horizontal. Peringatan bundle besar tetap ada. Tidak ada push.

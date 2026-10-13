@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend } from '@/components/ui/field'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
@@ -57,10 +57,10 @@ function DocumentSetting({ id, label, value, options, onChange }: {
   id: string; label: string; value: string; options: string[]; onChange: (value: string) => void
 }) {
   const items = options.map(option => ({ label: option, value: option }))
-  return <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
+  return <Field className="min-w-0">
     <FieldLabel htmlFor={id}>{label}</FieldLabel>
     <Select items={items} value={value} onValueChange={next => { if (next) onChange(next) }}>
-      <SelectTrigger id={id} className="w-full sm:min-w-28"><SelectValue /></SelectTrigger>
+      <SelectTrigger id={id} className="w-full"><SelectValue /></SelectTrigger>
       <SelectContent alignItemWithTrigger={false}><SelectGroup>
         {items.map(item => <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>)}
       </SelectGroup></SelectContent>
@@ -317,26 +317,37 @@ export default function App() {
         </div>
         <Separator />
         <div className="settings-bar">
-          <span className="settings-title"><PanelLeftClose size={16} /> Pengaturan dokumen</span>
-          <FieldGroup className="document-settings-fields">
-            <DocumentSetting id="paper-size" label="Ukuran kertas" value={paper} options={['A4', 'Letter']} onChange={setPaper} />
-            <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
-            <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
-            <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
-              <FieldLabel id="inline-code-theme-label">Kode inline</FieldLabel>
-              <ToggleGroup aria-labelledby="inline-code-theme-label" value={[inlineCodeTheme]} onValueChange={values => { if (values.length) update('inlineCodeTheme', values[0]) }} variant="outline" spacing={0}>
-                <ToggleGroupItem value="light">Terang</ToggleGroupItem>
-                <ToggleGroupItem value="dark">Gelap</ToggleGroupItem>
-              </ToggleGroup>
-            </Field>
-            <Field className="min-w-0 flex-1 sm:w-auto sm:flex-none">
-              <FieldLabel id="code-theme-label">Blok kode</FieldLabel>
-              <ToggleGroup aria-labelledby="code-theme-label" value={[codeTheme]} onValueChange={values => { if (values.length) setCodeTheme(values[0]) }} variant="outline" spacing={0}>
-                <ToggleGroupItem value="light">Terang</ToggleGroupItem>
-                <ToggleGroupItem value="dark">Gelap</ToggleGroupItem>
-              </ToggleGroup>
-            </Field>
-          </FieldGroup>
+          <h2 className="settings-title"><PanelLeftClose size={16} /> Pengaturan dokumen</h2>
+          <div className="settings-groups">
+            <FieldSet className="settings-section">
+              <FieldLegend variant="label">Halaman</FieldLegend>
+              <FieldGroup className="page-settings-fields">
+              <DocumentSetting id="paper-size" label="Ukuran kertas" value={paper} options={['A4', 'Letter']} onChange={setPaper} />
+              <DocumentSetting id="document-font" label="Tipografi" value={font} options={['Literary', 'Modern']} onChange={setFont} />
+              <DocumentSetting id="document-margin" label="Margin" value={margin} options={['Normal', 'Lebar', 'Tipis']} onChange={setMargin} />
+              </FieldGroup>
+            </FieldSet>
+            <Separator className="settings-divider" orientation="vertical" />
+            <FieldSet className="settings-section">
+              <FieldLegend variant="label">Tema kode</FieldLegend>
+              <FieldGroup className="code-settings-fields">
+              <Field className="min-w-0">
+                <FieldLabel id="inline-code-theme-label">Kode inline</FieldLabel>
+                <ToggleGroup aria-labelledby="inline-code-theme-label" value={[inlineCodeTheme]} onValueChange={values => { if (values.length) update('inlineCodeTheme', values[0]) }} variant="outline" spacing={0}>
+                  <ToggleGroupItem className="flex-1" value="light">Terang</ToggleGroupItem>
+                  <ToggleGroupItem className="flex-1" value="dark">Gelap</ToggleGroupItem>
+                </ToggleGroup>
+              </Field>
+              <Field className="min-w-0">
+                <FieldLabel id="code-theme-label">Blok kode</FieldLabel>
+                <ToggleGroup aria-labelledby="code-theme-label" value={[codeTheme]} onValueChange={values => { if (values.length) setCodeTheme(values[0]) }} variant="outline" spacing={0}>
+                  <ToggleGroupItem className="flex-1" value="light">Terang</ToggleGroupItem>
+                  <ToggleGroupItem className="flex-1" value="dark">Gelap</ToggleGroupItem>
+                </ToggleGroup>
+              </Field>
+              </FieldGroup>
+            </FieldSet>
+          </div>
         </div>
       </section>
       <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><AppReleases /><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>

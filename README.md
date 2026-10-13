@@ -83,6 +83,8 @@ Bahasa umum seperti JavaScript (`js`, `jsx`), TypeScript (`ts`, `tsx`), Python, 
 
 Pada Pengaturan dokumen, pilih **Terang** atau **Gelap** secara terpisah untuk **Kode inline** (di antara satu backtick) dan **Blok kode** (fence tiga backtick atau kode berindentasi). Blok tetap memakai tema blok walaupun isinya hanya satu baris. Pilihan berlaku pada pratinjau serta cetak PDF dan tersimpan bersama dokumen/riwayatnya; tema awal keduanya Terang. Dokumen lama memakai tema sebelumnya untuk keduanya sampai diubah. Tema hanya mengubah warna, bukan ukuran teks atau pembagian halaman.
 
+Pengaturan dibagi menjadi kelompok **Halaman** (kertas, tipografi, margin) dan **Tema kode**. Kedua kelompok tampil berdampingan di desktop dan ditumpuk pada layar yang lebih sempit.
+
 Warna membedakan token seperti keyword, string, angka, nama fungsi, dan komentar. Highlighting tidak menjalankan kode atau memvalidasi kesalahan program. Kode dirender sebagai elemen React dari AST lowlight, tanpa menyisipkan HTML mentah.
 
 ## Tabel Markdown

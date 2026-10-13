@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.24 — 2026-10-13
+
+Pengaturan dokumen yang lebih rapi
+
+- Pengaturan dikelompokkan menjadi Halaman dan Tema kode, dengan label serta kontrol yang sejajar.
+- Tata letak menyesuaikan layar desktop, tablet, dan ponsel agar pengaturan tetap mudah dibaca.
+
 ## v0.0.23 — 2026-10-13
 
 Perbaikan kode yang hilang saat bahasa tidak terdeteksi
