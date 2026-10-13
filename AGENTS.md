@@ -304,3 +304,10 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 - v0.0.24 mengelompokkan pengaturan memakai FieldSet/FieldLegend shadcn: Halaman (kertas, tipografi, margin) dan Tema kode (inline, blok). Grid intrinsik menggantikan lebar tetap dan pembungkusan flex yang membuat kontrol berpindah tidak konsisten. Kontrol tema memiliki dua segmen berlebar sama.
 - Desktop menampilkan dua kelompok berdampingan dengan Separator; hingga 900 px kelompok ditumpuk dan pemisah horizontal. Ponsel hingga 480 px memakai dua kolom halaman dengan margin selebar kelompok. Pilihan pengaturan, penyimpanan, dan cetak mengikuti perilaku sebelumnya; target coachmark .settings-bar tetap tersedia.
 - Verifikasi: build, lint, tipe test, sepuluh kasus tema/coachmark Chromium/WebKit lulus. Screenshot pengaturan 390/730/900/1280 px diperiksa; tidak ada overflow horizontal. Peringatan bundle besar tetap ada. Tidak ada push.
+
+## Visibilitas indikator PWA — 13 Oktober 2026
+
+- v0.0.25 menghilangkan early return yang menyembunyikan PwaStatus pada mode pengembangan atau browser tanpa service worker. Ikon dan Tooltip kini tetap tersedia dengan keterangan yang sesuai: Mode pengembangan · cache offline tidak aktif, atau browser tidak mendukung penggunaan offline.
+- Service worker tetap hanya didaftarkan pada build produksi; ikon pengembangan tidak mengklaim cache siap. Tombol pembaruan dibatasi ke lingkungan yang mendukung PWA. Tidak mengubah perilaku cache, penyimpanan draft, atau aktivasi update.
+- tests/pwa.spec.ts menjalankan Vite dev server sementara untuk menguji ikon, tooltip fokus keyboard, tidak adanya registrasi service worker, serta tidak munculnya tombol pembaruan pada dev. Server uji ditutup setelah kasus selesai. Regresi PWA produksi tetap memeriksa online/offline, cache, ekspor, pembaruan dan storage gagal.
+- Verifikasi: build, lint, tipe test, delapan pengujian dev/produksi pada Chromium/WebKit lulus. Ikon juga terverifikasi kembali pada tab pengguna localhost:5173 melalui pembaruan dev; screenshot tooltip diperiksa visual. Peringatan bundle besar tetap ada; tidak ada push.

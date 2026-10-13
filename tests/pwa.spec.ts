@@ -36,6 +36,25 @@ async function previewReady(page: Page) {
   await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
 }
 
+test('development keeps the status icon and tooltip visible without registering an offline worker', async ({ page }, testInfo) => {
+  const { createServer: createDevServer } = await import('vite')
+  const server = await createDevServer({ logLevel: 'silent', server: { host: '127.0.0.1', port: 0, open: false } })
+  try {
+    await server.listen()
+    const address = server.httpServer!.address() as { port: number }
+    await page.goto(`http://127.0.0.1:${address.port}`)
+    const status = page.getByRole('button', { name: 'Mode pengembangan · cache offline tidak aktif', exact: true })
+    await expect(status).toBeVisible()
+    await status.focus()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Shift+Tab')
+    await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText('Mode pengembangan · cache offline tidak aktif')
+    await page.screenshot({ path: testInfo.outputPath('pwa-development.png') })
+    expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0)
+    await expect(page.getByRole('button', { name: 'Perbarui aplikasi', exact: true })).toHaveCount(0)
+  } finally { await server.close() }
+})
+
 test('production manifest and cached app preserve documents, images, fonts and export offline', async ({ page, context, site, browserName }, testInfo) => {
   await page.goto(site.url)
   await offlineReady(page)

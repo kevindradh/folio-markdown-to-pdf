@@ -221,7 +221,7 @@ Jika versi baru tersedia, ikon pembaruan dengan tooltip **Perbarui aplikasi** mu
 
 PWA tetap memakai penyimpanan browser, bukan folder perangkat atau sinkronisasi cloud. Batas gambar 2 MiB per file/10 MiB total tetap berlaku. Menghapus data situs atau penghapusan oleh browser dapat menghilangkan cache serta dokumen/gambar lokal; simpan salinan Markdown dan gambar asli. Perubahan domain atau port memakai penyimpanan terpisah.
 
-Service worker hanya aktif pada build produksi, agar cache tidak mengganggu pengembangan. Untuk meninjau secara lokal:
+Service worker hanya aktif pada build produksi, agar cache tidak mengganggu pengembangan. Ikon status tetap terlihat pada server pengembangan, dengan tooltip **Mode pengembangan · cache offline tidak aktif**. Browser yang tidak mendukung service worker menampilkan keterangan penggunaan offline tidak didukung. Untuk meninjau secara lokal:
 
 ```sh
 npm run build

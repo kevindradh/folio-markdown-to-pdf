@@ -16,7 +16,7 @@ export function PwaStatus({ prepareReload, cancelReload, saved, busy }: {
     window.addEventListener('online', change); window.addEventListener('offline', change)
     return () => { window.removeEventListener('online', change); window.removeEventListener('offline', change) }
   }, [])
-  if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return null
+  const enabled = import.meta.env.PROD && 'serviceWorker' in navigator
   async function refresh() {
     setUpdating(true)
     let prepared = false
@@ -28,8 +28,10 @@ export function PwaStatus({ prepareReload, cancelReload, saved, busy }: {
       toast.add({ title: 'Pembaruan belum diterapkan.', description: 'Coba lagi setelah draft tersimpan.', type: 'error' })
     } finally { if (prepared) cancelReload(); setUpdating(false) }
   }
-  const status = !online ? state.ready ? 'Offline · siap menulis' : 'Offline belum siap' : state.ready ? 'Siap digunakan offline' : state.error ? 'Offline belum tersedia; muat ulang saat online' : 'Menyiapkan penggunaan offline…'
-  const StatusIcon = !online ? WifiOff : state.ready ? CloudCheck : state.error ? CloudAlert : LoaderCircle
+  const status = !import.meta.env.PROD ? 'Mode pengembangan · cache offline tidak aktif'
+    : !enabled ? 'Browser ini tidak mendukung penggunaan offline'
+    : !online ? state.ready ? 'Offline · siap menulis' : 'Offline belum siap' : state.ready ? 'Siap digunakan offline' : state.error ? 'Offline belum tersedia; muat ulang saat online' : 'Menyiapkan penggunaan offline…'
+  const StatusIcon = !enabled ? CloudAlert : !online ? WifiOff : state.ready ? CloudCheck : state.error ? CloudAlert : LoaderCircle
   return <aside className="pwa-status" aria-label="Status aplikasi">
     <span role="status" className="sr-only">{status}</span>
     <Tooltip>
@@ -38,7 +40,7 @@ export function PwaStatus({ prepareReload, cancelReload, saved, busy }: {
       </TooltipTrigger>
       <TooltipContent side="bottom">{status}</TooltipContent>
     </Tooltip>
-    {state.update && <Tooltip>
+    {enabled && state.update && <Tooltip>
       <TooltipTrigger render={<span tabIndex={!saved || busy || updating ? 0 : undefined} />}>
         <Button size="icon-sm" variant="outline" aria-label="Perbarui aplikasi" disabled={!saved || busy || updating} onClick={() => void refresh()}><RefreshCw /></Button>
       </TooltipTrigger>

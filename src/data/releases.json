@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.25",
+    "date": "2026-10-13",
+    "title": "Indikator offline tetap terlihat pada mode pengembangan",
+    "changes": [
+      "Ikon status dan tooltip tetap tampil saat aplikasi dibuka pada mode pengembangan, dengan penjelasan bahwa cache offline belum aktif.",
+      "Browser tanpa dukungan offline menampilkan keterangan yang jelas; status dan pembaruan PWA pada build produksi tetap tersedia."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.24",
     "date": "2026-10-13",
     "title": "Pengaturan dokumen yang lebih rapi",

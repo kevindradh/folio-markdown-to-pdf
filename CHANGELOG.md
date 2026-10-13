@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.25 — 2026-10-13
+
+Indikator offline tetap terlihat pada mode pengembangan
+
+- Ikon status dan tooltip tetap tampil saat aplikasi dibuka pada mode pengembangan, dengan penjelasan bahwa cache offline belum aktif.
+- Browser tanpa dukungan offline menampilkan keterangan yang jelas; status dan pembaruan PWA pada build produksi tetap tersedia.
+
 ## v0.0.24 — 2026-10-13
 
 Pengaturan dokumen yang lebih rapi
