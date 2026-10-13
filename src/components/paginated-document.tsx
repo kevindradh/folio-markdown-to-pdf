@@ -302,6 +302,8 @@ export function PaginatedDocument({ children, name, paper, font, margin, codeThe
     const element = stage.current
     if (!element) return
     const resize = () => {
+      // Keep the previous scale while the pane is hidden, including editor-only focus.
+      if (!element.clientWidth) return
       const width = paper === 'A4' ? 210 : 215.9
       const available = element.clientWidth - parseFloat(getComputedStyle(element).paddingLeft) - parseFloat(getComputedStyle(element).paddingRight)
       const scale = Math.min(1, Math.max(0.1, available / (width * 96 / 25.4))) * zoom / 100

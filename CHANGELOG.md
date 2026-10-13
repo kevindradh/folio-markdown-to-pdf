@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.29 — 2026-10-13
+
+Mode fokus untuk menulis tanpa scroll halaman luar
+
+- Mode fokus memenuhi area browser dan membuka editor saja, dengan scroll halaman luar dikunci agar tulisan lebih nyaman diedit.
+- Pratinjau dan tampilan berdampingan tetap tersedia; tombol keluar atau Escape mengembalikan tampilan sebelumnya tanpa mengubah dokumen.
+
 ## v0.0.28 — 2026-10-13
 
 Posisi editor tetap saat menyisipkan pemisah halaman

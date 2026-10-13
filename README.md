@@ -270,3 +270,11 @@ Isi lampiran dimulai pada halaman baru.
 Penanda tidak tercetak. Pemisah di awal/akhir dokumen atau beberapa pemisah berurutan tidak menghasilkan halaman kosong tambahan. `---` tetap menjadi garis horizontal biasa. Penanda di dalam blok kode, kode inline, kutipan, atau daftar ditampilkan sebagai teks; HTML lain tetap tidak dirender.
 
 Pada **Pengaturan dokumen → Halaman → Awal bab**, pilih **Alur biasa**, **Halaman baru untuk #**, atau **Halaman baru untuk # dan ##**. Pilihan berlaku untuk judul tingkat tersebut di luar daftar/kutipan, termasuk judul Setext, dan tersimpan bersama dokumen serta riwayat. Pratinjau dan PDF menggunakan pembagian halaman yang sama. Pemisah manual tetap berlaku ketika pilihan awal bab aktif, tanpa menambahkan halaman kosong ganda. Untuk memulai bagian kode pada halaman baru, letakkan penanda sebelum pembuka fence. Unduhan `.md` mempertahankan penanda manual; pilihan awal bab adalah pengaturan aplikasi dan tidak disisipkan ke file `.md`.
+
+## Mode fokus
+
+Klik ikon **Mode fokus** (perluas layar) di sebelah pilihan tampilan. Editor memenuhi area browser, dengan judul halaman, navigasi, dan pengaturan disembunyikan sementara. Halaman luar tidak dapat digulir; pada tampilan awal Editor, hanya tulisan di dalam editor yang digulir. Lebar tulisan dibatasi agar nyaman dibaca pada layar besar.
+
+Pilihan **Pratinjau** atau **Berdampingan** tetap tersedia dalam mode fokus; masing-masing panel dokumen memiliki scroll sendiri, dan sinkronisasi scroll tetap dapat diaktifkan ketika kedua panel ditampilkan. Pada ponsel, kedua panel ditumpuk di dalam tinggi layar. Keluar melalui ikon **Keluar mode fokus** atau **Escape**. Escape saat dialog terbuka menutup dialog terlebih dahulu.
+
+Tampilan sebelum masuk serta posisi halaman luar dikembalikan ketika keluar. Isi, pilihan dokumen, dan autosave tetap berjalan. Mode fokus berlaku selama sesi dan tidak tersimpan setelah reload. Ini memakai area viewport aplikasi, sehingga tidak memerlukan izin Fullscreen API atau menyembunyikan toolbar browser. Unduh .md tetap tersedia; keluar dari mode fokus untuk membuka pengaturan atau tombol Ekspor PDF. Cetak melalui shortcut browser saat mode fokus tetap memakai seluruh halaman dokumen.

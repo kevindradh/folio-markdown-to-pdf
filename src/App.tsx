@@ -1,6 +1,6 @@
 import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -9,6 +9,7 @@ import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend } from '@/componen
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '@/components/ui/select'
 import { Toggle } from '@/components/ui/toggle'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useFocusMode } from '@/hooks/use-focus-mode'
 import { useScrollSync } from '@/hooks/use-scroll-sync'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
@@ -162,6 +163,8 @@ export default function App() {
   const input = useRef<HTMLInputElement>(null)
   const editor = useRef<HTMLTextAreaElement>(null)
   const previewScroll = useRef<HTMLDivElement>(null)
+  const focusButton = useRef<HTMLButtonElement>(null)
+  const focusMode = useFocusMode(view, setView, editor, previewScroll, focusButton)
   const scrollSync = useScrollSync(editor, previewScroll, text, !previewPending, view === 'split')
   const imageInput = useRef<HTMLInputElement>(null)
   const imageSelection = useRef({ start: 0, end: 0 })
@@ -258,7 +261,7 @@ export default function App() {
 
   if (!library.ready) return <main><p role="status">Memuat dokumen lokal…</p></main>
 
-  return <div className="app-shell">
+  return <div className={cn('app-shell', focusMode.enabled && 'focus-mode')}>
     <header className="topbar">
       <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={39} height={39} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
       <div className="flex items-center gap-1">
@@ -295,6 +298,12 @@ export default function App() {
           <ToggleGroup aria-label="Tampilan editor" value={[view]} onValueChange={values => { if (values.length) setView(values[0]) }} variant="outline" size="sm" spacing={0}>
             {[{ id: 'editor', icon: Code2, label: 'Editor' }, { id: 'split', icon: Columns2, label: 'Berdampingan' }, { id: 'preview', icon: Eye, label: 'Pratinjau' }].map(({ id, icon: Icon, label }) => <ToggleGroupItem key={id} value={id} title={label} aria-label={label}><Icon /></ToggleGroupItem>)}
           </ToggleGroup>
+          <Tooltip>
+            <TooltipTrigger render={<Button ref={focusButton} variant="outline" size="icon-sm" aria-label={focusMode.enabled ? 'Keluar mode fokus' : 'Mode fokus'} aria-pressed={focusMode.enabled} onClick={focusMode.toggle} />}>
+              {focusMode.enabled ? <Minimize2 /> : <Maximize2 />}
+            </TooltipTrigger>
+            <TooltipContent>{focusMode.enabled ? 'Keluar mode fokus (Escape)' : 'Mode fokus · editor memenuhi layar'}</TooltipContent>
+          </Tooltip>
           </div>
         </div>
         <Separator />

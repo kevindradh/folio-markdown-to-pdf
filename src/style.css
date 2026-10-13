@@ -338,3 +338,27 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 @media print { .scroll-sync-measurement { display: none !important; } }
 
 .manual-page-break { display: none; }
+
+/* Focus mode fills the viewport; only the visible document panes own scrolling. */
+@media screen {
+  html.folio-focus, html.folio-focus body { overflow: hidden; overscroll-behavior: none; }
+  .focus-mode { height: 100dvh; overflow: hidden; }
+  .focus-mode > .topbar, .focus-mode main > :not(.workspace), .focus-mode .settings-bar { display: none; }
+  .focus-mode > main { height: 100%; max-width: none; margin: 0; padding: 0; }
+  .focus-mode .workspace { height: 100%; display: flex; flex-direction: column; border: 0; border-radius: 0; }
+  .focus-mode .workspace > :not(.panes) { flex-shrink: 0; }
+  .focus-mode .panes + [data-slot="separator"] { display: none; }
+  .focus-mode .panes { flex: 1; min-height: 0; overflow: hidden; grid-template-rows: minmax(0, 1fr); }
+  .focus-mode .editor-pane, .focus-mode .preview-pane { min-height: 0; overflow: hidden; }
+  .focus-mode .editor-content, .focus-mode .paper-stage { flex: 1; min-height: 0; height: auto; }
+  .focus-mode .format-toolbar, .focus-mode .editor-footer, .focus-mode .preview-footer { flex-shrink: 0; }
+  .focus-mode textarea, .focus-mode .paper-stage { overscroll-behavior: contain; }
+  .focus-mode .view-editor .editor-pane { border: 0; }
+  .focus-mode .view-editor #markdown-editor { padding-inline: max(24px, calc((100% - 80ch) / 2)); }
+}
+@media screen and (max-width: 720px) {
+  .focus-mode .view-split .panes { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .focus-mode .view-editor .panes, .focus-mode .view-preview .panes { grid-template-rows: minmax(0, 1fr); }
+  .focus-mode .workspace-bar { padding-top: max(8px, env(safe-area-inset-top)); }
+  .focus-mode .editor-footer, .focus-mode .preview-footer { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+}

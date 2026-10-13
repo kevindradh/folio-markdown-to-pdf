@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.29",
+    "date": "2026-10-13",
+    "title": "Mode fokus untuk menulis tanpa scroll halaman luar",
+    "changes": [
+      "Mode fokus memenuhi area browser dan membuka editor saja, dengan scroll halaman luar dikunci agar tulisan lebih nyaman diedit.",
+      "Pratinjau dan tampilan berdampingan tetap tersedia; tombol keluar atau Escape mengembalikan tampilan sebelumnya tanpa mengubah dokumen."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.28",
     "date": "2026-10-13",
     "title": "Posisi editor tetap saat menyisipkan pemisah halaman",
