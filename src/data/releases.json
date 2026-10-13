@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.0.32",
+    "date": "2026-10-13",
+    "title": "Ikon pengaturan dokumen",
+    "changes": [
+      "Ikon pengaturan dokumen diganti menjadi slider agar lebih sesuai dengan fungsi pengaturan."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.31",
     "date": "2026-10-13",
     "title": "Versi dan changelog pada navbar",

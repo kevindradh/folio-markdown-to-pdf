@@ -2,6 +2,12 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.32 — 2026-10-13
+
+Ikon pengaturan dokumen
+
+- Ikon pengaturan dokumen diganti menjadi slider agar lebih sesuai dengan fungsi pengaturan.
+
 ## v0.0.31 — 2026-10-13
 
 Versi dan changelog pada navbar

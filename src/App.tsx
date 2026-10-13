@@ -1,7 +1,7 @@
 import { version } from '../package.json'
 import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, SlidersHorizontal, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -366,7 +366,7 @@ export default function App() {
         </div>
         <Separator />
         <div className="settings-bar">
-          <h2 className="settings-title"><PanelLeftClose size={16} /> Pengaturan dokumen</h2>
+          <h2 className="settings-title"><SlidersHorizontal size={16} aria-hidden="true" /> Pengaturan dokumen</h2>
           <div className="settings-groups">
             <FieldSet className="settings-section">
               <FieldLegend variant="label">Halaman</FieldLegend>
