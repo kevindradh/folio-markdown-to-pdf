@@ -10,8 +10,8 @@ const dateFormat = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'lo
 
 export function AppReleases() {
   return <Dialog>
-    <DialogTrigger render={<Button variant="ghost" size="sm" aria-label={`Versi v${version} — Riwayat pembaruan`} />}>
-      <History data-icon="inline-start" /> v{version} <span>Catatan pembaruan</span>
+    <DialogTrigger render={<Button variant="ghost" size="sm" aria-label="Changelog" />}>
+      <History data-icon="inline-start" /> <span>Changelog</span>
     </DialogTrigger>
     <DialogContent className="max-h-[85dvh] grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-xl">
       <DialogHeader>

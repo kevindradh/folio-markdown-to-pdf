@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.31 — 2026-10-13
+
+Versi dan changelog pada navbar
+
+- Nomor versi ditampilkan di samping logo folio, dengan menu Changelog di navbar bersama Panduan Markdown.
+- Teks File diproses di browser kamu. Tanpa unggah ke server. beserta ikon centangnya dihapus dari footer.
+
 ## v0.0.30 — 2026-10-13
 
 Navbar lebih ringkas

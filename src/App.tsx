@@ -1,6 +1,7 @@
+import { version } from '../package.json'
 import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, FileText, Check, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, FileText, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, PanelLeftClose, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -75,8 +76,8 @@ function DocumentSetting({ id, label, value, options, onChange }: {
 function MarkdownGuide({ onStartTour }: { onStartTour: () => void }) {
   const [open, setOpen] = useState(false)
   return <Dialog open={open} onOpenChange={setOpen}>
-    <DialogTrigger render={<Button id="markdown-guide-trigger" variant="ghost" size="sm" />}>
-      <BookOpen data-icon="inline-start" /> Panduan Markdown
+    <DialogTrigger render={<Button id="markdown-guide-trigger" variant="ghost" size="sm" aria-label="Panduan Markdown" />}>
+      <BookOpen data-icon="inline-start" /> <span>Panduan<span className="navbar-label-detail"> Markdown</span></span>
     </DialogTrigger>
     <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-lg">
       <DialogHeader>
@@ -263,10 +264,15 @@ export default function App() {
 
   return <div className={cn('app-shell', focusMode.enabled && 'focus-mode')}>
     <header className="topbar">
-      <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={32} height={32} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
-      <div className="flex items-center gap-1">
+      <div className="navbar-brand">
+        <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={32} height={32} />folio<span className="brand-dot">.</span></a>
+        <span className="brand-version" aria-label={`Versi aplikasi v${version}`}>v{version}</span>
+        <span className="brand-description">Markdown to PDF</span>
+      </div>
+      <div className="navbar-actions flex items-center gap-1">
         <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
         <MarkdownGuide onStartTour={() => { previousView.current = view; setView('split'); setTourOpen(true) }} />
+        <AppReleases />
       </div>
     </header>
     <main>
@@ -394,7 +400,7 @@ export default function App() {
           </div>
         </div>
       </section>
-      <footer className="app-footer"><span><Check size={12} /> File diproses di browser kamu. Tanpa unggah ke server.</span><AppReleases /><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
+      <footer className="app-footer"><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
     </main>
     {tourOpen && <AppTour open onClose={() => { setTourOpen(false); setView(previousView.current) }} />}
     <Toaster />

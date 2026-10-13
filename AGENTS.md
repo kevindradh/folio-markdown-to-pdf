@@ -345,3 +345,9 @@ Catatan historis: penyimpanan satu draft berikut telah digantikan oleh library p
 
 - v0.0.30 pada main merampingkan navbar dari 78 menjadi 60 px desktop, dan dari 65 menjadi 56 px ponsel. Logo/atribut ukuran gambar menjadi 32 px, nama folio 25 px, serta jarak deskripsi brand lebih ringkas. Kontrol PWA dan panduan memakai komponen serta perilaku yang sama.
 - Verifikasi: build, lint, diff check, dan 14 kasus PWA/coachmark Chromium/WebKit lulus; screenshot navbar desktop/ponsel diperiksa. Tidak ada pengujian baru untuk perubahan visual kecil ini. Peringatan bundle besar tetap ada; tidak ada push.
+
+## Versi dan changelog pada navbar — 13 Oktober 2026
+
+- v0.0.31 pada main memindahkan nomor versi ke samping logo folio, terpisah dari tautan brand dan deskripsi. AppReleases menjadi menu Changelog di navbar di samping Panduan Markdown; dialog, catatan historis, serta ketersediaan offline tetap sama. Teks File diproses di browser kamu. Tanpa unggah ke server. dan ikon Check dihapus dari footer. Atribusi penulis tetap di footer desktop; footer kosong disembunyikan pada ponsel.
+- Navbar mempertahankan tinggi 60/56 px. Pada ponsel label panduan diringkas, ikon dekoratif kedua menu disembunyikan, dan tata letak 320 px dipadatkan agar semua menu serta nomor versi terlihat. Nama aksesibel Panduan Markdown tetap sama; Changelog memiliki nama sesuai labelnya.
+- Verifikasi: build, lint, tipe test, diff check, serta **19 passed / 1 skipped** untuk PWA/changelog offline, coachmark, dan mode fokus. Kasus skipped hanya pembuatan PDF WebKit. Pemeriksaan menu/navbar 390/320 px ditambahkan ke pengujian dev yang sudah ada; screenshot desktop dan ponsel diperiksa. Peringatan bundle besar tetap ada; tidak ada push.

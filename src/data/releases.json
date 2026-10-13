@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.31",
+    "date": "2026-10-13",
+    "title": "Versi dan changelog pada navbar",
+    "changes": [
+      "Nomor versi ditampilkan di samping logo folio, dengan menu Changelog di navbar bersama Panduan Markdown.",
+      "Teks File diproses di browser kamu. Tanpa unggah ke server. beserta ikon centangnya dihapus dari footer."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.30",
     "date": "2026-10-13",
     "title": "Navbar lebih ringkas",

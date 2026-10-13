@@ -206,8 +206,7 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .paper-dimensions { font-size: 9px; }
 .settings-bar { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
 .settings-title { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 12px; }
-.app-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; color: var(--muted-foreground); font-size: 10px; padding: 19px 1px 23px; }
-.app-footer > span:first-child { display: flex; align-items: center; gap: 7px; }
+.app-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; color: var(--muted-foreground); font-size: 10px; padding: 19px 1px 23px; }
 .coachmark[data-slot="dialog-content"] { width: 360px; max-height: calc(100dvh - 32px); overflow-y: auto; translate: none; animation: none; transition: none; }
 .coachmark-overlay[data-slot="dialog-overlay"] { background: color-mix(in srgb, var(--foreground) 35%, transparent); backdrop-filter: none; animation: none; transition: none; }
 .library-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -6px 0 12px; }
@@ -361,4 +360,21 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
   .focus-mode .view-editor .panes, .focus-mode .view-preview .panes { grid-template-rows: minmax(0, 1fr); }
   .focus-mode .workspace-bar { padding-top: max(8px, env(safe-area-inset-top)); }
   .focus-mode .editor-footer, .focus-mode .preview-footer { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+}
+
+.navbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-version { color: var(--muted-foreground); font-size: 11px; font-weight: 500; white-space: nowrap; }
+.navbar-brand .brand-description { margin-left: 2px; }
+@media (max-width: 720px) {
+  .navbar-label-detail { display: none; }
+  .navbar-actions > button > svg { display: none; }
+  .navbar-brand { gap: 8px; }
+  .app-footer { display: none; }
+}
+@media (max-width: 360px) {
+  .topbar { padding-inline: 10px; }
+  .brand { font-size: 20px; }
+  .brand-mark { width: 24px; height: 24px; margin-right: 4px; }
+  .navbar-actions > button { padding-inline: 4px; }
+  .navbar-brand { gap: 5px; }
 }

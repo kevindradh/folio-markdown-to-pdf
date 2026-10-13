@@ -50,6 +50,18 @@ test('development keeps the status icon and tooltip visible without registering 
     await page.keyboard.press('Shift+Tab')
     await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText('Mode pengembangan · cache offline tidak aktif')
     await page.screenshot({ path: testInfo.outputPath('pwa-development.png') })
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 })
+      const nav = await page.locator('.topbar').boundingBox()
+      const menu = await page.getByRole('button', { name: 'Changelog', exact: true }).boundingBox()
+      const version = await page.locator('.brand-version').boundingBox()
+      const actions = await page.locator('.navbar-actions').boundingBox()
+      expect(version!.x + version!.width + 4).toBeLessThanOrEqual(actions!.x)
+      expect(menu!.x + menu!.width).toBeLessThanOrEqual(width)
+      expect(nav!.height).toBe(56)
+      await expect(page.getByRole('button', { name: 'Panduan Markdown', exact: true })).toBeVisible()
+      await page.screenshot({ path: testInfo.outputPath(`navbar-${width}.png`) })
+    }
     expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0)
     await expect(page.getByRole('button', { name: 'Perbarui aplikasi', exact: true })).toHaveCount(0)
   } finally { await server.close() }
@@ -105,7 +117,10 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await expect(next.locator('#markdown-editor')).toHaveValue('# Diedit tanpa internet\n\n![Diagram](diagram.png)')
   const appVersion = JSON.parse(await readFile('package.json', 'utf8')).version
   await page.setViewportSize({ width: 390, height: 844 })
-  const versionButton = page.getByRole('button', { name: `Versi v${appVersion} — Riwayat pembaruan`, exact: true })
+  const versionButton = page.getByRole('button', { name: 'Changelog', exact: true })
+  await expect(page.locator('.topbar .brand-version')).toHaveText(`v${appVersion}`)
+  await expect(page.locator('.topbar')).toContainText('Changelog')
+  await expect(page.locator('.app-footer')).not.toContainText('File diproses di browser kamu.')
   await versionButton.click()
   const changelog = page.getByRole('dialog', { name: 'Riwayat pembaruan', exact: true })
   await expect(changelog).toContainText(`Versi yang sedang digunakan: v${appVersion}`)

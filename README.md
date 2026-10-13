@@ -239,7 +239,7 @@ Pengguna yang sudah memiliki draft tidak mendapat tur otomatis. Tur dapat dibuka
 
 ## Versi aplikasi dan changelog
 
-Klik nomor versi dan **Catatan pembaruan** di footer untuk melihat perubahan aplikasi. Riwayat ini tersedia offline. Nomor tersebut mengikuti build yang sedang dibuka; ketika ada pembaruan PWA, nomor berubah setelah pengguna menekan **Perbarui aplikasi** dan aplikasi dimuat ulang.
+Nomor versi tampil di samping logo folio. Klik **Changelog** di navbar, di sebelah **Panduan Markdown**, untuk melihat perubahan aplikasi. Riwayat ini tersedia offline. Nomor tersebut mengikuti build yang sedang dibuka; ketika ada pembaruan PWA, nomor berubah setelah pengguna menekan **Perbarui aplikasi** dan aplikasi dimuat ulang.
 
 Penomoran dimulai dari commit pertama pada `main`: **v0.0.1**. Sebanyak 19 commit awal dipetakan menjadi v0.0.1–v0.0.19, dan penerapan versioning menjadi **v0.0.20**. Catatan versi awal merupakan rekonstruksi riwayat pengembangan, bukan rilis atau tag yang pernah dipublikasikan. Branch yang belum digabung tidak termasuk. Riwayat lengkap juga tersedia di [CHANGELOG.md](CHANGELOG.md).
 
@@ -278,3 +278,5 @@ Klik ikon **Mode fokus** (perluas layar) di sebelah pilihan tampilan. Editor mem
 Pilihan **Pratinjau** atau **Berdampingan** tetap tersedia dalam mode fokus; masing-masing panel dokumen memiliki scroll sendiri, dan sinkronisasi scroll tetap dapat diaktifkan ketika kedua panel ditampilkan. Pada ponsel, kedua panel ditumpuk di dalam tinggi layar. Keluar melalui ikon **Keluar mode fokus** atau **Escape**. Escape saat dialog terbuka menutup dialog terlebih dahulu.
 
 Tampilan sebelum masuk serta posisi halaman luar dikembalikan ketika keluar. Isi, pilihan dokumen, dan autosave tetap berjalan. Mode fokus berlaku selama sesi dan tidak tersimpan setelah reload. Ini memakai area viewport aplikasi, sehingga tidak memerlukan izin Fullscreen API atau menyembunyikan toolbar browser. Unduh .md tetap tersedia; keluar dari mode fokus untuk membuka pengaturan atau tombol Ekspor PDF. Cetak melalui shortcut browser saat mode fokus tetap memakai seluruh halaman dokumen.
+
+Pada ponsel, label Panduan Markdown diringkas menjadi Panduan agar navbar tetap langsing.
