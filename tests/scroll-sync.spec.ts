@@ -122,3 +122,29 @@ test('keyboard toggle works even when storing the preference fails', async ({ pa
   await expect.poll(() => page.locator(stage).evaluate(el => el.scrollTop)).toBeGreaterThan(100)
   await page.screenshot({ path: testInfo.outputPath('scroll-sync-desktop.png'), fullPage: true })
 })
+
+for (const synchronized of [false, true]) test(`inserting a page break in a long document preserves the editing position (sync ${synchronized})`, async ({ page }) => {
+  await prepare(page)
+  if (synchronized) await page.getByRole('button', { name: 'Sinkronkan scroll', exact: true }).click()
+  const position = markdown.indexOf('## Bagian 12')
+  const top = await lineTop(page, '## Bagian 12')
+  await page.locator(editor).evaluate((el: HTMLTextAreaElement, { position, top }) => {
+    el.focus({ preventScroll: true }); el.setSelectionRange(position, position); el.scrollTop = top
+  }, { position, top })
+  if (synchronized) await expect.poll(async () => Math.abs(await previewOffset(page, 'Bagian 12'))).toBeLessThan(40)
+  const before = await page.locator(editor).evaluate(el => el.scrollTop)
+  await page.getByRole('button', { name: 'Sisipkan pemisah halaman', exact: true }).click()
+  await expect(page.locator(editor)).toHaveValue(markdown.slice(0, position) + '\n\n<!-- pagebreak -->\n\n' + markdown.slice(position))
+  await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
+  await expect.poll(async () => Math.abs(await page.locator(editor).evaluate(el => el.scrollTop) - before)).toBeLessThan(120)
+  expect(await page.locator(editor).evaluate((el: HTMLTextAreaElement) => el.selectionStart)).toBe(position + '\n\n<!-- pagebreak -->\n\n'.length)
+  if (synchronized) {
+    await expect.poll(async () => Math.abs(await previewOffset(page, 'Bagian 12'))).toBeLessThan(220)
+    expect(await page.locator(stage).evaluate(el => el.scrollTop / (el.scrollHeight - el.clientHeight))).toBeLessThan(.8)
+  }
+  // Typing a directive directly and using another toolbar action must also retain the section.
+  await page.locator(editor).pressSequentially('\n\n<!-- pagebreak -->\n\n')
+  await page.getByRole('button', { name: 'Tebal', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
+  await expect.poll(async () => Math.abs(await page.locator(editor).evaluate(el => el.scrollTop) - before)).toBeLessThan(250)
+})

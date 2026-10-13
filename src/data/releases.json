@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.28",
+    "date": "2026-10-13",
+    "title": "Posisi editor tetap saat menyisipkan pemisah halaman",
+    "changes": [
+      "Menyisipkan pemisah halaman pada dokumen panjang mempertahankan posisi scroll dan kursor, sehingga editor serta pratinjau tidak meloncat ke bagian terakhir.",
+      "Tombol pemformatan editor juga mempertahankan posisi tulisan selama penyisipan."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.27",
     "date": "2026-10-13",
     "title": "Pemisah halaman dan awal bab",

@@ -167,17 +167,28 @@ export default function App() {
   const imageSelection = useRef({ start: 0, end: 0 })
   const words = text.trim() ? text.trim().split(/\s+/).length : 0
 
+  function applyEditorEdit(next: string, start: number, end: number) {
+    const el = editor.current
+    if (!el) return
+    const { scrollTop, scrollLeft } = el
+    let applied = false
+    // Commit the controlled value before restoring selection. A deferred focus can reveal
+    // the temporary end-of-document caret and feed that jump into scroll synchronization.
+    flushSync(() => { applied = setText(next) })
+    if (!applied) return
+    el.setSelectionRange(start, end)
+    el.focus({ preventScroll: true })
+    el.scrollTop = scrollTop
+    el.scrollLeft = scrollLeft
+  }
+
   function insert(before: string, after = '') {
     const el = editor.current
     if (!el) return
     const start = el.selectionStart
     const end = el.selectionEnd
     const selection = text.slice(start, end) || 'teks'
-    if (!setText(text.slice(0, start) + before + selection + after + text.slice(end))) return
-    requestAnimationFrame(() => {
-      el.focus()
-      el.setSelectionRange(start + before.length, start + before.length + selection.length)
-    })
+    applyEditorEdit(text.slice(0, start) + before + selection + after + text.slice(end), start + before.length, start + before.length + selection.length)
   }
 
   function insertPageBreak() {
@@ -185,8 +196,7 @@ export default function App() {
     if (!el) return
     const start = el.selectionStart
     const syntax = '\n\n<!-- pagebreak -->\n\n'
-    if (!setText(text.slice(0, start) + syntax + text.slice(start))) return
-    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(start + syntax.length, start + syntax.length) })
+    applyEditorEdit(text.slice(0, start) + syntax + text.slice(start), start + syntax.length, start + syntax.length)
   }
 
   async function uploadImage(file?: File) {

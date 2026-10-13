@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.28 — 2026-10-13
+
+Posisi editor tetap saat menyisipkan pemisah halaman
+
+- Menyisipkan pemisah halaman pada dokumen panjang mempertahankan posisi scroll dan kursor, sehingga editor serta pratinjau tidak meloncat ke bagian terakhir.
+- Tombol pemformatan editor juga mempertahankan posisi tulisan selama penyisipan.
+
 ## v0.0.27 — 2026-10-13
 
 Pemisah halaman dan awal bab
