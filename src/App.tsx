@@ -263,7 +263,7 @@ export default function App() {
 
   return <div className={cn('app-shell', focusMode.enabled && 'focus-mode')}>
     <header className="topbar">
-      <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={39} height={39} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
+      <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={32} height={32} />folio<span className="brand-dot">.</span><span className="brand-description">Markdown to PDF</span></a>
       <div className="flex items-center gap-1">
         <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
         <MarkdownGuide onStartTour={() => { previousView.current = view; setView('split'); setTourOpen(true) }} />

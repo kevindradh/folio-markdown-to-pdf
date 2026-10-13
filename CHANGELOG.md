@@ -2,6 +2,13 @@
 
 Nomor awal dipetakan dari urutan commit pada main: commit pertama adalah v0.0.1. v0.0.1–v0.0.19 merupakan rekonstruksi riwayat pengembangan, bukan klaim rilis/tag yang pernah dipublikasikan. Catatan disusun dari yang terbaru. Versi aplikasi menunjukkan build yang sedang digunakan, termasuk saat offline.
 
+## v0.0.30 — 2026-10-13
+
+Navbar lebih ringkas
+
+- Navbar lebih langsing pada desktop dan ponsel, dengan ukuran logo serta jarak identitas aplikasi yang lebih proporsional.
+- Indikator offline dan Panduan Markdown tetap tersedia pada navbar.
+
 ## v0.0.29 — 2026-10-13
 
 Mode fokus untuk menulis tanpa scroll halaman luar

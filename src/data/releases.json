@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.0.30",
+    "date": "2026-10-13",
+    "title": "Navbar lebih ringkas",
+    "changes": [
+      "Navbar lebih langsing pada desktop dan ponsel, dengan ukuran logo serta jarak identitas aplikasi yang lebih proporsional.",
+      "Indikator offline dan Panduan Markdown tetap tersedia pada navbar."
+    ],
+    "commit": null,
+    "retrospective": false
+  },
+  {
     "version": "0.0.29",
     "date": "2026-10-13",
     "title": "Mode fokus untuk menulis tanpa scroll halaman luar",
