@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, ArrowRight, Check, X, RotateCcw, Lightbulb, BookOpen, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { MarkdownContent } from './markdown-content'
 import { cn } from '@/lib/utils'
 import type { Collection } from './collections'
+import { saveStudy, type StudyProgress } from './study-storage'
 
 const media = '(max-width: 959px)'
 function subscribeMobile(callback: () => void) {
@@ -16,13 +17,19 @@ function subscribeMobile(callback: () => void) {
 }
 function mobileSnapshot() { return window.matchMedia(media).matches }
 
-export function StudySession({ collection, onExit }: { collection: Collection; onExit: () => void }) {
-  const [index, setIndex] = useState(0)
-  const [selected, setSelected] = useState<string[]>([])
-  const [revealed, setRevealed] = useState(false)
-  const [score, setScore] = useState(0)
-  const [panel, setPanel] = useState<'hint' | 'explanation' | null>(null)
-  const [expanded, setExpanded] = useState(false)
+export function StudySession({ collection, initial, onExit }: { collection: Collection; initial: StudyProgress; onExit: () => void }) {
+  const [index, setIndex] = useState(initial.index)
+  const [selected, setSelected] = useState<string[]>(initial.selected)
+  const [revealed, setRevealed] = useState(initial.revealed)
+  const [score, setScore] = useState(initial.score)
+  const [panel, setPanel] = useState<'hint' | 'explanation' | null>(initial.panel)
+  const [expanded, setExpanded] = useState(initial.expanded)
+  const [saved, setSaved] = useState(true)
+  useEffect(() => {
+    const result = saveStudy({ collection, progress: { index, selected, revealed, score, panel, expanded } })
+    const frame = requestAnimationFrame(() => setSaved(result))
+    return () => cancelAnimationFrame(frame)
+  }, [collection, index, selected, revealed, score, panel, expanded])
   const mobile = useSyncExternalStore(subscribeMobile, mobileSnapshot)
   const questionPane = useRef<HTMLElement>(null)
   const multipleChoice = collection.type === 'multiple-choice'
@@ -41,7 +48,7 @@ export function StudySession({ collection, onExit }: { collection: Collection; o
       if (correct) setScore(score + 1)
     }
   }
-  function restart() { setIndex(0); setScore(0); setSelected([]); setRevealed(false); setPanel(null) }
+  function restart() { setIndex(0); setScore(0); setSelected([]); setRevealed(false); setPanel(null); setExpanded(false) }
 
   const explanation = !done && <section className="latih-explanation" aria-live="polite">
     <div className={cn('latih-answer-result', correct ? 'is-correct' : 'is-incorrect')}>
@@ -59,6 +66,7 @@ export function StudySession({ collection, onExit }: { collection: Collection; o
       <div className="latih-quiz-title"><strong>{collection.title}</strong><span>{done ? 'Sesi selesai' : `${multipleChoice ? 'Soal' : 'Kartu'} ${index + 1} dari ${collection.questions.length}`}</span></div>
       <Badge variant="secondary">{collection.demo ? 'Contoh' : 'Pribadi'}</Badge>
     </header>
+    {!saved && <p role="status">Progres belum tersimpan. Refresh dapat mengulang sesi ini.</p>}
     <progress className="latih-quiz-progress" aria-label="Progres latihan" value={done ? collection.questions.length : index + (revealed ? 1 : 0)} max={collection.questions.length} />
     {done ? <main className="latih-study-main"><section className="latih-study-question">
       <Check className="latih-complete-icon" aria-hidden="true" /><h1>Sesi selesai.</h1>

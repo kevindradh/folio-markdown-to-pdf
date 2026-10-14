@@ -15,7 +15,7 @@ Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau
 
 ## Preview latih.
 
-latih. membantu belajar lewat soal yang pengguna buat sendiri di AI/LLM pilihannya. Dashboard memakai sidebar desktop dan navigasi bawah pada ponsel: Beranda, Koleksi, dan Template. Preview menyediakan latihan pilihan ganda dan flashcard contoh yang dapat dicoba, pencarian koleksi, penyalinan instruksi/template JSON, serta impor JSON melalui teks/file (maksimal 100 KiB dan 100 soal). Sesi belajar menampilkan pembahasan dan hasil pilihan ganda. Koleksi impor disimpan di IndexedDB browser; progres kuis masih berlaku selama sesi. Tidak ada integrasi AI atau backend.
+latih. membantu belajar lewat soal yang pengguna buat sendiri di AI/LLM pilihannya. Dashboard memakai sidebar desktop dan navigasi bawah pada ponsel: Beranda, Koleksi, dan Template. Preview menyediakan latihan pilihan ganda dan flashcard contoh yang dapat dicoba, pencarian koleksi, penyalinan instruksi/template JSON, serta impor JSON melalui teks/file (maksimal 100 KiB dan 100 soal). Sesi belajar menampilkan pembahasan dan hasil pilihan ganda. Koleksi impor disimpan di IndexedDB browser; progres kuis dipulihkan setelah refresh pada tab yang sama. Tidak ada integrasi AI atau backend.
 
 Pada pilihan ganda, `question`, setiap teks `options`, dan `explanation` mendukung Markdown (tebal, miring, daftar, tabel, kutipan, dan kode) serta LaTeX inline `$...$`/`\(...\)` dan blok `$$...$$`/`\[...\]`. Rumus blok diletakkan pada baris terpisah. Dalam file JSON, tulis setiap backslash sebagai `\\` dan baris baru sebagai `\n`; contoh lengkap tersedia pada menu Template. HTML mentah tidak dijalankan dan tautan dalam opsi tidak aktif agar klik tetap memilih jawaban. Rumus rusak/lebih dari 2.000 karakter tetap menampilkan sumber atau fallback; jawaban masih dapat dipilih. Flashcard tetap memakai teks biasa pada tahap ini.
 
@@ -77,7 +77,7 @@ Kontrol antarmuka menggunakan shadcn/ui berbasis Base UI. Panduan pengembangan b
 
 Preview aplikasi belajar tersedia di `/latih/`. Beranda menampilkan koleksi pribadi terbaru dan materi terakhir dibuka; menu Koleksi memuat seluruh latihan, sedangkan Template menyediakan instruksi JSON untuk AI pilihan pengguna. Halaman Panduan (`/latih/#panduan`) menjelaskan alur belajar, pembuatan soal, Markdown/LaTeX, dan bantuan impor. Panduan dapat diakses dari sidebar desktop atau ikon bantuan di header ponsel.
 
-Koleksi impor disimpan di IndexedDB `latih-library` dan dipulihkan setelah reload atau berpindah aplikasi. Penyimpanan berlaku pada browser, origin, dan perangkat yang sama; menghapus data situs akan menghapus koleksi. Simpan file JSON asli sebagai cadangan. Progres kuis dan materi terakhir dibuka masih berlaku selama sesi. Impor yang gagal disimpan tidak ditambahkan dan JSON tetap tersedia untuk dicoba lagi.
+Koleksi impor disimpan di IndexedDB `latih-library` dan dipulihkan setelah reload atau berpindah aplikasi. Penyimpanan berlaku pada browser, origin, dan perangkat yang sama; menghapus data situs akan menghapus koleksi. Simpan file JSON asli sebagai cadangan. Sesi kuis aktif dipulihkan lewat sessionStorage pada tab yang sama: nomor soal, pilihan, status pemeriksaan, skor, dan panel pembahasan/petunjuk. Keluar ke koleksi mengakhiri pemulihan sesi; materi terakhir dibuka masih berlaku selama sesi aplikasi. Impor yang gagal disimpan tidak ditambahkan dan JSON tetap tersedia untuk dicoba lagi.
 
 ## Menulis kode dengan syntax highlighting
 

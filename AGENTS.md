@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Pemulihan kuis setelah refresh — 15 Oktober 2026
+
+- `src/apps/latih/study-storage.ts` menyimpan snapshot koleksi aktif dan progres dalam sessionStorage `latih:active-study:v1`, terpisah per tab. App memulihkan sesi saat mount; StudySession menyimpan nomor soal, pilihan, status pemeriksaan, skor, panel petunjuk/pembahasan, dan ukuran panel mobile setelah perubahan state.
+- Snapshot divalidasi melalui parser koleksi dan batas progres. Data rusak/tidak dikenal diabaikan; storage gagal menampilkan status tanpa memblokir kuis. Keluar ke koleksi menghapus snapshot; mengulang latihan mengatur ulang progres dan skor. SessionStorage ditujukan untuk refresh pada tab yang sama, bukan sinkronisasi perangkat.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 26 kasus latih Chromium/WebKit lulus. Regresi baru mencakup pilihan sebelum diperiksa, pembahasan, perpindahan soal, skor tanpa penghitungan ulang, hasil akhir, ulangi/keluar, panel mobile, snapshot rusak, dan storage gagal.
+
 ## Penyimpanan koleksi latih. — 15 Oktober 2026
 
 - `src/apps/latih/collection-storage.ts` menyimpan tiap koleksi impor sebagai record UUID pada IndexedDB `latih-library` versi 1, store `collections`. Database terpisah dari Folio; transaksi add tidak menimpa koleksi dari tab lain. Koleksi dimuat menurut waktu impor terbaru, divalidasi kembali, lalu digabung dengan contoh bawaan tanpa menyimpan contoh.

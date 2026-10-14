@@ -15,6 +15,7 @@ import { examples, parseCollection, templateFor, type Collection } from './colle
 import { StudySession } from './study-session'
 import { HelpPage } from './help-page'
 import { loadCollections, saveCollection } from './collection-storage'
+import { clearStudy, initialProgress, readStudy, type SavedStudy } from './study-storage'
 
 const navigation = [{ id: 'beranda', label: 'Beranda', icon: House }, { id: 'koleksi', label: 'Koleksi', icon: Library }, { id: 'template', label: 'Template', icon: Braces }] as const
 type Page = typeof navigation[number]['id'] | 'panduan'
@@ -30,9 +31,9 @@ export default function LatihApp() {
   loadCollections().then(items => { if (active) { setCollections([...items, ...examples]); setStorage('ready') } }).catch(() => { if (active) setStorage('error') })
   return () => { active = false }
  }, [])
- const [study, setStudy] = useState<Collection | null>(null)
+ const [study, setStudy] = useState<SavedStudy | null>(readStudy)
  const [lastOpened, setLastOpened] = useState<Collection | null>(null)
- function startStudy(item: Collection) { setLastOpened(item); setStudy(item) }
+ function startStudy(item: Collection) { setLastOpened(item); setStudy({ collection: item, progress: initialProgress }) }
  const [importOpen, setImportOpen] = useState(false)
  const [source, setSource] = useState(''), [error, setError] = useState('')
  const [type, setType] = useState<Collection['type']>('multiple-choice')
@@ -54,7 +55,7 @@ export default function LatihApp() {
  const visible = page === 'beranda' ? personal.slice(0, 4) : collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
  const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} href={`#${id}`} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)
  const brand = <div className="navbar-brand"><a className="brand" href="#beranda"><img className="brand-mark" src={`${import.meta.env.BASE_URL}latih.svg`} alt="" width={32} height={32} />latih<span className="brand-dot">.</span></a><Badge variant="secondary">Preview</Badge></div>
- if (study) return <StudySession collection={study} onExit={() => { setStudy(null); navigate('koleksi') }} />
+ if (study) return <StudySession collection={study.collection} initial={study.progress} onExit={() => { clearStudy(); setStudy(null); navigate('koleksi') }} />
  return <div className="latih-shell latih-dashboard">
   <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink href="#panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
   <div className="latih-dashboard-body">

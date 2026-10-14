@@ -226,3 +226,64 @@ test('imports in two tabs preserve both local collections', async ({ page, conte
   for (const title of ['Materi tab 0', 'Materi tab 1']) await expect(page.locator('[data-slot="card"]').filter({ hasText: title })).toBeVisible()
   await other.close()
 })
+
+test('refresh restores quiz choices, explanation, score, and next question without double counting', async ({ page }) => {
+  await page.goto('/latih/#panduan')
+  await page.getByRole('button', { name: 'Coba latihan contoh' }).click()
+  await page.locator('.latih-answer').nth(1).click()
+  await page.reload()
+  await expect(page.locator('.latih-answer').nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Benar, kamu sudah paham.' })).toBeVisible()
+  await page.getByRole('button', { name: 'Berikutnya', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Soal 2', exact: true })).toBeAttached()
+  await expect(page.locator('.latih-answer[aria-pressed="true"]')).toHaveCount(0)
+  for (let i = 0; i < 2; i++) {
+    await page.locator('.latih-answer').first().click()
+    await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+    await page.getByRole('button', { name: i === 0 ? 'Berikutnya' : 'Selesaikan sesi', exact: true }).click()
+  }
+  await page.reload()
+  await expect(page.getByText('2 dari 3 jawaban benar.', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Ulangi latihan' }).click()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Soal 1', exact: true })).toBeAttached()
+  await page.getByRole('button', { name: 'Kembali ke koleksi', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Koleksi latihan', exact: true })).toBeVisible()
+})
+
+test('mobile refresh restores hint and expanded explanation panel', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/latih/#panduan')
+  await page.getByRole('button', { name: 'Coba latihan contoh' }).click()
+  await page.getByRole('button', { name: 'Petunjuk', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('dialog', { name: 'Petunjuk', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Kembali ke soal', exact: true }).click()
+  await page.locator('.latih-answer').nth(1).click()
+  await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+  await page.getByRole('button', { name: 'Perluas', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('dialog', { name: 'Pembahasan', exact: true })).toHaveAttribute('data-expanded', 'true')
+})
+
+test('invalid stored quiz is ignored and unavailable session storage keeps quiz usable', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('latih:active-study:v1', JSON.stringify({ version: 1, collection: {}, progress: { index: 999 } }))
+    const set = Storage.prototype.setItem
+    Storage.prototype.setItem = function (...args) {
+      if (args[0] === 'latih:active-study:v1') throw new DOMException('Denied', 'SecurityError')
+      return set.apply(this, args)
+    }
+  })
+  await page.goto('/latih/#panduan')
+  await expect(page.getByRole('heading', { name: 'Panduan penggunaan', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Coba latihan contoh' }).click()
+  await expect(page.getByRole('status')).toHaveText('Progres belum tersimpan. Refresh dapat mengulang sesi ini.')
+  await page.locator('.latih-answer').nth(1).click()
+  await page.getByRole('button', { name: 'Periksa jawaban' }).click()
+  await expect(page.getByRole('heading', { name: 'Benar, kamu sudah paham.' })).toBeVisible()
+})
