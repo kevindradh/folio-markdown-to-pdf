@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Panduan pertama wajib — 15 Oktober 2026
+
+- App menampilkan `RequiredGuide` sebelum dashboard maupun pemulihan kuis jika flag localStorage `latih:guide-completed:v1` belum bernilai `true`. Seluruh navigasi, impor, dan kuis tidak dirender selama pengunci aktif. Panduan berisi alur template, AI, impor, latihan, dan informasi penyimpanan; tema mengikuti latih dengan kontrol Button shadcn.
+- Pengguna wajib menunggu 60 detik waktu tab terlihat, kemudian menekan Saya sudah membaca. Hitung mundur memakai performance.now dan visibilitychange; progres waktu disimpan di sessionStorage `latih:guide-elapsed:v1` agar refresh pada tab yang sama tidak mengulang dari nol. Penyelesaian tersimpan per browser/origin. Progres waktu menyertakan identitas localStorage `latih:guide-identity:v1`; menghapus data lokal membatalkan progres sessionStorage lama. Timer numerik format lama diabaikan dan progres dihapus setelah konfirmasi selesai. Storage yang diblokir tidak mencegah penyelesaian pada sesi aktif, tetapi dapat menyebabkan panduan muncul kembali setelah reload.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 36 pengujian Chromium/WebKit lulus. Uji khusus memastikan tombol terkunci sebelum waktunya, hash URL tidak melewati pengunci, waktu berhenti di tab tersembunyi, refresh melanjutkan waktu, penyelesaian bertahan setelah navigasi/reload, reset data lokal tidak memakai sisa timer lama, timer numerik lama diabaikan, storage gagal tetap usable, dan layout 1280/390/320 px tanpa overflow. Screenshot mobile diperiksa.
+
 ## Pemulihan kuis setelah refresh — 15 Oktober 2026
 
 - `src/apps/latih/study-storage.ts` menyimpan snapshot koleksi aktif dan progres dalam sessionStorage `latih:active-study:v1`, terpisah per tab. App memulihkan sesi saat mount; StudySession menyimpan nomor soal, pilihan, status pemeriksaan, skor, panel petunjuk/pembahasan, dan ukuran panel mobile setelah perubahan state.

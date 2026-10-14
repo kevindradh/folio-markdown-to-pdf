@@ -15,6 +15,8 @@ import { examples, parseCollection, templateFor, type Collection } from './colle
 import { StudySession } from './study-session'
 import { HelpPage } from './help-page'
 import { loadCollections, saveCollection } from './collection-storage'
+import { RequiredGuide } from './required-guide'
+import { hasReadGuide } from './guide-storage'
 import { clearStudy, initialProgress, readStudy, type SavedStudy } from './study-storage'
 
 const navigation = [{ id: 'beranda', label: 'Beranda', icon: House }, { id: 'koleksi', label: 'Koleksi', icon: Library }, { id: 'template', label: 'Template', icon: Braces }] as const
@@ -22,6 +24,7 @@ type Page = typeof navigation[number]['id'] | 'panduan'
 function currentPage(): Page { if (['#panduan', '#mulai-belajar', '#membuat-soal', '#format-soal', '#bantuan-impor'].includes(window.location.hash)) return 'panduan'; return navigation.find(item => `#${item.id}` === window.location.hash)?.id ?? 'beranda' }
 
 export default function LatihApp() {
+ const [guideCompleted, setGuideCompleted] = useState(hasReadGuide)
  const [page, setPage] = useState<Page>(currentPage)
  const [collections, setCollections] = useState<Collection[]>(examples)
  const [storage, setStorage] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -55,6 +58,7 @@ export default function LatihApp() {
  const visible = page === 'beranda' ? personal.slice(0, 4) : collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
  const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} href={`#${id}`} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)
  const brand = <div className="navbar-brand"><a className="brand" href="#beranda"><img className="brand-mark" src={`${import.meta.env.BASE_URL}latih.svg`} alt="" width={32} height={32} />latih<span className="brand-dot">.</span></a><Badge variant="secondary">Preview</Badge></div>
+ if (!guideCompleted) return <RequiredGuide onComplete={() => { setGuideCompleted(true); window.scrollTo({ top: 0 }) }} />
  if (study) return <StudySession collection={study.collection} initial={study.progress} onExit={() => { clearStudy(); setStudy(null); navigate('koleksi') }} />
  return <div className="latih-shell latih-dashboard">
   <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink href="#panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>

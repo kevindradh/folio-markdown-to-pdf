@@ -616,3 +616,31 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .latih-help .latih-json { padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
 .latih-help dt { font-size: 14px; font-weight: 600; margin: 24px 0 6px; }
 .latih-help dd { margin: 0; }
+
+.latih-required-guide { min-height: 100dvh; background: var(--background); padding-bottom: 130px; }
+.latih-guide-header { max-width: 824px; margin: auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--border); }
+.latih-guide-header > span { font-size: 13px; color: var(--muted-foreground); }
+.latih-guide-reading { max-width: 760px; margin: 40px auto; padding: 0 32px; font-size: 15px; line-height: 1.85; }
+.latih-guide-reading h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 650; line-height: 1.25; letter-spacing: -.035em; margin-bottom: 16px; }
+.latih-guide-intro { color: var(--muted-foreground); margin-bottom: 32px; }
+.latih-guide-reading h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; line-height: 1.5; }
+.latih-guide-steps { list-style: decimal; padding-left: 24px; display: grid; gap: 24px; margin-bottom: 32px; }
+.latih-guide-steps > li { padding-left: 8px; }
+.latih-guide-steps > li::marker { color: var(--primary); font-weight: 600; }
+.latih-guide-reading section { border-top: 1px solid var(--border); padding-top: 24px; }
+.latih-guide-reading ul { list-style: disc; padding-left: 20px; }
+.latih-guide-reading ul li { margin-top: 12px; }
+.latih-guide-reading code { font-size: .88em; overflow-wrap: anywhere; }
+.latih-guide-lock { position: fixed; bottom: 0; inset-inline: 0; background: var(--background); border-top: 1px solid var(--border); padding: 16px 24px calc(12px + env(safe-area-inset-bottom)); }
+.latih-guide-lock-inner { max-width: 760px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.latih-guide-time { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.latih-guide-time svg { width: 16px; height: 16px; color: var(--primary); }
+.latih-guide-lock p { font-size: 12px; color: var(--muted-foreground); margin-top: 4px; }
+.latih-guide-lock progress { display: block; max-width: 760px; width: 100%; margin: 12px auto 0; height: 4px; accent-color: var(--primary); }
+@media (max-width: 600px) {
+ .latih-required-guide { padding-bottom: 190px; }
+ .latih-guide-header { padding: 20px; }
+ .latih-guide-reading { margin-top: 28px; padding: 0 20px; }
+ .latih-guide-lock { padding-inline: 20px; }
+ .latih-guide-lock-inner { flex-direction: column; align-items: stretch; gap: 12px; }
+}

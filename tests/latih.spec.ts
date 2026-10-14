@@ -1,5 +1,9 @@
 import { test, expect } from './fixtures'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('latih:guide-completed:v1', 'true'))
+})
+
 test('latih preview navigates on desktop and mobile, runs quiz and flashcards', async ({ page }, testInfo) => {
   await page.goto('/latih/')
   for (const width of [1280, 390, 320]) {
