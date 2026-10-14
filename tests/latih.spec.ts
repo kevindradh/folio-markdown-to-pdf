@@ -162,3 +162,67 @@ test('home shows imported collections and the last opened material without walkt
   await expect(page.getByText('Belum ada koleksi pribadi', { exact: true })).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Buat latihan sendiri', exact: true })).toHaveCount(0)
 })
+
+test('imported collections survive reload and visiting Folio with Markdown and hints intact', async ({ page }) => {
+  const collection = { title: 'Koleksi tersimpan', type: 'multiple-choice', questions: [{ question: '**Gaya** $F=ma$', options: ['$2$', '$4$'], answer: 1, hint: 'Kalikan **massa**.', explanation: '$F=4$' }] }
+  await page.goto('/latih/')
+  await page.getByRole('button', { name: 'Impor soal', exact: true }).click()
+  await page.getByLabel('JSON latihan').fill(JSON.stringify(collection))
+  await page.getByRole('button', { name: 'Tambahkan koleksi' }).click()
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await page.goto('/')
+  await page.goto('/latih/#koleksi')
+  const card = page.locator('[data-slot="card"]').filter({ hasText: collection.title })
+  await expect(card).toBeVisible()
+  await page.reload()
+  await card.getByRole('button', { name: 'Mulai latihan' }).click()
+  await expect(page.locator('.latih-question-content strong')).toHaveText('Gaya')
+  await expect(page.locator('.latih-question-content .katex')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Petunjuk', exact: true }).click()
+  await expect(page.locator('.latih-quiz-panel strong')).toHaveText('massa')
+})
+
+test('failed local write keeps JSON available and does not claim import succeeded', async ({ page }) => {
+  await page.addInitScript(() => {
+    const add = IDBObjectStore.prototype.add
+    IDBObjectStore.prototype.add = function (...args) {
+      if (this.transaction.db.name === 'latih-library') throw new DOMException('Storage full', 'QuotaExceededError')
+      return add.apply(this, args)
+    }
+  })
+  await page.goto('/latih/')
+  await page.getByRole('button', { name: 'Impor soal', exact: true }).click()
+  const source = JSON.stringify({ title: 'Gagal disimpan', type: 'flashcard', questions: [{ question: 'Satu', answer: 'One', explanation: 'Angka.' }] })
+  await page.getByLabel('JSON latihan').fill(source)
+  await page.getByRole('button', { name: 'Tambahkan koleksi' }).click()
+  await expect(page.getByText('Penyimpanan lokal gagal. Koleksi belum ditambahkan; simpan JSON asli dan coba lagi.')).toBeVisible()
+  await expect(page.getByLabel('JSON latihan')).toHaveValue(source)
+  await page.reload()
+  await expect(page.getByText('Belum ada koleksi pribadi', { exact: true })).toBeVisible()
+})
+
+test('unavailable local storage shows failure and blocks import without affecting examples', async ({ page }) => {
+  await page.addInitScript(() => { IDBFactory.prototype.open = () => { throw new DOMException('Denied', 'SecurityError') } })
+  await page.goto('/latih/#koleksi')
+  await expect(page.getByText('Koleksi lokal gagal dimuat. Muat ulang halaman untuk mencoba lagi.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mulai latihan' })).toHaveCount(2)
+  await page.getByRole('button', { name: 'Impor soal', exact: true }).click()
+  await page.getByLabel('JSON latihan').fill('{}')
+  await expect(page.getByRole('button', { name: 'Tambahkan koleksi' })).toBeDisabled()
+})
+
+test('imports in two tabs preserve both local collections', async ({ page, context }) => {
+  const other = await context.newPage()
+  await Promise.all([page.goto('/latih/'), other.goto('/latih/')])
+  await Promise.all([page, other].map(async (tab, index) => {
+    await expect(tab.getByText('Koleksi disimpan di browser ini.', { exact: true })).toBeVisible()
+    await tab.getByRole('button', { name: 'Impor soal', exact: true }).click()
+    await tab.getByLabel('JSON latihan').fill(JSON.stringify({ title: `Materi tab ${index}`, type: 'flashcard', questions: [{ question: 'Curious', answer: 'Ingin tahu', explanation: 'Kosakata.' }] }))
+    await tab.getByRole('button', { name: 'Tambahkan koleksi' }).click()
+    await expect(tab.getByRole('dialog')).toBeHidden()
+  }))
+  await page.goto('/latih/#koleksi')
+  await page.reload()
+  for (const title of ['Materi tab 0', 'Materi tab 1']) await expect(page.locator('[data-slot="card"]').filter({ hasText: title })).toBeVisible()
+  await other.close()
+})
