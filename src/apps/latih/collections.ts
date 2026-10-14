@@ -12,7 +12,12 @@ export const examples: Collection[] = [
  ] }
 ]
 export function templateFor(type: Collection['type']) {
- return JSON.stringify({ title: 'Judul materi kamu', type, questions: [type === 'multiple-choice' ? { question: 'Pertanyaan', options: ['Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D'], answer: 0, explanation: 'Alasan jawaban benar.' } : { question: 'Istilah atau pertanyaan', answer: 'Jawaban singkat', explanation: 'Konteks tambahan.' }] }, null, 2)
+ return JSON.stringify({ title: 'Judul materi kamu', type, questions: [type === 'multiple-choice' ? {
+  question: 'Sebuah benda bermassa **2 kg** mengalami percepatan $a = 3\\,\\mathrm{m/s^2}$.\n\nMenurut hukum Newton, berapa gaya yang bekerja pada benda?',
+  options: ['$F = 3\\,\\mathrm{N}$', '$F = 6\\,\\mathrm{N}$', '$F = 9\\,\\mathrm{N}$', '$F = 12\\,\\mathrm{N}$'],
+  answer: 1,
+  explanation: 'Gunakan **hukum II Newton**:\n\n$$\nF = ma = 2 \\times 3 = 6\\,\\mathrm{N}\n$$\n\nJadi gaya yang bekerja adalah **6 N**.'
+ } : { question: 'Istilah atau pertanyaan', answer: 'Jawaban singkat', explanation: 'Konteks tambahan.' }] }, null, 2)
 }
 export function parseCollection(source: string): Collection {
  if (new TextEncoder().encode(source).length > 102400) throw new Error('JSON maksimal 100 KiB.')

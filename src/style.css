@@ -518,3 +518,23 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
  .latih-study-main { padding: 28px 20px; }
 }
 @media(max-width: 480px) { .latih-card-scene { display: none; } }
+
+/* Markdown inside practice content keeps document formatting without print sizing. */
+.latih-markdown { min-width: 0; width: 100%; padding: 0; font: inherit; line-height: 1.8; text-align: left; }
+.latih-markdown > :last-child { margin-bottom: 0; }
+.latih-markdown h1 { font-size: 1.65em; line-height: 1.35; }
+.latih-markdown h2 { font-size: 1.35em; margin: 18px 0 8px; }
+.latih-markdown h3 { font-size: 1.15em; margin: 14px 0 6px; }
+.latih-markdown p { margin-bottom: 12px; }
+.latih-markdown pre { padding: 12px; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.latih-markdown blockquote { padding: 10px 14px; margin: 12px 0; font-style: normal; }
+.latih-markdown .markdown-table { display: block; overflow-x: auto; font-size: .9em; }
+.latih-markdown .math-block { margin: 16px 0; }
+.latih-markdown .katex-display { overflow-x: auto; overflow-y: hidden; padding-block: 5px; }
+.latih-markdown .math-expression { max-width: 100%; overflow-x: auto; vertical-align: middle; }
+.latih-markdown .katex { font-size: 1.1em; }
+.latih-question-content { width: 100%; min-width: 0; font-size: 17px; }
+.latih-answers .latih-answer { align-items: flex-start; cursor: pointer; }
+.latih-answer .latih-markdown { font-size: 14px; font-weight: 400; }
+.latih-answer-letter { flex-shrink: 0; padding-top: 4px; }
+.latih-explanation { width: 100%; min-width: 0; }
