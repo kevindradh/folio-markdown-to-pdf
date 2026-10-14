@@ -15,6 +15,8 @@ Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau
 
 ## Preview latih.
 
+latih. membantu belajar lewat soal yang pengguna buat sendiri di AI/LLM pilihannya. Dashboard memakai sidebar desktop dan navigasi bawah pada ponsel: Beranda, Koleksi, dan Template. Preview menyediakan latihan pilihan ganda dan flashcard contoh yang dapat dicoba, pencarian koleksi, penyalinan instruksi/template JSON, serta impor JSON melalui teks/file (maksimal 100 KiB dan 100 soal). Sesi belajar menampilkan pembahasan dan hasil pilihan ganda. Koleksi impor dan progres belum disimpan setelah reload; tidak ada integrasi AI atau backend.
+
 Pada branch `codex/latih-preview`, tombol grid **Pilih aplikasi** di navbar Folio dan latih. membuka pilihan aplikasi dengan logo dan deskripsi. Pilih **latih.** untuk membuka `/latih/` dengan animasi splash; badge Preview menandai tahap pengembangannya. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Hosting harus mengarahkan URL aplikasi ke `index.html` (SPA fallback).
 
 ## Publikasi ke GitHub dan Vercel
