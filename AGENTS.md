@@ -1,5 +1,12 @@
 # Panduan Proyek
 
+## Pemisahan Panduan latih. — 15 Oktober 2026
+
+- Preview `/latih/` memiliki halaman `#panduan` dengan empat bagian: Mulai belajar, Membuat soal dengan AI, Format soal, dan Bantuan impor. Komponen `src/apps/latih/help-page.tsx` memakai kontrol shadcn yang sudah terpasang. Akses tersedia di bawah sidebar desktop dan ikon bantuan pada header ponsel; bottom navigation tetap tiga tujuan.
+- Beranda menampilkan koleksi pribadi terbaru dan materi terakhir dibuka. Jika belum ada koleksi pribadi, tampilkan empty state dengan aksi Template, Impor soal, serta Panduan. Contoh latihan tetap tersedia melalui Koleksi dan Panduan. Materi terakhir dibuka memulai latihan dari awal, bukan melanjutkan posisi soal.
+- Koleksi impor serta materi terakhir dibuka masih berada dalam memori React selama sesi preview, belum persisten setelah reload. Tidak ada dependensi baru atau perubahan penyimpanan Folio.
+- Verifikasi: build, lint, tipe test, diff check, serta 12 pengujian latih Chromium/WebKit lulus. Cakupan meliputi navigasi bantuan desktop/ponsel 1280/390/320 px, URL langsung/reload, impor, Beranda, kuis, Markdown/LaTeX, dan pembahasan.
+
 ## Preview latih. — 14 Oktober 2026
 
 - Card koleksi memakai ikon dalam bidang teal, judul/jenis latihan, jumlah soal, dan tombol solid Mulai latihan. CardFooter memiliki variant plain tanpa latar/border atas untuk card ini; default komponen lain tetap sama. CardContent flex-1 mempertahankan footer rata bawah pada grid desktop.

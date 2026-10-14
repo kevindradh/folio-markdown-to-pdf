@@ -73,6 +73,12 @@ Perintah lainnya:
 
 Kontrol antarmuka menggunakan shadcn/ui berbasis Base UI. Panduan pengembangan berada di [AGENTS.md](AGENTS.md).
 
+## Preview latih.
+
+Preview aplikasi belajar tersedia di `/latih/`. Beranda menampilkan koleksi pribadi terbaru dan materi terakhir dibuka; menu Koleksi memuat seluruh latihan, sedangkan Template menyediakan instruksi JSON untuk AI pilihan pengguna. Halaman Panduan (`/latih/#panduan`) menjelaskan alur belajar, pembuatan soal, Markdown/LaTeX, dan bantuan impor. Panduan dapat diakses dari sidebar desktop atau ikon bantuan di header ponsel.
+
+Koleksi impor dan materi terakhir dibuka masih disimpan dalam memori selama sesi preview; muat ulang halaman akan menghapusnya. Simpan file JSON asli.
+
 ## Menulis kode dengan syntax highlighting
 
 Tambahkan nama bahasa setelah tiga backtick:

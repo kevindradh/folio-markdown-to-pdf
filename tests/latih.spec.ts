@@ -13,6 +13,7 @@ test('latih preview navigates on desktop and mobile, runs quiz and flashcards', 
     await expect(page.locator('.latih-json')).toContainText('"type": "flashcard"')
     await page.getByRole('link', { name: 'Beranda', exact: true }).click()
   }
+  await page.locator('a[href="#panduan"]:visible').click()
   await page.getByRole('button', { name: 'Coba latihan contoh' }).click()
   await expect(page.getByRole('navigation')).toHaveCount(0)
   for (const answer of ['Menguji ingatan secara berkala', 'Memahami alasan jawaban benar', 'Memeriksa pemahaman']) {
@@ -125,4 +126,39 @@ test('quiz keeps actions visible, offers Markdown hints, and separates long expl
   await expect(sheet).toBeHidden()
   await expect(page.getByRole('region', { name: 'Teks soal' })).toContainText('Soal berikutnya')
   await expect(page.getByRole('button', { name: 'Petunjuk', exact: true })).toHaveCount(0)
+})
+
+test('help is separate from home and stays accessible on desktop and mobile', async ({ page }) => {
+  await page.goto('/latih/')
+  await expect(page.getByText('Belum ada koleksi pribadi', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Coba latihan contoh' })).toHaveCount(0)
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.locator('a[href="#panduan"]:visible').click()
+    await expect(page.getByRole('heading', { name: 'Panduan penggunaan', exact: true })).toBeVisible()
+    for (const heading of ['Mulai belajar', 'Membuat soal dengan AI', 'Format soal', 'Bantuan impor']) await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    if (width < 760) await expect(page.getByRole('navigation', { name: 'Navigasi latih ponsel' }).getByRole('link')).toHaveCount(3)
+    await page.getByRole('link', { name: 'Beranda', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Bantuan impor' })).toHaveCount(0)
+  }
+  await page.goto('/latih/#panduan')
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Panduan penggunaan', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Ambil template', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Template soal', exact: true })).toBeVisible()
+})
+
+test('home shows imported collections and the last opened material without walkthrough content', async ({ page }) => {
+  await page.goto('/latih/')
+  await page.getByRole('button', { name: 'Impor soal', exact: true }).click()
+  await page.getByLabel('JSON latihan').fill(JSON.stringify({ title: 'Materi pribadi', type: 'multiple-choice', questions: [{ question: 'Pertanyaan', options: ['Ya', 'Tidak'], answer: 0, explanation: 'Pembahasan.' }] }))
+  await page.getByRole('button', { name: 'Tambahkan koleksi' }).click()
+  await page.locator('[data-slot="card"]').filter({ hasText: 'Materi pribadi' }).getByRole('button', { name: 'Mulai latihan' }).click()
+  await page.getByRole('button', { name: 'Kembali ke koleksi', exact: true }).click()
+  await page.getByRole('link', { name: 'Beranda', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Terakhir dibuka', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Koleksi terbaru', exact: true })).toBeVisible()
+  await expect(page.getByText('Belum ada koleksi pribadi', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Buat latihan sendiri', exact: true })).toHaveCount(0)
 })

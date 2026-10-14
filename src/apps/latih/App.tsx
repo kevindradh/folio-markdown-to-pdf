@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check } from 'lucide-react'
+import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check, CircleHelp } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { AppSwitcher } from '@/components/app-switcher'
@@ -13,15 +13,18 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
 import { examples, parseCollection, templateFor, type Collection } from './collections'
 import { StudySession } from './study-session'
+import { HelpPage } from './help-page'
 
 const navigation = [{ id: 'beranda', label: 'Beranda', icon: House }, { id: 'koleksi', label: 'Koleksi', icon: Library }, { id: 'template', label: 'Template', icon: Braces }] as const
-type Page = typeof navigation[number]['id']
-function currentPage(): Page { return navigation.find(item => `#${item.id}` === window.location.hash)?.id ?? 'beranda' }
+type Page = typeof navigation[number]['id'] | 'panduan'
+function currentPage(): Page { if (['#panduan', '#mulai-belajar', '#membuat-soal', '#format-soal', '#bantuan-impor'].includes(window.location.hash)) return 'panduan'; return navigation.find(item => `#${item.id}` === window.location.hash)?.id ?? 'beranda' }
 
 export default function LatihApp() {
  const [page, setPage] = useState<Page>(currentPage)
  const [collections, setCollections] = useState<Collection[]>(examples)
  const [study, setStudy] = useState<Collection | null>(null)
+ const [lastOpened, setLastOpened] = useState<Collection | null>(null)
+ function startStudy(item: Collection) { setLastOpened(item); setStudy(item) }
  const [importOpen, setImportOpen] = useState(false)
  const [source, setSource] = useState(''), [error, setError] = useState('')
  const [type, setType] = useState<Collection['type']>('multiple-choice')
@@ -36,26 +39,28 @@ export default function LatihApp() {
   catch (err) { setError((err as Error).message) }
  }
  const prompt = `Buat soal untuk materi [ISI MATERI], sebanyak [JUMLAH SOAL]. Gunakan bahasa Indonesia. Kembalikan hanya JSON valid dengan struktur ini. Ganti contoh dengan soal dan pembahasan yang akurat. ${type === 'multiple-choice' ? 'answer adalah indeks opsi yang benar, dimulai dari 0. question, options, explanation, dan hint opsional mendukung Markdown. hint memberi petunjuk konsep tanpa membocorkan jawaban. Gunakan $...$ untuk LaTeX inline dan $$...$$ pada baris tersendiri untuk rumus blok. Escape setiap backslash LaTeX menjadi dua backslash dalam JSON dan gunakan \\n untuk baris baru. Jangan gunakan HTML mentah.' : 'answer adalah jawaban singkat berupa teks.'}\n\n${templateFor(type)}`
- const visible = collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
+ const personal = collections.filter(item => !item.demo)
+ const visible = page === 'beranda' ? personal.slice(0, 4) : collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
  const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} href={`#${id}`} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)
  const brand = <div className="navbar-brand"><a className="brand" href="#beranda"><img className="brand-mark" src={`${import.meta.env.BASE_URL}latih.svg`} alt="" width={32} height={32} />latih<span className="brand-dot">.</span></a><Badge variant="secondary">Preview</Badge></div>
  if (study) return <StudySession collection={study} onExit={() => { setStudy(null); navigate('koleksi') }} />
  return <div className="latih-shell latih-dashboard">
-  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
+  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink href="#panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
   <div className="latih-dashboard-body">
-   <header className="latih-mobile-header">{brand}<AppSwitcher current="latih" /></header>
+   <header className="latih-mobile-header">{brand}<div className="flex items-center gap-2"><ButtonLink href="#panduan" variant="ghost" size="icon-sm" aria-label="Panduan penggunaan"><CircleHelp /></ButtonLink><AppSwitcher current="latih" /></div></header>
    <main className="latih-dashboard-main">
-    <section className="latih-page-heading"><div><h1>{page === 'beranda' ? 'Beranda' : page === 'koleksi' ? 'Koleksi latihan' : 'Template soal'}</h1></div><Button onClick={() => { setError(''); setImportOpen(true) }}><Plus data-icon="inline-start" />Impor soal</Button></section>
+    <section className="latih-page-heading"><div><h1>{page === 'beranda' ? 'Beranda' : page === 'koleksi' ? 'Koleksi latihan' : page === 'panduan' ? 'Panduan penggunaan' : 'Template soal'}</h1></div>{page !== 'panduan' && (page !== 'beranda' || !!personal.length) && <Button onClick={() => { setError(''); setImportOpen(true) }}><Plus data-icon="inline-start" />Impor soal</Button>}</section>
     {page === 'beranda' && <>
-     <section className="latih-welcome"><div className="latih-welcome-copy"><h2>Coba latihan.</h2><p>3 soal pilihan ganda dengan pembahasan.</p><Button size="lg" variant="secondary" onClick={() => setStudy(examples[0])}><Play data-icon="inline-start" />Coba latihan contoh</Button></div><div className="latih-card-scene" aria-hidden="true"><div className="latih-card-back" /><div className="latih-card-front"><ListChecks /><strong>Belajar paling efektif saat kita…</strong><p><span>A</span> membaca ulang</p><p className="latih-card-correct"><span>B</span> menguji ingatan <Check /></p><p><span>C</span> menghafal jawaban</p></div></div></section>
-     <section className="latih-start-guide"><div><h2>Buat latihan sendiri</h2></div><ol><li><span>1</span><div><strong>Ambil template</strong><p>Pilih format latihanmu.</p></div></li><li><span>2</span><div><strong>Buat soal di AI kamu</strong><p>Salin instruksi, tambahkan materi.</p></div></li><li><span>3</span><div><strong>Impor dan mulai</strong><p>Tempel JSON, langsung berlatih.</p></div></li></ol><Button variant="ghost" onClick={() => navigate('template')}>Lihat template<ArrowUpRight data-icon="inline-end" /></Button></section>
+     {lastOpened && <section className="latih-last-opened"><h2>Terakhir dibuka</h2><Card><CardHeader><CardTitle>{lastOpened.title}</CardTitle><CardDescription>{lastOpened.type === 'multiple-choice' ? 'Pilihan ganda' : 'Flashcard'} · {lastOpened.questions.length} soal</CardDescription></CardHeader><CardContent><Button onClick={() => startStudy(lastOpened)}><Play data-icon="inline-start" />Mulai latihan</Button></CardContent></Card></section>}
+     {!personal.length && <Empty className="latih-home-empty"><EmptyHeader><EmptyTitle>Belum ada koleksi pribadi</EmptyTitle><EmptyDescription>Buat soal dengan template latih., lalu impor hasil JSON dari AI kamu.</EmptyDescription></EmptyHeader><div className="flex flex-wrap justify-center gap-3"><Button variant="outline" onClick={() => navigate('template')}><Braces data-icon="inline-start" />Ambil template</Button><Button onClick={() => { setError(''); setImportOpen(true) }}><Upload data-icon="inline-start" />Impor soal</Button></div><Button variant="link" onClick={() => navigate('panduan')}>Lihat panduan</Button></Empty>}
     </>}
-    {page !== 'template' && <section className="latih-collections"><div className="latih-section-heading"><div><h2>{page === 'beranda' ? 'Koleksi latihan' : 'Materi kamu'}</h2></div>{page === 'beranda' && <Button variant="ghost" onClick={() => navigate('koleksi')}>Semua koleksi<ArrowUpRight data-icon="inline-end" /></Button>}</div>
+    {page === 'panduan' && <HelpPage onTemplate={() => navigate('template')} onImport={() => { setError(''); setImportOpen(true) }} onTry={() => startStudy(examples[0])} />}
+    {(page === 'koleksi' || page === 'beranda' && !!personal.length) && <section className="latih-collections"><div className="latih-section-heading"><div><h2>{page === 'beranda' ? 'Koleksi terbaru' : 'Materi kamu'}</h2></div>{page === 'beranda' && <Button variant="ghost" onClick={() => navigate('koleksi')}>Semua koleksi<ArrowUpRight data-icon="inline-end" /></Button>}</div>
      {page === 'koleksi' && <FieldGroup><Field><FieldLabel htmlFor="latih-search" className="sr-only">Cari koleksi</FieldLabel><Input id="latih-search" placeholder="Cari judul materi…" value={query} onChange={event => setQuery(event.target.value)} /></Field></FieldGroup>}
      <div className="latih-collection-grid">{visible.map((item, i) => <Card key={`${item.title}-${i}`} className="latih-exercise-card">
       <CardHeader><div className="latih-collection-meta"><span className="latih-collection-icon">{item.type === 'multiple-choice' ? <ListChecks aria-hidden="true" /> : <Layers aria-hidden="true" />}</span><Badge variant="outline">{item.demo ? 'Contoh' : 'Impor pribadi'}</Badge></div><CardTitle>{item.title}</CardTitle></CardHeader>
       <CardContent className="flex-1"><CardDescription>{item.type === 'multiple-choice' ? 'Pilihan ganda' : 'Flashcard'}</CardDescription></CardContent>
-      <CardFooter variant="plain" className="justify-between gap-3"><span className="latih-subtle">{item.questions.length} {item.type === 'multiple-choice' ? 'soal' : 'kartu'}</span><Button onClick={() => setStudy(item)}><Play data-icon="inline-start" />Mulai latihan</Button></CardFooter>
+      <CardFooter variant="plain" className="justify-between gap-3"><span className="latih-subtle">{item.questions.length} {item.type === 'multiple-choice' ? 'soal' : 'kartu'}</span><Button onClick={() => startStudy(item)}><Play data-icon="inline-start" />Mulai latihan</Button></CardFooter>
      </Card>)}</div>
      {!visible.length && <Empty><EmptyHeader><EmptyTitle>Koleksi belum ditemukan</EmptyTitle><EmptyDescription>Coba kata lain atau impor materi baru.</EmptyDescription></EmptyHeader></Empty>}
     </section>}

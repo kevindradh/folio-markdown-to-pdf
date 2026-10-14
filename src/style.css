@@ -596,3 +596,23 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 @media(prefers-reduced-motion: reduce) { .latih-quiz-sheet { animation: none; transition: none; } }
 .latih-quiz .latih-answer.is-correct .latih-answer-letter { background: var(--primary); color: var(--primary-foreground); }
 .latih-quiz .latih-answer.is-incorrect .latih-answer-letter { background: var(--destructive); color: var(--primary-foreground); }
+
+.latih-home-empty { min-height: 310px; background: var(--card); border: 1px solid var(--border); }
+.latih-last-opened { margin-bottom: 32px; }
+.latih-last-opened > h2 { margin: 0 0 16px; font-size: 19px; font-weight: 600; letter-spacing: -.5px; }
+.latih-help { max-width: 820px; display: flex; flex-direction: column; gap: 32px; padding-bottom: 20px; }
+.latih-help-index { display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 12px; }
+.latih-help-index a { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.latih-help section { scroll-margin-top: 24px; }
+.latih-help h2 { font-size: 21px; font-weight: 600; letter-spacing: -.5px; margin: 0 0 16px; }
+.latih-help h3 { font-size: 16px; font-weight: 600; margin: 28px 0 12px; }
+.latih-help p, .latih-help li, .latih-help dd { font-size: 13px; line-height: 1.85; color: var(--muted-foreground); }
+.latih-help p { margin: 0 0 16px; max-width: 72ch; }
+.latih-help ol, .latih-help ul { padding-left: 20px; margin: 20px 0; }
+.latih-help ol { list-style: decimal; }
+.latih-help ul { list-style: disc; }
+.latih-help li { margin-bottom: 8px; }
+.latih-help code { padding: 2px 4px; background: var(--muted); border-radius: 4px; font-size: .9em; overflow-wrap: anywhere; }
+.latih-help .latih-json { padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+.latih-help dt { font-size: 14px; font-weight: 600; margin: 24px 0 6px; }
+.latih-help dd { margin: 0; }
