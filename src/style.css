@@ -365,6 +365,43 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .navbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand-version { color: var(--muted-foreground); font-size: 11px; font-weight: 500; white-space: nowrap; }
 .navbar-brand .brand-description { margin-left: 2px; }
+.app-entry-content { display: contents; }
+.app-splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: var(--background); color: var(--foreground); animation: app-splash-fade 900ms ease both; }
+.app-splash-brand { display: flex; flex-direction: column; align-items: center; gap: 18px; animation: app-splash-reveal 450ms cubic-bezier(.2,.7,.2,1) both; }
+.app-splash-brand img { width: 72px; height: 72px; }
+.app-splash-brand > span { font-size: 36px; font-weight: 760; letter-spacing: -1.8px; line-height: 1; }
+.app-splash p { margin: 0; font-size: 13px; color: var(--muted-foreground); }
+@keyframes app-splash-reveal { from { opacity: 0; transform: translateY(8px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes app-splash-fade { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .app-splash, .app-splash-brand { animation: none; } }
+@media print { .app-splash { display: none; } }
+.app-loading { display: grid; place-items: center; min-height: 100dvh; max-width: none; padding: 24px; }
+.app-loading-status { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.app-loading-spinner { width: 32px; height: 32px; color: var(--primary); stroke-width: 1.75; animation: app-loading-spin 1s linear infinite; }
+.app-loading-status p { margin: 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
+@keyframes app-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .app-loading-spinner { animation: none; } }
+.latih-shell {
+  --background: #f2f9f8;
+  --foreground: #183d38;
+  --card: #ffffff;
+  --primary: #087f70;
+  --primary-foreground: #ffffff;
+  --secondary: #dcefea;
+  --secondary-foreground: #18594f;
+  --muted: #e5f2ef;
+  --muted-foreground: #516d68;
+  --border: #cee2dc;
+  --ring: #087f70;
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+}
+.latih-main { max-width: 760px; padding-top: clamp(64px, 12vh, 140px); padding-bottom: 64px; }
+.latih-main h1 { margin: 0 0 32px; text-align: center; font-size: clamp(64px, 12vw, 104px); font-weight: 760; letter-spacing: -.07em; line-height: 1; color: var(--primary); }
+@media (max-width: 480px) {
+  .app-shell > .topbar { height: auto; min-height: 56px; flex-wrap: wrap; gap: 8px; padding-block: 8px; }
+}
 @media (max-width: 720px) {
   .navbar-label-detail { display: none; }
   .navbar-actions > button > svg { display: none; }

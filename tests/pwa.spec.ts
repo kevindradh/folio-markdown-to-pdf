@@ -56,9 +56,16 @@ test('development keeps the status icon and tooltip visible without registering 
       const menu = await page.getByRole('button', { name: 'Changelog', exact: true }).boundingBox()
       const version = await page.locator('.brand-version').boundingBox()
       const actions = await page.locator('.navbar-actions').boundingBox()
-      expect(version!.x + version!.width + 4).toBeLessThanOrEqual(actions!.x)
+      // The app switch adds a second navbar row on narrow screens.
+      const separated = version!.x + version!.width + 4 <= actions!.x
+        || version!.y + version!.height <= actions!.y
+      expect(separated).toBe(true)
+      expect(actions!.x).toBeGreaterThanOrEqual(0)
+      expect(actions!.x + actions!.width).toBeLessThanOrEqual(width)
       expect(menu!.x + menu!.width).toBeLessThanOrEqual(width)
-      expect(nav!.height).toBe(56)
+      expect(nav!.height).toBeGreaterThanOrEqual(56)
+      expect(nav!.height).toBeLessThanOrEqual(96)
+      await expect(page.getByRole('link', { name: 'latih.', exact: true })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Panduan Markdown', exact: true })).toBeVisible()
       await page.screenshot({ path: testInfo.outputPath(`navbar-${width}.png`) })
     }

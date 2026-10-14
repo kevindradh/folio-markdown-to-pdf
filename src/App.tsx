@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownToLine, ArrowUpFromLine, FileText, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, SlidersHorizontal, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { AppSwitchLink } from '@/components/app-switch-link'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
@@ -31,6 +32,7 @@ import { AppTour } from '@/components/app-tour'
 import { isFirstVisit } from '@/lib/app-tour'
 import { PwaStatus } from '@/components/pwa-status'
 import { DocumentLibraryBar } from '@/components/document-library'
+import { AppLoading } from '@/components/app-loading'
 
 const example = `# Ruang untuk ide yang baik
 
@@ -260,7 +262,7 @@ export default function App() {
     } finally { setFileLoading(false) }
   }
 
-  if (!library.ready) return <main><p role="status">Memuat dokumen lokal…</p></main>
+  if (!library.ready) return <AppLoading label="Memuat dokumen lokal…" />
 
   return <div className={cn('app-shell', focusMode.enabled && 'focus-mode')}>
     <header className="topbar">
@@ -269,11 +271,12 @@ export default function App() {
         <span className="brand-version" aria-label={`Versi aplikasi v${version}`}>v{version}</span>
         <span className="brand-description">Markdown to PDF</span>
       </div>
-      <div className="navbar-actions flex items-center gap-1">
+      <nav aria-label="Navigasi aplikasi dan panduan" className="navbar-actions flex items-center gap-1">
+        <AppSwitchLink variant="ghost" size="sm" application="latih">latih.</AppSwitchLink>
         <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
         <MarkdownGuide onStartTour={() => { previousView.current = view; setView('split'); setTourOpen(true) }} />
         <AppReleases />
-      </div>
+      </nav>
     </header>
     <main>
       <section className="workspace-heading">

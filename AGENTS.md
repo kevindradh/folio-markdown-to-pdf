@@ -1,5 +1,15 @@
 # Panduan Proyek
 
+## Preview latih. — 14 Oktober 2026
+
+- Branch `codex/latih-preview` menambahkan navigasi navbar Folio ke `/latih/`, dengan halaman preview terpisah di `src/apps/latih/App.tsx` dan tautan kembali ke `/`. Fitur latih. belum ditentukan.
+- `src/app-entry.tsx` memakai lazy loading untuk memilih Folio atau latih. dari path entry. Tema latih. dibatasi `.latih-shell` dalam CSS global; satu build/deployment tetap digunakan. Hosting membutuhkan SPA fallback ke `index.html`. PWA masih menggunakan identitas Folio dan cache bersama.
+- `ButtonLink` pada komponen Button menggunakan variant shadcn yang sama melalui elemen anchor semantik. Navbar Folio dapat membungkus pada ponsel agar tautan baru tidak menimbulkan overflow.
+- Logo vektor latih. berada di `public/latih.svg`: dua kartu dengan monogram L dan centang, memakai teal `#087F70` dengan bentuk tile yang mengikuti favicon Folio. Aset dipakai di navbar dan favicon `/latih/`; menu pemilih aplikasi belum diterapkan.
+- `src/components/app-loading.tsx` menyediakan indikator lingkaran bersama untuk Suspense aplikasi dan pemuatan library dokumen lokal. Memakai ikon Lucide yang sudah terpasang, status aksesibel, tema sesuai aplikasi, dan animasi yang dinonaktifkan saat reduced motion; tidak menambahkan dependensi.
+- `AppSwitchLink` menandai tujuan perpindahan di sessionStorage sebelum navigasi anchor biasa, kecuali klik dengan modifier/tab baru. Entry mengonsumsi penanda sekali lalu menampilkan `AppSplash` selama 900 ms (150 ms tanpa animasi untuk reduced motion). Konten di belakang splash inert; reload/akses langsung tidak memicu splash. Storage gagal tidak menghalangi navigasi. Tidak menambahkan router atau dependensi.
+- Verifikasi sebelum commit branch: build/changelog-check, lint, tipe test, dan diff-check lulus. Regresi PWA/coachmark/mode fokus menghasilkan 19 lulus dan 1 PDF WebKit dilewati setelah assertion navbar ponsel disesuaikan untuk dua baris tanpa tumpang tindih/overflow. Navigasi dua arah, reload tanpa splash berulang, serta logo/loading/splash ponsel diperiksa di browser. Versi tetap 0.0.32 karena branch belum digabung ke main.
+
 Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 11 Oktober 2026. Perbarui jika struktur atau tooling berubah.
 
 ## Gambaran umum

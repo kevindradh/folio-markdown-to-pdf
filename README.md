@@ -13,6 +13,10 @@ npm run dev
 
 Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau backend. Jangan mengunggah dokumen pribadi maupun file kredensial ke repository. `.gitignore` mengecualikan environment file, dependensi, hasil build/pengujian, dan konfigurasi deployment lokal; `package-lock.json`, sumber aplikasi, serta contoh environment yang sudah disanitasi tetap dapat dilacak.
 
+## Preview latih.
+
+Pada branch `codex/latih-preview`, navbar Folio menyediakan tautan **latih.** ke `/latih/`. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Hosting harus mengarahkan URL aplikasi ke `index.html` (SPA fallback).
+
 ## Publikasi ke GitHub dan Vercel
 
 1. Buat repository GitHub kosong. Jangan membuat README atau `.gitignore` baru dari GitHub karena proyek ini sudah memilikinya.
