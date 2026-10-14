@@ -538,3 +538,57 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .latih-answer .latih-markdown { font-size: 14px; font-weight: 400; }
 .latih-answer-letter { flex-shrink: 0; padding-top: 4px; }
 .latih-explanation { width: 100%; min-width: 0; }
+
+/* Focused quiz: independently scrolling content and persistent actions. */
+.latih-quiz { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.latih-quiz-header { display: flex; align-items: center; gap: 16px; min-height: 76px; padding: 16px max(24px, calc((100vw - 1180px) / 2)); background: var(--card); }
+.latih-quiz-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.latih-quiz-title strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.latih-quiz-title span { font-size: 11px; color: var(--muted-foreground); }
+.latih-quiz-progress { appearance: none; width: 100%; height: 3px; border: 0; flex-shrink: 0; background: var(--border); color: var(--primary); }
+.latih-quiz-progress::-webkit-progress-bar { background: var(--border); }
+.latih-quiz-progress::-webkit-progress-value { background: var(--primary); }
+.latih-quiz-progress::-moz-progress-bar { background: var(--primary); }
+.latih-quiz-layout { flex: 1; min-height: 0; width: 100%; max-width: 1180px; margin: 0 auto; padding: 0; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+.latih-quiz-question-pane { min-width: 0; overflow-y: auto; overscroll-behavior: contain; padding: 40px 40px 32px; }
+.latih-quiz-question-pane > .latih-question-content { margin-bottom: 28px; }
+.latih-quiz-question-pane > h1 { font-size: 30px; margin: 0; }
+.latih-quiz-panel { min-width: 0; overflow-y: auto; padding: 34px 32px; border-left: 1px solid var(--border); background: var(--card); }
+.latih-quiz-panel-title { display: flex; align-items: center; gap: 10px; margin: 0 0 28px; font-size: 14px; font-weight: 600; }
+.latih-quiz-panel-title svg { width: 18px; height: 18px; color: var(--primary); }
+.latih-quiz .latih-answer { padding: 14px; gap: 14px; background: var(--card); border-color: var(--border); align-items: flex-start; }
+.latih-quiz .latih-answer[aria-pressed=true] { background: var(--secondary); border-color: var(--primary); }
+.latih-quiz .latih-answer-letter { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; padding: 0; background: var(--muted); color: var(--muted-foreground); font-weight: 600; }
+.latih-quiz .latih-answer[aria-pressed=true] .latih-answer-letter { background: var(--primary); color: var(--primary-foreground); }
+.latih-quiz .latih-answer.is-correct { border-color: var(--primary); background: var(--secondary); }
+.latih-quiz .latih-answer.is-incorrect { border-color: var(--destructive); background: color-mix(in srgb, var(--destructive) 7%, var(--card)); }
+.latih-quiz .latih-answer[aria-disabled=true], .latih-quiz .latih-answer[data-disabled] { opacity: 1; }
+.latih-option-status { flex-shrink: 0; align-self: center; color: var(--primary); }
+.latih-answer.is-incorrect .latih-option-status { color: var(--destructive); }
+.latih-quiz-actions { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px max(24px, calc((100vw - 1100px) / 2)); border-top: 1px solid var(--border); background: var(--card); }
+.latih-quiz-secondary { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-width: 0; }
+.latih-quiz-actions > button { flex-shrink: 0; }
+.latih-quiz .latih-explanation, .latih-quiz-sheet .latih-explanation { padding: 0; border: 0; }
+.latih-answer-result { display: flex; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 10px; margin-bottom: 22px; background: var(--secondary); color: var(--secondary-foreground); }
+.latih-answer-result.is-incorrect { background: color-mix(in srgb, var(--destructive) 8%, var(--card)); color: var(--destructive); }
+.latih-answer-result > svg { width: 20px; height: 20px; flex-shrink: 0; }
+.latih-answer-result h2 { margin: 0; font-size: 14px; line-height: 1.5; }
+.latih-correct-summary { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.latih-correct-summary > p { margin: 0 0 8px; font-size: 12px; font-weight: 600; }
+.latih-quiz > .latih-study-main { overflow-y: auto; width: 100%; }
+.latih-quiz-sheet { --primary: #087f70; --secondary: #dcefea; --secondary-foreground: #18594f; --foreground: #183d38; --muted-foreground: #516d68; --border: #cee2dc; --card: #fff; --ring: #087f70; top: auto; bottom: 0; left: 0; translate: none; width: 100%; max-width: none; height: 65dvh; max-height: 92dvh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; gap: 12px; padding: 22px 20px 0; }
+.latih-quiz-sheet[data-expanded=true] { height: 92dvh; }
+.latih-sheet-tools { position: absolute; top: 12px; right: 50px; }
+.latih-quiz-sheet-content { flex: 1; min-height: 0; overflow-y: auto; padding-block: 10px; }
+.latih-quiz-sheet-footer { flex-shrink: 0; flex-direction: row; justify-content: space-between; gap: 10px; padding-bottom: max(16px, env(safe-area-inset-bottom)); margin-top: 0; margin-bottom: 0; }
+@media(max-width: 959px) {
+ .latih-quiz-header { min-height: 68px; padding: 12px 16px; gap: 10px; }
+ .latih-quiz-layout { display: flex; }
+ .latih-quiz-question-pane { width: 100%; padding: 28px 20px; }
+ .latih-quiz-actions { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); gap: 8px; }
+ .latih-quiz-secondary { gap: 6px; }
+ .latih-quiz-secondary > .latih-subtle { display: none; }
+}
+@media(prefers-reduced-motion: reduce) { .latih-quiz-sheet { animation: none; transition: none; } }
+.latih-quiz .latih-answer.is-correct .latih-answer-letter { background: var(--primary); color: var(--primary-foreground); }
+.latih-quiz .latih-answer.is-incorrect .latih-answer-letter { background: var(--destructive); color: var(--primary-foreground); }
