@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check, CircleHelp } from 'lucide-react'
+import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check, CircleHelp, Search, LayoutGrid, List } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { AppSwitcher } from '@/components/app-switcher'
@@ -42,6 +42,7 @@ export default function LatihApp() {
  const [type, setType] = useState<Collection['type']>('multiple-choice')
  const [copied, setCopied] = useState(false), [copyError, setCopyError] = useState(false)
  const [query, setQuery] = useState('')
+ const [collectionView, setCollectionView] = useState<'grid' | 'list'>(() => { try { return localStorage.getItem('latih:collection-view:v1') === 'list' ? 'list' : 'grid' } catch { return 'grid' } })
  const fileInput = useRef<HTMLInputElement>(null)
  useEffect(() => { const change = () => setPage(currentPage()); window.addEventListener('hashchange', change); return () => window.removeEventListener('hashchange', change) }, [])
  useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [page, study])
@@ -72,10 +73,10 @@ export default function LatihApp() {
     </>}
     {page === 'panduan' && <HelpPage onTemplate={() => navigate('template')} onImport={() => { setError(''); setImportOpen(true) }} onTry={() => startStudy(examples[0])} />}
     {(page === 'koleksi' || page === 'beranda' && !!personal.length) && <section className="latih-collections"><div className="latih-section-heading"><div><h2>{page === 'beranda' ? 'Koleksi terbaru' : 'Materi kamu'}</h2></div>{page === 'beranda' && <Button variant="ghost" onClick={() => navigate('koleksi')}>Semua koleksi<ArrowUpRight data-icon="inline-end" /></Button>}</div>
-     {page === 'koleksi' && <FieldGroup><Field><FieldLabel htmlFor="latih-search" className="sr-only">Cari koleksi</FieldLabel><Input id="latih-search" placeholder="Cari judul materi…" value={query} onChange={event => setQuery(event.target.value)} /></Field></FieldGroup>}
-     <div className="latih-collection-grid">{visible.map((item, i) => <Card key={`${item.title}-${i}`} className="latih-exercise-card">
-      <CardHeader><div className="latih-collection-meta"><span className="latih-collection-icon">{item.type === 'multiple-choice' ? <ListChecks aria-hidden="true" /> : <Layers aria-hidden="true" />}</span><Badge variant="outline">{item.demo ? 'Contoh' : 'Impor pribadi'}</Badge></div><CardTitle>{item.title}</CardTitle></CardHeader>
-      <CardContent className="flex-1"><CardDescription>{item.type === 'multiple-choice' ? 'Pilihan ganda' : 'Flashcard'}</CardDescription></CardContent>
+     {page === 'koleksi' && <div className="latih-collection-toolbar"><Field className="latih-search-field"><FieldLabel htmlFor="latih-search">Cari koleksi</FieldLabel><div className="latih-search-input"><Search aria-hidden="true" /><Input id="latih-search" type="search" placeholder="Cari judul materi…" value={query} onChange={event => setQuery(event.target.value)} /></div></Field><ToggleGroup value={[collectionView]} onValueChange={values => { const view = values[0]; if (view === 'grid' || view === 'list') { setCollectionView(view); try { localStorage.setItem('latih:collection-view:v1', view) } catch { /* The view remains available for this session. */ } } }} variant="outline" spacing={0} aria-label="Tampilan koleksi"><ToggleGroupItem value="grid" aria-label="Tampilan grid"><LayoutGrid />Grid</ToggleGroupItem><ToggleGroupItem value="list" aria-label="Tampilan list"><List />List</ToggleGroupItem></ToggleGroup></div>}
+     {page === 'koleksi' && <p className="latih-collection-count" role="status">{visible.length} koleksi{query.trim() ? ' ditemukan' : ''}</p>}
+     <div className={`latih-collection-grid${page === 'koleksi' && collectionView === 'list' ? ' is-list' : ''}`} data-view={page === 'koleksi' ? collectionView : 'grid'}>{visible.map((item, i) => <Card key={`${item.title}-${i}`} className="latih-exercise-card">
+      <CardHeader className="latih-exercise-header"><span className="latih-collection-icon">{item.type === 'multiple-choice' ? <ListChecks aria-hidden="true" /> : <Layers aria-hidden="true" />}</span><Badge variant="outline">{item.demo ? 'Contoh' : 'Impor pribadi'}</Badge><div className="latih-exercise-title"><CardTitle>{item.title}</CardTitle><CardDescription>{item.type === 'multiple-choice' ? 'Pilihan ganda' : 'Flashcard'}</CardDescription></div></CardHeader>
       <CardFooter variant="plain" className="justify-between gap-3"><span className="latih-subtle">{item.questions.length} {item.type === 'multiple-choice' ? 'soal' : 'kartu'}</span><Button onClick={() => startStudy(item)}><Play data-icon="inline-start" />Mulai latihan</Button></CardFooter>
      </Card>)}</div>
      {!visible.length && <Empty><EmptyHeader><EmptyTitle>Koleksi belum ditemukan</EmptyTitle><EmptyDescription>Coba kata lain atau impor materi baru.</EmptyDescription></EmptyHeader></Empty>}

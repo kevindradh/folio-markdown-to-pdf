@@ -291,3 +291,59 @@ test('invalid stored quiz is ignored and unavailable session storage keeps quiz 
   await page.getByRole('button', { name: 'Periksa jawaban' }).click()
   await expect(page.getByRole('heading', { name: 'Benar, kamu sudah paham.' })).toBeVisible()
 })
+
+test('collection search and grid/list views work across screen sizes and persist the selected view', async ({ page }, testInfo) => {
+  await page.goto('/latih/#koleksi')
+  await expect(page.getByRole('button', { name: 'Tampilan grid', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByLabel('Cari koleksi', { exact: true }).fill('Kosakata')
+  await expect(page.locator('.latih-collection-grid [data-slot="card"]')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Tampilan list', exact: true }).click()
+  await expect(page.locator('.latih-collection-grid')).toHaveAttribute('data-view', 'list')
+  await page.getByLabel('Cari koleksi', { exact: true }).fill('')
+  for (const width of [1280, 800, 760, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    if (width === 1280 || width === 390) await page.screenshot({ path: testInfo.outputPath(`collection-list-${width}.png`) })
+  }
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Tampilan list', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'Tampilan grid', exact: true }).click()
+  await expect(page.locator('.latih-collection-grid')).toHaveAttribute('data-view', 'grid')
+  await page.getByLabel('Cari koleksi', { exact: true }).fill('Tidak ada materi ini')
+  await expect(page.getByText('Koleksi belum ditemukan', { exact: true })).toBeVisible()
+})
+
+test('flashcards reveal inline, restore after refresh, and keep actions visible with long content', async ({ page }, testInfo) => {
+  await page.goto('/latih/#koleksi')
+  await page.getByRole('button', { name: 'Impor soal', exact: true }).click()
+  await page.getByLabel('JSON latihan').fill(JSON.stringify({ title: 'Kartu belajar', type: 'flashcard', questions: [
+    { question: 'Pertanyaan yang perlu diingat', answer: 'Jawaban kartu pertama', hint: 'Petunjuk untuk mengingat.', explanation: 'Konteks tambahan.\n'.repeat(80) },
+    { question: 'Pertanyaan kedua', answer: 'Jawaban kedua', explanation: 'Penjelasan singkat.' },
+  ] }))
+  await page.getByRole('button', { name: 'Tambahkan koleksi' }).click()
+  await page.locator('[data-slot="card"]').filter({ hasText: 'Kartu belajar' }).getByRole('button', { name: 'Mulai latihan' }).click()
+  await expect(page.getByRole('region', { name: 'Pertanyaan kartu', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Jawaban kartu pertama', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Petunjuk', exact: true }).click()
+  await expect(page.getByText('Petunjuk untuk mengingat.', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Lihat jawaban', exact: true }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Jawaban kartu pertama', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Jawaban kartu pertama', exact: true })).toBeVisible()
+  for (const width of [1280, 390, 320]) {
+    await page.setViewportSize({ width, height: 844 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    const action = await page.getByRole('button', { name: 'Berikutnya', exact: true }).boundingBox()
+    expect(action!.y + action!.height).toBeLessThanOrEqual(844)
+    if (width !== 320) await page.screenshot({ path: testInfo.outputPath(`flashcard-back-${width}.png`) })
+  }
+  await page.getByRole('button', { name: 'Lihat pertanyaan', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Pertanyaan yang perlu diingat', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Lihat jawaban', exact: true }).click()
+  await page.getByRole('button', { name: 'Berikutnya', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Pertanyaan kedua', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Lihat jawaban', exact: true }).click()
+  await page.getByRole('button', { name: 'Selesaikan sesi', exact: true }).click()
+  await expect(page.getByText('2 kartu sudah dipelajari.', { exact: true })).toBeVisible()
+})

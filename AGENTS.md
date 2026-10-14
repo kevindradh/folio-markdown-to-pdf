@@ -1,5 +1,17 @@
 # Panduan Proyek
 
+## Tampilan latihan flashcard — 15 Oktober 2026
+
+- `src/apps/latih/flashcard-practice.tsx` menampilkan satu Card shadcn di tengah dengan sisi pertanyaan/jawaban, nomor kartu, penjelasan inline, dan petunjuk opsional. Tombol Lihat jawaban, Lihat pertanyaan, serta Berikutnya/Selesaikan sesi berada pada bar aksi tetap. Flashcard tetap memakai teks biasa; tidak membuka panel/dialog pembahasan pilihan ganda.
+- StudySession menggunakan state progres yang sama sehingga sisi kartu dan posisi latihan pulih setelah refresh. Isi panjang bergulir di dalam kartu. Animasi pergantian isi singkat dinonaktifkan pada reduced motion; layout menyesuaikan desktop dan ponsel.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 30 pengujian latih Chromium/WebKit lulus. Regresi flashcard mencakup jawaban tersembunyi sebelum dibuka, petunjuk, reveal inline, refresh, kembali ke pertanyaan, soal berikutnya, hasil akhir, konten panjang, dan aksi terlihat pada 1280/390/320 px. Screenshot desktop/ponsel diperiksa.
+
+## Layout koleksi grid/list — 15 Oktober 2026
+
+- Halaman Koleksi memiliki toolbar pencarian berlabel dengan panel kontras, ikon pencarian, border input yang jelas, dan ToggleGroup shadcn untuk Grid/List. Jumlah hasil ditampilkan di bawah toolbar; pencarian dan empty state berlaku pada kedua tampilan.
+- Mode list memakai baris horizontal pada desktop dan susunan ringkas pada ponsel. Pilihan disimpan pada localStorage `latih:collection-view:v1`; kegagalan storage tidak menghalangi pergantian tampilan. Beranda tetap memakai grid.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, serta 28 pengujian latih Chromium/WebKit lulus. Regresi baru meliputi pencarian, pergantian grid/list, pemulihan preferensi setelah reload, hasil kosong, dan lebar 1280/800/760/390/320 px tanpa overflow. Screenshot list desktop dan ponsel diperiksa.
+
 ## Panduan pertama wajib — 15 Oktober 2026
 
 - App menampilkan `RequiredGuide` sebelum dashboard maupun pemulihan kuis jika flag localStorage `latih:guide-completed:v1` belum bernilai `true`. Seluruh navigasi, impor, dan kuis tidak dirender selama pengunci aktif. Panduan berisi alur template, AI, impor, latihan, dan informasi penyimpanan; tema mengikuti latih dengan kontrol Button shadcn.

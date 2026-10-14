@@ -644,3 +644,59 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
  .latih-guide-lock { padding-inline: 20px; }
  .latih-guide-lock-inner { flex-direction: column; align-items: stretch; gap: 12px; }
 }
+
+.latih-collection-toolbar { display: flex; align-items: flex-end; gap: 20px; padding: 20px; border: 1px solid var(--border); background: var(--card); border-radius: 14px; }
+.latih-search-field { flex: 1; min-width: 0; }
+.latih-search-input { position: relative; }
+.latih-search-input > svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--muted-foreground); pointer-events: none; }
+.latih-search-input input { height: 42px; padding-left: 40px; background: var(--card); border-color: var(--input); }
+.latih-collection-toolbar [data-slot=toggle-group-item] { height: 42px; gap: 7px; }
+.latih-collection-count { margin: 18px 0 0; color: var(--muted-foreground); font-size: 12px; }
+.latih-exercise-header { grid-template-columns: 1fr auto; gap: 18px; flex: 1; align-items: center; }
+.latih-exercise-title { grid-column: 1 / -1; min-width: 0; }
+.latih-exercise-title [data-slot=card-title] { overflow-wrap: anywhere; }
+.latih-exercise-title [data-slot=card-description] { margin-top: 6px; }
+.latih-collection-grid.is-list { grid-template-columns: 1fr; gap: 12px; }
+.is-list .latih-exercise-card { flex-direction: row; align-items: center; padding: 18px 0; gap: 16px; }
+.is-list .latih-exercise-header { display: flex; gap: 16px; min-width: 0; padding-right: 0; }
+.is-list .latih-collection-icon { flex-shrink: 0; }
+.is-list .latih-exercise-title { flex: 1; }
+.is-list .latih-exercise-header [data-slot=badge] { order: 2; }
+.is-list .latih-exercise-card [data-slot=card-footer] { padding-block: 0; flex-shrink: 0; gap: 24px; }
+@media (max-width: 600px) {
+ .latih-collection-toolbar { flex-wrap: wrap; padding: 16px; gap: 14px; }
+ .latih-search-field { flex-basis: 100%; }
+ .is-list .latih-exercise-card { flex-direction: column; align-items: stretch; gap: 16px; }
+ .is-list .latih-exercise-header { padding-right: 16px; gap: 12px; }
+ .is-list .latih-exercise-header [data-slot=badge] { display: none; }
+ .is-list .latih-exercise-card [data-slot=card-footer] { justify-content: space-between; }
+}
+
+.latih-flashcard-stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 32px 24px; overflow: hidden; }
+.latih-flashcard { width: min(100%, 680px); height: 100%; max-height: 510px; min-height: 0; box-shadow: 0 12px 32px rgb(24 61 56 / 6%); border-bottom: 4px solid var(--border); }
+.latih-flashcard[data-face=answer] { border-bottom-color: var(--primary); }
+.latih-flashcard-meta { display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0; flex-shrink: 0; }
+.latih-flashcard-meta > span:last-child { color: var(--muted-foreground); font-size: 12px; font-variant-numeric: tabular-nums; }
+.latih-flashcard-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; padding: 16px 40px 32px; }
+.latih-flashcard-face { width: 100%; margin-block: auto; text-align: center; overflow-wrap: anywhere; animation: latih-card-reveal 180ms ease-out; }
+.latih-flashcard-face h1, .latih-flashcard-face h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 600; line-height: 1.4; letter-spacing: -.025em; white-space: pre-wrap; margin: 0; }
+.latih-flashcard-face h2 { color: var(--primary); }
+.latih-flashcard-prompt { font-size: 15px; line-height: 1.7; white-space: pre-wrap; margin: 0 0 20px; color: var(--muted-foreground); }
+.latih-flashcard-context { border-top: 1px solid var(--border); margin-top: 28px; padding-top: 20px; text-align: left; }
+.latih-flashcard-context h3 { font-size: 12px; color: var(--muted-foreground); font-weight: 500; margin-bottom: 8px; }
+.latih-flashcard-context p, .latih-flashcard-hint p { font-size: 15px; line-height: 1.8; white-space: pre-wrap; }
+.latih-flashcard-hint { display: flex; gap: 12px; text-align: left; padding: 16px; margin-top: 24px; border-radius: 12px; background: var(--secondary); }
+.latih-flashcard-hint svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 4px; color: var(--primary); }
+.latih-flashcard-actions { justify-content: space-between; }
+@keyframes latih-card-reveal { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) {
+ .latih-flashcard-stage { padding: 20px 16px; }
+ .latih-flashcard { max-height: 560px; }
+ .latih-flashcard-meta { padding-inline: 18px; }
+ .latih-flashcard-body { padding: 16px 22px 24px; }
+ .latih-flashcard-actions .latih-quiz-secondary { flex: 1; }
+ .latih-flashcard-actions > button, .latih-flashcard-actions .latih-quiz-secondary > button { min-height: 42px; height: auto; white-space: normal; flex: 1; }
+ .latih-flashcard-actions .latih-quiz-secondary > button { width: 100%; }
+ .latih-flashcard-actions .latih-subtle { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .latih-flashcard-face { animation: none; } }

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { FlashcardPractice } from './flashcard-practice'
 import { MarkdownContent } from './markdown-content'
 import { cn } from '@/lib/utils'
 import type { Collection } from './collections'
@@ -72,7 +73,7 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
       <Check className="latih-complete-icon" aria-hidden="true" /><h1>Sesi selesai.</h1>
       <p>{multipleChoice ? `${score} dari ${collection.questions.length} jawaban benar.` : `${collection.questions.length} kartu sudah dipelajari.`}</p>
       <div className="flex flex-wrap gap-3"><Button onClick={restart}><RotateCcw data-icon="inline-start" />Ulangi latihan</Button><Button variant="outline" onClick={onExit}>Lihat koleksi</Button></div>
-    </section></main> : <>
+    </section></main> : !multipleChoice ? <FlashcardPractice question={question} index={index} total={collection.questions.length} revealed={revealed} hintOpen={panel === 'hint'} onHint={() => setPanel(panel === 'hint' ? null : 'hint')} onReveal={advance} onFront={() => { setRevealed(false); setPanel(null); setExpanded(false) }} nextLabel={nextLabel} /> : <>
       <main className="latih-quiz-layout">
         <section className="latih-quiz-question-pane" ref={questionPane}>
           {multipleChoice ? <section aria-label="Teks soal" className="latih-question-content"><h1 className="sr-only">Soal {index + 1}</h1><MarkdownContent text={question.question} /></section> : <h1>{question.question}</h1>}
