@@ -2,6 +2,8 @@
 
 ## Preview latih. — 14 Oktober 2026
 
+- Card koleksi memakai ikon dalam bidang teal, judul/jenis latihan, jumlah soal, dan tombol solid Mulai latihan. CardFooter memiliki variant plain tanpa latar/border atas untuk card ini; default komponen lain tetap sama. CardContent flex-1 mempertahankan footer rata bawah pada grid desktop.
+
 - Branch `codex/latih-preview` menambahkan navigasi navbar Folio ke `/latih/`, dengan aplikasi terpisah di `src/apps/latih/App.tsx`. latih. menyediakan template JSON untuk membuat soal mandiri di LLM pengguna, lalu mengimpor hasilnya untuk belajar lewat pilihan ganda/flashcard.
 - `src/app-entry.tsx` memakai lazy loading untuk memilih Folio atau latih. dari path entry. Tema latih. dibatasi `.latih-shell` dalam CSS global; satu build/deployment tetap digunakan. Hosting membutuhkan SPA fallback ke `index.html`. PWA masih menggunakan identitas Folio dan cache bersama.
 - `ButtonLink` pada komponen Button menggunakan variant shadcn yang sama melalui elemen anchor semantik. Navbar Folio dapat membungkus pada ponsel agar tautan baru tidak menimbulkan overflow.

@@ -468,7 +468,11 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .latih-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
 .latih-collection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 18px; }
 .latih-collection-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.latih-collection-meta > svg { width: 27px; height: 27px; color: var(--primary); }
+.latih-collection-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--secondary); color: var(--primary); }
+.latih-collection-icon > svg { width: 22px; height: 22px; }
+.latih-exercise-card { min-width: 0; transition: outline-color 150ms; outline: 1px solid transparent; }
+@media(hover: hover) { .latih-exercise-card:hover { outline-color: var(--primary); } }
+@media(prefers-reduced-motion: reduce) { .latih-exercise-card { transition: none; } }
 .latih-subtle { margin: 0; font-size: 12px; line-height: 1.7; color: var(--muted-foreground); }
 .latih-dashboard-footer { display: flex; justify-content: space-between; gap: 16px; padding: 28px 0; font-size: 10px; color: var(--muted-foreground); }
 .latih-mobile-header, .latih-bottom-nav { display: none; }
