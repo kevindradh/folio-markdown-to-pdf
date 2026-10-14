@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownToLine, ArrowUpFromLine, FileText, Columns2, Eye, Code2, Bold, Italic, Link, List, Heading2, Minus, Plus, RotateCcw, BookOpen, SlidersHorizontal, ImagePlus, Link2, BetweenHorizontalStart, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AppSwitchLink } from '@/components/app-switch-link'
+import { AppSwitcher } from '@/components/app-switcher'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
@@ -272,8 +272,7 @@ export default function App() {
         <span className="brand-description">Markdown to PDF</span>
       </div>
       <nav aria-label="Navigasi aplikasi dan panduan" className="navbar-actions flex items-center gap-1">
-        <AppSwitchLink variant="ghost" size="sm" application="latih">latih.</AppSwitchLink>
-        <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
+        <AppSwitcher current="folio" />
         <MarkdownGuide onStartTour={() => { previousView.current = view; setView('split'); setTourOpen(true) }} />
         <AppReleases />
       </nav>
@@ -403,7 +402,10 @@ export default function App() {
           </div>
         </div>
       </section>
-      <footer className="app-footer"><span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span></footer>
+      <footer className="app-footer">
+        <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
+        <span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span>
+      </footer>
     </main>
     {tourOpen && <AppTour open onClose={() => { setTourOpen(false); setView(previousView.current) }} />}
     <Toaster />

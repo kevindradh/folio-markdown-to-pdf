@@ -29,29 +29,35 @@ const test = base.extend<{ site: { url: string; deploy: () => void } }>({
 })
 
 async function offlineReady(page: Page) {
-  await expect(page.getByRole('button', { name: 'Siap digunakan offline', exact: true })).toBeVisible()
+  await expect(page.locator('.pwa-status-label')).toHaveText('Siap digunakan offline')
+  await expect(page.locator('.pwa-status-label')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
 }
 async function previewReady(page: Page) {
   await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
 }
 
-test('development keeps the status icon and tooltip visible without registering an offline worker', async ({ page }, testInfo) => {
+test('development shows offline status as footer text without registering an offline worker', async ({ page }, testInfo) => {
   const { createServer: createDevServer } = await import('vite')
   const server = await createDevServer({ logLevel: 'silent', server: { host: '127.0.0.1', port: 0, open: false } })
   try {
     await server.listen()
     const address = server.httpServer!.address() as { port: number }
     await page.goto(`http://127.0.0.1:${address.port}`)
-    const status = page.getByRole('button', { name: 'Mode pengembangan · cache offline tidak aktif', exact: true })
+    const status = page.locator('.app-footer .pwa-status-label')
+    await expect(status).toHaveText('Mode pengembangan · cache offline tidak aktif')
     await expect(status).toBeVisible()
-    await status.focus()
-    await page.keyboard.press('Tab')
-    await page.keyboard.press('Shift+Tab')
-    await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText('Mode pengembangan · cache offline tidak aktif')
+    await expect(page.locator('.topbar .pwa-status')).toHaveCount(0)
+    await expect(page.locator('.pwa-status button')).toHaveCount(0)
     await page.screenshot({ path: testInfo.outputPath('pwa-development.png') })
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 844 })
+      await status.scrollIntoViewIfNeeded()
+      await expect(status).toBeVisible()
+      const statusBounds = await status.boundingBox()
+      expect(statusBounds!.x + statusBounds!.width).toBeLessThanOrEqual(width)
+      await page.screenshot({ path: testInfo.outputPath(`footer-${width}.png`) })
+      await page.locator('.topbar').scrollIntoViewIfNeeded()
       const nav = await page.locator('.topbar').boundingBox()
       const menu = await page.getByRole('button', { name: 'Changelog', exact: true }).boundingBox()
       const version = await page.locator('.brand-version').boundingBox()
@@ -65,7 +71,19 @@ test('development keeps the status icon and tooltip visible without registering 
       expect(menu!.x + menu!.width).toBeLessThanOrEqual(width)
       expect(nav!.height).toBeGreaterThanOrEqual(56)
       expect(nav!.height).toBeLessThanOrEqual(96)
-      await expect(page.getByRole('link', { name: 'latih.', exact: true })).toBeVisible()
+      const appMenu = page.getByRole('button', { name: 'Pilih aplikasi', exact: true })
+      await expect(appMenu).toBeVisible()
+      await appMenu.click()
+      const panel = page.locator('[data-slot="popover-content"]')
+      await expect(panel).toBeVisible()
+      await expect(panel.getByRole('link', { name: /latih\./ })).toContainText('Preview')
+      await expect(panel.getByRole('link', { name: /folio\./ })).toHaveAttribute('aria-current', 'page')
+      const panelBounds = await panel.boundingBox()
+      expect(panelBounds!.x).toBeGreaterThanOrEqual(0)
+      expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(width)
+      await page.keyboard.press('Escape')
+      await expect(panel).toBeHidden()
+      await expect(appMenu).toBeFocused()
       await expect(page.getByRole('button', { name: 'Panduan Markdown', exact: true })).toBeVisible()
       await page.screenshot({ path: testInfo.outputPath(`navbar-${width}.png`) })
     }
@@ -77,14 +95,8 @@ test('development keeps the status icon and tooltip visible without registering 
 test('production manifest and cached app preserve documents, images, fonts and export offline', async ({ page, context, site, browserName }, testInfo) => {
   await page.goto(site.url)
   await offlineReady(page)
-  const status = page.getByRole('banner').getByRole('button', { name: 'Siap digunakan offline', exact: true })
-  await status.focus()
-  await page.keyboard.press('Tab')
-  await page.keyboard.press('Shift+Tab')
-  await expect(page.locator('[data-slot="tooltip-content"]')).toBeVisible()
-  await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText('Siap digunakan offline')
-  await page.keyboard.press('Escape')
-  await expect(page.locator('[data-slot="tooltip-content"]')).toBeHidden()
+  await expect(page.locator('.app-footer .pwa-status-label')).toHaveText('Siap digunakan offline')
+  await expect(page.locator('.topbar .pwa-status')).toHaveCount(0)
   const manifest = await page.evaluate(async () => {
     const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!
     return (await fetch(link.href)).json()
@@ -103,7 +115,7 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await context.setOffline(true)
   await page.reload()
   await previewReady(page)
-  await expect(page.getByRole('button', { name: 'Offline · siap menulis', exact: true })).toBeVisible()
+  await expect(page.locator('.pwa-status-label')).toHaveText('Offline · siap menulis')
   await expect(page.locator('.paper-pages img')).toHaveJSProperty('naturalWidth', 160)
   await expect(page.locator('.paper-pages .katex')).toHaveCount(1)
   expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('16px "Inter Variable"') })).toBe(true)
@@ -155,7 +167,7 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await expect(page.getByRole('dialog', { name: 'Riwayat versi', exact: true })).toContainText('Disimpan manual')
   await page.getByRole('dialog', { name: 'Riwayat versi', exact: true }).getByRole('button', { name: 'Close', exact: true }).click()
   await context.setOffline(false)
-  await expect(page.getByRole('button', { name: 'Siap digunakan offline', exact: true })).toBeVisible()
+  await expect(page.locator('.pwa-status-label')).toHaveText('Siap digunakan offline')
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('pwa-mobile.png'), fullPage: true })

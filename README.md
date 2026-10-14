@@ -15,7 +15,7 @@ Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau
 
 ## Preview latih.
 
-Pada branch `codex/latih-preview`, navbar Folio menyediakan tautan **latih.** ke `/latih/`. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Hosting harus mengarahkan URL aplikasi ke `index.html` (SPA fallback).
+Pada branch `codex/latih-preview`, tombol grid **Pilih aplikasi** di navbar Folio dan latih. membuka pilihan aplikasi dengan logo dan deskripsi. Pilih **latih.** untuk membuka `/latih/` dengan animasi splash; badge Preview menandai tahap pengembangannya. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Hosting harus mengarahkan URL aplikasi ke `index.html` (SPA fallback).
 
 ## Publikasi ke GitHub dan Vercel
 
@@ -218,15 +218,15 @@ Verifikasi fitur Markdown terbaru: **53 pengujian lulus, 3 kasus PDF WebKit dile
 
 ## Penggunaan offline / PWA
 
-Folio dapat digunakan offline setelah dibuka sekali saat online dan tooltip ikon status di navbar menunjukkan **Siap digunakan offline**. Kode aplikasi, stylesheet, font Inter/KaTeX, serta ikon disimpan sebagai cache; project, dokumen, riwayat, dan gambar tetap disimpan di IndexedDB. Saat koneksi terputus, aplikasi dapat dibuka ulang, dipakai untuk mengedit/impor file lokal, dan mengunduh Markdown. Ekspor PDF tetap memakai dialog cetak/Save as PDF yang tersedia di perangkat.
+Folio dapat digunakan offline setelah dibuka sekali saat online dan teks status di footer menunjukkan **Siap digunakan offline**. Status langsung terbaca tanpa tooltip, termasuk di bawah workspace pada ponsel. Kode aplikasi, stylesheet, font Inter/KaTeX, serta ikon disimpan sebagai cache; project, dokumen, riwayat, dan gambar tetap disimpan di IndexedDB. Saat koneksi terputus, aplikasi dapat dibuka ulang, dipakai untuk mengedit/impor file lokal, dan mengunduh Markdown. Ekspor PDF tetap memakai dialog cetak/Save as PDF yang tersedia di perangkat.
 
 Untuk memasang aplikasi, gunakan menu instalasi atau penambahan ke layar utama/Dock yang disediakan browser. Pilihan dan tampilan instalasi bergantung pada browser/perangkat. Hosting produksi harus menggunakan HTTPS; localhost dapat dipakai untuk pengujian. Pemasangan PWA tidak wajib untuk menggunakan cache offline.
 
-Jika versi baru tersedia, ikon pembaruan dengan tooltip **Perbarui aplikasi** muncul. Tombol menunggu draft tersimpan dan proses impor selesai; saat ditekan, aplikasi menyimpan ulang draft terbaru sebelum mengaktifkan versi baru. Hanya tab yang meminta pembaruan dimuat ulang. Tab lain tetap terbuka. Jika penyimpanan gagal, pembaruan dibatalkan dan pengguna dapat mengunduh .md. Pemeriksaan versi dilakukan saat membuka aplikasi dan saat kembali ke aplikasi/online, paling sering sekali per jam selama sesi berjalan.
+Jika versi baru tersedia, tombol **Perbarui aplikasi** dan keterangan pembaruan muncul di footer. Tombol menunggu draft tersimpan dan proses impor selesai; saat ditekan, aplikasi menyimpan ulang draft terbaru sebelum mengaktifkan versi baru. Hanya tab yang meminta pembaruan dimuat ulang. Tab lain tetap terbuka. Jika penyimpanan gagal, pembaruan dibatalkan dan pengguna dapat mengunduh .md. Pemeriksaan versi dilakukan saat membuka aplikasi dan saat kembali ke aplikasi/online, paling sering sekali per jam selama sesi berjalan.
 
 PWA tetap memakai penyimpanan browser, bukan folder perangkat atau sinkronisasi cloud. Batas gambar 2 MiB per file/10 MiB total tetap berlaku. Menghapus data situs atau penghapusan oleh browser dapat menghilangkan cache serta dokumen/gambar lokal; simpan salinan Markdown dan gambar asli. Perubahan domain atau port memakai penyimpanan terpisah.
 
-Service worker hanya aktif pada build produksi, agar cache tidak mengganggu pengembangan. Ikon status tetap terlihat pada server pengembangan, dengan tooltip **Mode pengembangan · cache offline tidak aktif**. Browser yang tidak mendukung service worker menampilkan keterangan penggunaan offline tidak didukung. Untuk meninjau secara lokal:
+Service worker hanya aktif pada build produksi, agar cache tidak mengganggu pengembangan. Footer pada server pengembangan menampilkan teks **Mode pengembangan · cache offline tidak aktif**. Browser yang tidak mendukung service worker menampilkan keterangan penggunaan offline tidak didukung. Untuk meninjau secara lokal:
 
 ```sh
 npm run build

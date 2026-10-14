@@ -1,6 +1,6 @@
-import { ArrowLeft } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { AppSwitchLink } from '@/components/app-switch-link'
+import { AppSwitcher } from '@/components/app-switcher'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty'
 
 export default function LatihApp() {
@@ -12,9 +12,7 @@ export default function LatihApp() {
       </a>
       <nav aria-label="Navigasi aplikasi" className="flex items-center gap-3">
         <Badge variant="secondary">Preview</Badge>
-        <AppSwitchLink variant="ghost" size="sm" application="folio">
-          <ArrowLeft data-icon="inline-start" /> Folio
-        </AppSwitchLink>
+        <AppSwitcher current="latih" />
       </nav>
     </header>
     <main className="latih-main">

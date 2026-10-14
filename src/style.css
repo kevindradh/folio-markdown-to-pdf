@@ -206,7 +206,7 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .paper-dimensions { font-size: 9px; }
 .settings-bar { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
 .settings-title { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 12px; }
-.app-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; color: var(--muted-foreground); font-size: 10px; padding: 19px 1px 23px; }
+.app-footer { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--muted-foreground); font-size: 10px; padding: 19px 1px 23px; }
 .coachmark[data-slot="dialog-content"] { width: 360px; max-height: calc(100dvh - 32px); overflow-y: auto; translate: none; animation: none; transition: none; }
 .coachmark-overlay[data-slot="dialog-overlay"] { background: color-mix(in srgb, var(--foreground) 35%, transparent); backdrop-filter: none; animation: none; transition: none; }
 .library-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -6px 0 12px; }
@@ -248,7 +248,7 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .markdown-guide dt { font-family: monospace; color: var(--primary); overflow-wrap: anywhere; }
 @media(min-width: 1500px) { .editor-content { height: 655px; } .paper-stage { height: 695px; } }
 @media(max-width: 1050px) { .format-toolbar > span { display: none; } .paper-stage { padding: 20px 16px; } }
-@media(max-width: 720px) { .topbar { height: 56px; padding: 0 16px; } .brand-description { display: none; } main { padding: 25px 16px 0; } .workspace-heading { align-items: flex-start; flex-direction: column; gap: 4px; margin-bottom: 20px; } .workspace-heading h1 { font-size: 27px; } .workspace-heading p { line-height: 1.6; max-width: 310px; } .heading-actions { width: 100%; padding-top: 12px; } .heading-actions > button { flex: 1; } .panes { grid-template-columns: 1fr; } .editor-pane { border-right: none; border-bottom: 1px solid var(--border); } .editor-content { height: 340px; } .paper-stage { height: 580px; } .workspace-bar { padding: 12px; gap: 8px; } .settings-bar { padding: 16px; } .app-footer { line-height: 1.6; font-size: 9px; } .app-footer > span:last-child { display: none; } }
+@media(max-width: 720px) { .topbar { height: 56px; padding: 0 16px; } .brand-description { display: none; } main { padding: 25px 16px 0; } .workspace-heading { align-items: flex-start; flex-direction: column; gap: 4px; margin-bottom: 20px; } .workspace-heading h1 { font-size: 27px; } .workspace-heading p { line-height: 1.6; max-width: 310px; } .heading-actions { width: 100%; padding-top: 12px; } .heading-actions > button { flex: 1; } .panes { grid-template-columns: 1fr; } .editor-pane { border-right: none; border-bottom: 1px solid var(--border); } .editor-content { height: 340px; } .paper-stage { height: 580px; } .workspace-bar { padding: 12px; gap: 8px; } .settings-bar { padding: 16px; } .app-footer { line-height: 1.6; font-size: 9px; } }
 @media(prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 @media print {
   body, :root { background: white; }
@@ -327,7 +327,10 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .document-body .footnote-backref { margin-left: .4em; }
 .document-body sup { font-size: .75em; vertical-align: super; }
 
-.pwa-status { display: flex; align-items: center; gap: 4px; color: var(--muted-foreground); }
+.pwa-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; color: var(--muted-foreground); font-size: 11px; line-height: 1.6; }
+.pwa-status-label { display: flex; align-items: center; gap: 6px; }
+.pwa-status-label > svg { width: 14px; height: 14px; flex-shrink: 0; }
+.pwa-update { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 @media print { .pwa-status, [data-slot="tooltip-content"] { display: none !important; } }
 
 .workspace-view-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -365,6 +368,14 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .navbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand-version { color: var(--muted-foreground); font-size: 11px; font-weight: 500; white-space: nowrap; }
 .navbar-brand .brand-description { margin-left: 2px; }
+.app-switcher-panel { width: 360px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 100px); overflow-y: auto; padding: 16px; border-radius: 20px; gap: 16px; }
+.app-switcher-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.app-switcher-choice { height: auto; min-width: 0; padding: 18px 10px; flex-direction: column; justify-content: flex-start; gap: 10px; white-space: normal; text-align: center; }
+.app-switcher-choice img { width: 48px; height: 48px; margin-bottom: 4px; }
+.app-switcher-name { font-size: 18px; font-weight: 650; letter-spacing: -.5px; }
+.app-switcher-description { font-size: 12px; font-weight: 400; line-height: 1.55; color: var(--muted-foreground); }
+.app-switcher-badges { display: flex; min-height: 20px; flex-wrap: wrap; justify-content: center; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { .app-switcher-panel { animation: none; transition: none; } }
 .app-entry-content { display: contents; }
 .app-splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: var(--background); color: var(--foreground); animation: app-splash-fade 900ms ease both; }
 .app-splash-brand { display: flex; flex-direction: column; align-items: center; gap: 18px; animation: app-splash-reveal 450ms cubic-bezier(.2,.7,.2,1) both; }
@@ -404,9 +415,9 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 }
 @media (max-width: 720px) {
   .navbar-label-detail { display: none; }
-  .navbar-actions > button > svg { display: none; }
+  .navbar-actions > button:not(.app-switcher-trigger) > svg { display: none; }
   .navbar-brand { gap: 8px; }
-  .app-footer { display: none; }
+  .app-footer { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 11px; }
 }
 @media (max-width: 360px) {
   .topbar { padding-inline: 10px; }
