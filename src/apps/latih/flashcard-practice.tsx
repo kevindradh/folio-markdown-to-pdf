@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import type { Collection } from './collections'
+import { MarkdownContent } from './markdown-content'
 
 export function FlashcardPractice({ question, index, total, revealed, hintOpen, onHint, onReveal, onFront, nextLabel }: {
   question: Collection['questions'][number]
@@ -21,7 +22,7 @@ export function FlashcardPractice({ question, index, total, revealed, hintOpen, 
         <CardHeader className="latih-flashcard-meta"><Badge variant="secondary">{revealed ? <BookOpen aria-hidden="true" /> : <Layers aria-hidden="true" />}{revealed ? 'Jawaban' : 'Pertanyaan'}</Badge><span>{index + 1} / {total}</span></CardHeader>
         <CardContent className="latih-flashcard-body">
           <section key={`${index}-${revealed}`} className="latih-flashcard-face" aria-label={revealed ? 'Jawaban kartu' : 'Pertanyaan kartu'} aria-live="polite">
-            {revealed ? <><p className="latih-flashcard-prompt">{question.question}</p><h2>{String(question.answer)}</h2>{question.explanation.trim() && <div className="latih-flashcard-context"><h3>Penjelasan</h3><p>{question.explanation}</p></div>}</> : <><h1>{question.question}</h1>{hintOpen && question.hint && <aside className="latih-flashcard-hint"><Lightbulb aria-hidden="true" /><p>{question.hint}</p></aside>}</>}
+            {revealed ? <><MarkdownContent className="latih-flashcard-prompt" text={question.question} /><h2 className="sr-only">Jawaban kartu</h2><MarkdownContent className="latih-flashcard-primary latih-flashcard-answer" text={String(question.answer)} />{question.explanation.trim() && <div className="latih-flashcard-context"><h3>Penjelasan</h3><MarkdownContent text={question.explanation} /></div>}</> : <><h1 className="sr-only">Pertanyaan kartu</h1><MarkdownContent className="latih-flashcard-primary" text={question.question} />{hintOpen && question.hint && <aside className="latih-flashcard-hint"><Lightbulb aria-hidden="true" /><MarkdownContent text={question.hint} /></aside>}</>}
           </section>
         </CardContent>
       </Card>

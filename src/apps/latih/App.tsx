@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
-import { examples, identifyCollection, parseCollection, templateFor, type Collection } from './collections'
+import { examples, identifyCollection, parseCollection, promptFor, templateFor, type Collection } from './collections'
 import { StudySession } from './study-session'
 import { HelpPage } from './help-page'
 import { readLastOpened, saveLastOpened } from './last-opened-storage'
@@ -92,7 +92,7 @@ function LatihWorkspace({ page }: { page: Page }) {
   catch (err) { setError(err instanceof DOMException ? 'Penyimpanan lokal gagal. Koleksi belum ditambahkan; simpan JSON asli dan coba lagi.' : (err as Error).message) }
   finally { setSaving(false) }
  }
- const prompt = `Buat soal untuk materi [ISI MATERI], sebanyak [JUMLAH SOAL]. Gunakan bahasa Indonesia. Kembalikan hanya JSON valid dengan struktur ini. Ganti contoh dengan soal dan pembahasan yang akurat. ${type === 'multiple-choice' ? 'answer adalah indeks opsi yang benar, dimulai dari 0. question, options, explanation, dan hint opsional mendukung Markdown. hint memberi petunjuk konsep tanpa membocorkan jawaban. Gunakan $...$ untuk LaTeX inline dan $$...$$ pada baris tersendiri untuk rumus blok. Escape setiap backslash LaTeX menjadi dua backslash dalam JSON dan gunakan \\n untuk baris baru. Jangan gunakan HTML mentah.' : 'answer adalah jawaban singkat berupa teks.'}\n\n${templateFor(type)}`
+ const prompt = promptFor(type)
  const personal = collections.filter(item => !item.demo)
  const visible = page === 'beranda' ? personal.slice(0, 4) : collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
  const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} to={pagePath(id)} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)

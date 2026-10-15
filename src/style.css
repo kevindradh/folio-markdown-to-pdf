@@ -689,14 +689,18 @@ main { max-width: 1600px; margin: auto; padding: 39px 4% 0; }
 .latih-flashcard-meta > span:last-child { color: var(--muted-foreground); font-size: 12px; font-variant-numeric: tabular-nums; }
 .latih-flashcard-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; padding: 16px 40px 32px; }
 .latih-flashcard-face { width: 100%; margin-block: auto; text-align: center; overflow-wrap: anywhere; animation: latih-card-reveal 180ms ease-out; }
-.latih-flashcard-face h1, .latih-flashcard-face h2 { font-size: clamp(26px, 4vw, 38px); font-weight: 600; line-height: 1.4; letter-spacing: -.025em; white-space: pre-wrap; margin: 0; }
-.latih-flashcard-face h2 { color: var(--primary); }
+.latih-flashcard-face .latih-markdown { text-align: inherit; }
+.latih-flashcard-primary { font-size: clamp(26px, 4vw, 38px); font-weight: 600; line-height: 1.4; letter-spacing: -.025em; }
+.latih-flashcard-primary p { font-size: inherit; line-height: inherit; }
+.latih-flashcard-primary :is(h1, h2, h3) { font-size: inherit; line-height: inherit; }
+.latih-flashcard-primary :is(ul, ol, pre, blockquote, table) { text-align: left; }
+.latih-flashcard-answer { color: var(--primary); }
 .latih-flashcard-prompt { font-size: 15px; line-height: 1.7; white-space: pre-wrap; margin: 0 0 20px; color: var(--muted-foreground); }
 .latih-flashcard-context { border-top: 1px solid var(--border); margin-top: 28px; padding-top: 20px; text-align: left; }
-.latih-flashcard-context h3 { font-size: 12px; color: var(--muted-foreground); font-weight: 500; margin-bottom: 8px; }
-.latih-flashcard-context p, .latih-flashcard-hint p { font-size: 15px; line-height: 1.8; white-space: pre-wrap; }
+.latih-flashcard-context > h3 { font-size: 12px; color: var(--muted-foreground); font-weight: 500; margin-bottom: 8px; }
+.latih-flashcard-context p, .latih-flashcard-hint p { font-size: 15px; line-height: 1.8; }
 .latih-flashcard-hint { display: flex; gap: 12px; text-align: left; padding: 16px; margin-top: 24px; border-radius: 12px; background: var(--secondary); }
-.latih-flashcard-hint svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 4px; color: var(--primary); }
+.latih-flashcard-hint > svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 4px; color: var(--primary); }
 .latih-flashcard-actions { justify-content: space-between; }
 @keyframes latih-card-reveal { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 600px) {

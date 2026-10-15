@@ -31,12 +31,14 @@ Audit dependensi dan pola kredensial tidak membuktikan ketiadaan seluruh kerenta
 ## Batas beta dan tindak lanjut
 
 - Koleksi tersimpan di browser/origin/perangkat yang sama; penghapusan data situs menghapus koleksi. Pengguna perlu menyimpan JSON asli sebagai cadangan. Tidak ada sinkronisasi cloud atau integrasi LLM.
-- Progres kuis dipulihkan pada tab yang sama. Tautan koleksi pribadi memerlukan datanya tersedia di browser tujuan. Flashcard masih memakai teks biasa.
+- Progres kuis dipulihkan pada tab yang sama. Tautan koleksi pribadi memerlukan datanya tersedia di browser tujuan. Flashcard kini mendukung Markdown/LaTeX; pengujian tambahannya tercatat di bawah.
 - Identitas dan cache PWA masih bersama Folio; kontrol pembaruan tersedia di Folio. Browser dengan build lama perlu menerima pembaruan agar mendapat kode terbaru.
 - Chunk renderer Markdown sekitar 598,77 kB (195,67 kB gzip) masih menimbulkan peringatan ukuran build. Pemisahan lebih lanjut dapat dilakukan setelah mengukur perangkat pengguna; ini bukan kegagalan build.
 - Chromium dan WebKit otomatis sudah diuji. Perangkat iOS/Android fisik, Firefox, hasil GitHub Actions Linux, serta konfigurasi Vercel yang benar-benar terpasang belum diverifikasi dalam sesi ini.
 
 ## Deployment beta
+
+Pembaruan setelah audit awal: Markdown/LaTeX flashcard dan prompt AI telah diverifikasi melalui build, lint, tipe test, serta 64 kasus Chromium/WebKit pada `tests/flashcard-markdown.spec.ts`, latih, routing, dan kesiapan beta. Screenshot rumus desktop/mobile diperiksa. Jumlah 198 pada tabel di atas tetap merupakan hasil audit awal, bukan jumlah regresi pembaruan ini.
 
 Gunakan proyek/domain Vercel beta dengan **origin terpisah dari produksi utama** agar cache PWA dan penyimpanan lokal pengujian tidak bercampur dengan pengguna produksi. Konfigurasi proyek beta: branch `codex/latih-preview`, Node 24.x, install `npm ci`, build `npm run build`, output `dist`. Aplikasi saat ini tidak memerlukan secret environment untuk berjalan. Konfigurasi ini belum diterapkan ke akun hosting.
 

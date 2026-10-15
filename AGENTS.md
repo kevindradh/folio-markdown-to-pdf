@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Markdown dan LaTeX flashcard — 15 Oktober 2026
+
+- FlashcardPractice memakai MarkdownContent/KaTeX yang sama dengan pilihan ganda untuk pertanyaan, jawaban, petunjuk, dan penjelasan. Isi blok ditempatkan pada struktur semantik terpisah, bukan di dalam elemen p/h1; tipografi kartu, scroll internal, reveal inline, dan bar aksi tetap dipertahankan. Selector ikon petunjuk hanya mengenai ikon langsung agar SVG rumus tidak ikut diperkecil. HTML mentah tetap nonaktif.
+- `promptFor` di collections.ts menyatukan instruksi AI kedua format: jenis answer, batas 1–100 soal/100 KiB, Markdown/KaTeX, delimiter, escape backslash/kutipan/newline JSON, dan larangan membungkus rumus sebagai kode. Template flashcard kini memuat contoh luas lingkaran beserta hint dan rumus blok. Panduan/README diperbarui.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 64 regresi Chromium/WebKit lulus. Kasus baru menguji contoh JSON pada prompt, formula inline/blok di semua bagian kartu, hint, tabel, kode literal, payload HTML/tautan berbahaya, refresh, sisi kartu, serta lebar 1280/390/320 px. Screenshot rumus desktop/mobile diperiksa. Tidak menambah dependensi atau mengubah versi branch.
+
 ## Kompatibilitas UUID perangkat — 15 Oktober 2026
 
 - `src/lib/create-id.ts` memakai crypto.randomUUID jika tersedia, dengan fallback UUID v4 dari crypto.getRandomValues untuk browser/konteks HTTP jaringan lokal yang tidak menyediakan randomUUID. Tetap memakai sumber acak kriptografis tanpa dependensi tambahan atau Math.random; format ID dan database lama tidak berubah.

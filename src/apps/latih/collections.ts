@@ -19,7 +19,22 @@ export function templateFor(type: Collection['type']) {
   hint: 'Gunakan hukum II Newton: $F = ma$.',
   answer: 1,
   explanation: 'Gunakan **hukum II Newton**:\n\n$$\nF = ma = 2 \\times 3 = 6\\,\\mathrm{N}\n$$\n\nJadi gaya yang bekerja adalah **6 N**.'
- } : { question: 'Istilah atau pertanyaan', answer: 'Jawaban singkat', explanation: 'Konteks tambahan.' }] }, null, 2)
+ } : { question: '**Luas lingkaran**\n\nApa rumus luas lingkaran dengan jari-jari $r$?', answer: '$L = \\pi r^2$', hint: 'Luas sebanding dengan kuadrat jari-jari: $r^2$.', explanation: 'Untuk $r = 2\\,\\mathrm{cm}$:\n\n$$\nL = \\pi \\times 2^2 = 4\\pi\\,\\mathrm{cm}^2\n$$' }] }, null, 2)
+}
+export function promptFor(type: Collection['type']) {
+ const format = type === 'multiple-choice'
+  ? 'type harus multiple-choice. Setiap soal memiliki question, options (2–6 teks pilihan), answer (angka indeks opsi benar mulai dari 0), dan explanation.'
+  : 'type harus flashcard. Setiap kartu memiliki question, answer (teks jawaban singkat, bukan angka indeks), dan explanation. Jangan sertakan options.'
+ return [
+  'Buat latihan untuk materi [ISI MATERI], sebanyak [JUMLAH SOAL] (1–100). Gunakan bahasa Indonesia. Pastikan soal, jawaban, dan pembahasan akurat.',
+  'Kembalikan hanya satu objek JSON valid, tanpa pengantar atau pembungkus kode. Gunakan title, type, dan questions sesuai template. Total JSON maksimal 100 KiB.',
+  format,
+  'question, explanation, hint opsional, serta teks options atau answer flashcard mendukung Markdown dan LaTeX. hint memberi petunjuk konsep tanpa membocorkan jawaban. Jangan gunakan HTML mentah.',
+  String.raw`Tulis rumus inline di dalam $...$ dan rumus blok di dalam $$...$$ pada baris tersendiri. Jangan bungkus rumus dengan backtick atau fenced code: isinya akan ditampilkan sebagai kode literal. Gunakan sintaks KaTeX, tanpa preamble LaTeX, paket, atau dokumen lengkap.`,
+  String.raw`Escape JSON wajib: setiap backslash LaTeX harus ditulis sebagai \\ di sumber JSON, tanda kutip di dalam teks sebagai \", dan baris baru sebagai \n. Contoh field JSON: "answer": "$\\frac{a}{b}$". Jangan menulis backslash tunggal untuk perintah seperti \frac, \times, atau \begin karena dapat menjadi escape JSON yang salah atau karakter kontrol.`,
+  'Ganti seluruh isi contoh berikut dengan materi yang diminta. Pertahankan struktur dan tipe datanya:',
+  templateFor(type),
+ ].join('\n\n')
 }
 export function parseCollection(source: string): Collection {
  if (new TextEncoder().encode(source).length > 102400) throw new Error('JSON maksimal 100 KiB.')

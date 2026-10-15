@@ -116,7 +116,7 @@ test('deep links and study reload continue working offline after the production 
   await expect(page).toHaveURL(/\/latih\/latihan\/contoh-kosakata$/)
   await page.getByRole('button', { name: 'Lihat jawaban', exact: true }).click()
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Ingin tahu', exact: true })).toBeVisible()
+  await expect(page.locator('.latih-flashcard-primary').getByText('Ingin tahu', { exact: true })).toBeVisible()
 })
 
 
