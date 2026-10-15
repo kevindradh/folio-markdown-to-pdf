@@ -1,4 +1,4 @@
-import { parseCollection, type Collection } from './collections'
+import { storedCollection, type Collection } from './collections'
 
 const key = 'latih:last-opened:v1'
 
@@ -8,7 +8,7 @@ export function readLastOpened(): Collection | null {
     if (!raw) return null
     const data = JSON.parse(raw)
     if (data.version !== 1) return null
-    const collection = parseCollection(JSON.stringify(data.collection))
+    const collection = storedCollection(data.collection)
     return { ...collection, demo: data.collection.demo === true }
   } catch { return null }
 }

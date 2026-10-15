@@ -1,11 +1,11 @@
-export type Collection = { title: string; type: 'multiple-choice' | 'flashcard'; demo?: boolean; questions: { question: string; options?: string[]; answer: number | string; explanation: string; hint?: string }[] }
+export type Collection = { id?: string; title: string; type: 'multiple-choice' | 'flashcard'; demo?: boolean; questions: { question: string; options?: string[]; answer: number | string; explanation: string; hint?: string }[] }
 export const examples: Collection[] = [
- { title: 'Kenali cara belajarmu', type: 'multiple-choice', demo: true, questions: [
+ { id: 'contoh-cara-belajar', title: 'Kenali cara belajarmu', type: 'multiple-choice', demo: true, questions: [
   { question: 'Cara mana yang membantu mengingat materi lebih lama?', options: ['Membaca ulang tanpa jeda', 'Menguji ingatan secara berkala', 'Menyalin seluruh buku', 'Belajar sekali semalam penuh'], hint: 'Pikirkan kegiatan yang membuat kamu mengambil informasi dari ingatan.', answer: 1, explanation: 'Mengambil kembali informasi dari ingatan dan mengulangnya dengan jeda membantu retensi.' },
   { question: 'Apa yang sebaiknya dilakukan setelah menjawab salah?', options: ['Melewati pembahasan', 'Menghafal huruf jawaban', 'Memahami alasan jawaban benar', 'Berhenti belajar'], answer: 2, explanation: 'Pembahasan membantu menemukan konsep yang belum dipahami.' },
   { question: 'Mengapa menjelaskan materi dengan kata-kata sendiri?', options: ['Memeriksa pemahaman', 'Mengganti sumber belajar', 'Memperpanjang catatan', 'Menghindari latihan'], answer: 0, explanation: 'Menjelaskan kembali membantu melihat hubungan antaride.' }
  ] },
- { title: 'Kosakata sehari-hari', type: 'flashcard', demo: true, questions: [
+ { id: 'contoh-kosakata', title: 'Kosakata sehari-hari', type: 'flashcard', demo: true, questions: [
   { question: 'Curious', answer: 'Ingin tahu', explanation: 'I am curious about how it works.' },
   { question: 'Improve', answer: 'Meningkatkan', explanation: 'Practice helps you improve.' },
   { question: 'Remember', answer: 'Mengingat', explanation: 'Try to remember the main idea.' }
@@ -32,4 +32,17 @@ export function parseCollection(source: string): Collection {
   if (data.type === 'flashcard' && (typeof item.answer !== 'string' || !item.answer.trim())) throw new Error('Jawaban flashcard harus berupa teks.')
  }
  return { title: data.title.trim(), type: data.type, questions: data.questions.map(item => ({ question: item.question, options: item.options, answer: item.answer, explanation: item.explanation, hint: item.hint })) }
+}
+
+// Internal identifiers belong to local records, not to the JSON import format.
+export function storedCollection(data: Collection): Collection {
+ const collection = parseCollection(JSON.stringify({ title: data.title, type: data.type, questions: data.questions }))
+ const id = typeof data.id === 'string' && /^(?:contoh-cara-belajar|contoh-kosakata|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(data.id) ? data.id : undefined
+ return { ...collection, id, demo: data.demo === true }
+}
+export function identifyCollection(item: Collection, available: Collection[]): Collection {
+ if (item.id) return item
+ const content = (data: Collection) => JSON.stringify(parseCollection(JSON.stringify({ title: data.title, type: data.type, questions: data.questions })))
+ const source = content(item)
+ return available.find(other => content(other) === source) ?? { ...item, id: crypto.randomUUID() }
 }

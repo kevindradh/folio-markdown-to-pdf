@@ -17,7 +17,7 @@ test('latih preview navigates on desktop and mobile, runs quiz and flashcards', 
     await expect(page.locator('.latih-json')).toContainText('"type": "flashcard"')
     await page.getByRole('link', { name: 'Beranda', exact: true }).click()
   }
-  await page.locator('a[href="#panduan"]:visible').click()
+  await page.locator('a[href="/latih/panduan"]:visible').click()
   await page.getByRole('button', { name: 'Coba latihan contoh' }).click()
   await expect(page.getByRole('navigation')).toHaveCount(0)
   for (const answer of ['Menguji ingatan secara berkala', 'Memahami alasan jawaban benar', 'Memeriksa pemahaman']) {
@@ -138,7 +138,7 @@ test('help is separate from home and stays accessible on desktop and mobile', as
   await expect(page.getByRole('button', { name: 'Coba latihan contoh' })).toHaveCount(0)
   for (const width of [1280, 390, 320]) {
     await page.setViewportSize({ width, height: 900 })
-    await page.locator('a[href="#panduan"]:visible').click()
+    await page.locator('a[href="/latih/panduan"]:visible').click()
     await expect(page.getByRole('heading', { name: 'Panduan penggunaan', exact: true })).toBeVisible()
     for (const heading of ['Mulai belajar', 'Membuat soal dengan AI', 'Format soal', 'Bantuan impor']) await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

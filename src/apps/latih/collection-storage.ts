@@ -34,14 +34,15 @@ export async function loadCollections(): Promise<Collection[]> {
       transaction.oncomplete = () => {
         try {
           const records = request.result as StoredCollection[]
-          resolve(records.sort((a, b) => b.createdAt - a.createdAt).map(record => parseCollection(JSON.stringify(record.collection))))
+          resolve(records.sort((a, b) => b.createdAt - a.createdAt).map(record => ({ ...parseCollection(JSON.stringify(record.collection)), id: record.id })))
         } catch { reject(new Error('Data koleksi lokal tidak dapat dibaca. Data asli tetap dipertahankan.')) }
       }
     })
   } finally { db.close() }
 }
 
-export async function saveCollection(collection: Collection): Promise<void> {
+export async function saveCollection(collection: Collection): Promise<Collection> {
+  const id = crypto.randomUUID()
   const db = await openDatabase()
   try {
     await new Promise<void>((resolve, reject) => {
@@ -49,7 +50,8 @@ export async function saveCollection(collection: Collection): Promise<void> {
       transaction.oncomplete = () => resolve()
       transaction.onabort = () => reject(transaction.error ?? new Error('Koleksi gagal disimpan.'))
       transaction.onerror = () => reject(transaction.error)
-      transaction.objectStore(storeName).add({ id: crypto.randomUUID(), createdAt: Date.now(), collection } satisfies StoredCollection)
+      transaction.objectStore(storeName).add({ id, createdAt: Date.now(), collection } satisfies StoredCollection)
     })
+    return { ...collection, id }
   } finally { db.close() }
 }

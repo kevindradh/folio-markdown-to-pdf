@@ -10,7 +10,7 @@ test('new users can only read for sixty seconds, then completion persists', asyn
   await expect(proceed).toBeDisabled()
   await page.clock.runFor(58_000)
   await expect(proceed).toBeDisabled()
-  await page.evaluate(() => { location.hash = 'template' })
+  await page.goto('/latih/template')
   await expect(page.getByRole('heading', { name: 'Template soal', exact: true })).toHaveCount(0)
   await page.clock.runFor(2_500)
   await expect(proceed).toBeEnabled()

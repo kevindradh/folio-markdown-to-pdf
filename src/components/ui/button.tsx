@@ -1,3 +1,4 @@
+import { Link, type LinkProps } from 'react-router'
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
@@ -54,8 +55,9 @@ function Button({
   )
 }
 
-function ButtonLink({ className, variant = "default", size = "default", ...props }:
-  React.ComponentProps<"a"> & VariantProps<typeof buttonVariants>) {
+function ButtonLink({ className, variant = "default", size = "default", to, ...props }:
+  React.ComponentProps<"a"> & VariantProps<typeof buttonVariants> & { to?: LinkProps["to"] }) {
+  if (to !== undefined) return <Link {...props} to={to} data-slot="button" className={cn(buttonVariants({ variant, size, className }))} />
   return <a data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 

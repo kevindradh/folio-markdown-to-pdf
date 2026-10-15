@@ -1,3 +1,5 @@
+import { Link, Navigate, useLocation, useNavigate, useParams, useRoutes } from 'react-router'
+import { AppLoading } from '@/components/app-loading'
 import { useEffect, useRef, useState } from 'react'
 import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check, CircleHelp, Search, LayoutGrid, List } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -11,22 +13,41 @@ import { Input } from '@/components/ui/input'
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
-import { examples, parseCollection, templateFor, type Collection } from './collections'
+import { examples, identifyCollection, parseCollection, templateFor, type Collection } from './collections'
 import { StudySession } from './study-session'
 import { HelpPage } from './help-page'
 import { readLastOpened, saveLastOpened } from './last-opened-storage'
 import { loadCollections, saveCollection } from './collection-storage'
 import { RequiredGuide } from './required-guide'
 import { hasReadGuide } from './guide-storage'
-import { clearStudy, initialProgress, readStudy, type SavedStudy } from './study-storage'
+import { clearStudy, initialProgress, readStudy, saveStudy, type SavedStudy } from './study-storage'
 
 const navigation = [{ id: 'beranda', label: 'Beranda', icon: House }, { id: 'koleksi', label: 'Koleksi', icon: Library }, { id: 'template', label: 'Template', icon: Braces }] as const
-type Page = typeof navigation[number]['id'] | 'panduan'
-function currentPage(): Page { if (['#panduan', '#mulai-belajar', '#membuat-soal', '#format-soal', '#bantuan-impor'].includes(window.location.hash)) return 'panduan'; return navigation.find(item => `#${item.id}` === window.location.hash)?.id ?? 'beranda' }
+type Page = typeof navigation[number]['id'] | 'panduan' | 'latihan' | 'missing'
+function pagePath(page: Page) { return page === 'beranda' ? '/latih/' : `/latih/${page}` }
 
 export default function LatihApp() {
+ const location = useLocation()
+ const legacyPages: Record<string, string> = { '#beranda': '/latih/', '#koleksi': '/latih/koleksi', '#template': '/latih/template', '#panduan': '/latih/panduan' }
+ const helpAnchors = ['#mulai-belajar', '#membuat-soal', '#format-soal', '#bantuan-impor']
+ const legacy = /^\/latih\/?$/.test(location.pathname) ? legacyPages[location.hash] ?? (helpAnchors.includes(location.hash) ? `/latih/panduan${location.hash}` : null) : null
+ const routes = useRoutes([
+  { index: true, element: <LatihWorkspace page="beranda" /> },
+  { path: 'beranda', element: <Navigate to="/latih/" replace /> },
+  { path: 'koleksi', element: <LatihWorkspace page="koleksi" /> },
+  { path: 'template', element: <LatihWorkspace page="template" /> },
+  { path: 'panduan', element: <LatihWorkspace page="panduan" /> },
+  { path: 'latihan/:collectionId', element: <LatihWorkspace page="latihan" /> },
+  { path: '*', element: <LatihWorkspace page="missing" /> },
+ ])
+ return legacy ? <Navigate to={legacy} replace /> : routes
+}
+
+function LatihWorkspace({ page }: { page: Page }) {
  const [guideCompleted, setGuideCompleted] = useState(hasReadGuide)
- const [page, setPage] = useState<Page>(currentPage)
+ const routerNavigate = useNavigate()
+ const location = useLocation()
+ const { collectionId } = useParams()
  const [collections, setCollections] = useState<Collection[]>(examples)
  const [storage, setStorage] = useState<'loading' | 'ready' | 'error'>('loading')
  const [saving, setSaving] = useState(false)
@@ -37,7 +58,7 @@ export default function LatihApp() {
  }, [])
  const [study, setStudy] = useState<SavedStudy | null>(readStudy)
  const [lastOpened, setLastOpened] = useState<Collection | null>(() => readLastOpened() ?? study?.collection ?? null)
- function startStudy(item: Collection) { saveLastOpened(item); setLastOpened(item); setStudy({ collection: item, progress: initialProgress }) }
+ function startStudy(item: Collection) { const identified = identifyCollection(item, collections); saveLastOpened(identified); setLastOpened(identified); clearStudy(); setStudy({ collection: identified, progress: initialProgress }); routerNavigate(`/latih/latihan/${identified.id}`) }
  const [importOpen, setImportOpen] = useState(false)
  const [source, setSource] = useState(''), [error, setError] = useState('')
  const [type, setType] = useState<Collection['type']>('multiple-choice')
@@ -45,27 +66,51 @@ export default function LatihApp() {
  const [query, setQuery] = useState('')
  const [collectionView, setCollectionView] = useState<'grid' | 'list'>(() => { try { return localStorage.getItem('latih:collection-view:v1') === 'list' ? 'list' : 'grid' } catch { return 'grid' } })
  const fileInput = useRef<HTMLInputElement>(null)
- useEffect(() => { const change = () => setPage(currentPage()); window.addEventListener('hashchange', change); return () => window.removeEventListener('hashchange', change) }, [])
- useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [page, study])
- function navigate(target: Page) { window.location.hash = target; setPage(target) }
+ const resumePending = useRef(study)
+ useEffect(() => {
+  if (!guideCompleted || storage === 'loading') return
+  const resume = resumePending.current
+  resumePending.current = null
+  if (resume && !resume.collection.id && page !== 'latihan' && page !== 'missing') {
+   const collection = identifyCollection(resume.collection, collections)
+   // The previous version stored a session without a route identifier.
+   saveStudy({ collection, progress: resume.progress })
+   routerNavigate(`/latih/latihan/${collection.id}`, { replace: true })
+  }
+ }, [guideCompleted, storage, collections, page, routerNavigate])
+ useEffect(() => {
+  const id = location.hash.slice(1)
+  if (page === 'panduan' && id) document.getElementById(id)?.scrollIntoView()
+  else window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+ }, [location.pathname, location.hash, page])
+ function navigate(target: Page) { routerNavigate(pagePath(target)) }
  async function importCollection() {
   if (storage !== 'ready' || saving) return
   setSaving(true)
-  try { const collection = parseCollection(source); await saveCollection(collection); setCollections(items => [collection, ...items]); setImportOpen(false); setSource(''); setError(''); navigate('koleksi') }
+  try { const collection = await saveCollection(parseCollection(source)); setCollections(items => [collection, ...items]); setImportOpen(false); setSource(''); setError(''); navigate('koleksi') }
   catch (err) { setError(err instanceof DOMException ? 'Penyimpanan lokal gagal. Koleksi belum ditambahkan; simpan JSON asli dan coba lagi.' : (err as Error).message) }
   finally { setSaving(false) }
  }
  const prompt = `Buat soal untuk materi [ISI MATERI], sebanyak [JUMLAH SOAL]. Gunakan bahasa Indonesia. Kembalikan hanya JSON valid dengan struktur ini. Ganti contoh dengan soal dan pembahasan yang akurat. ${type === 'multiple-choice' ? 'answer adalah indeks opsi yang benar, dimulai dari 0. question, options, explanation, dan hint opsional mendukung Markdown. hint memberi petunjuk konsep tanpa membocorkan jawaban. Gunakan $...$ untuk LaTeX inline dan $$...$$ pada baris tersendiri untuk rumus blok. Escape setiap backslash LaTeX menjadi dua backslash dalam JSON dan gunakan \\n untuk baris baru. Jangan gunakan HTML mentah.' : 'answer adalah jawaban singkat berupa teks.'}\n\n${templateFor(type)}`
  const personal = collections.filter(item => !item.demo)
  const visible = page === 'beranda' ? personal.slice(0, 4) : collections.filter(item => item.title.toLowerCase().includes(query.toLowerCase()))
- const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} href={`#${id}`} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)
- const brand = <div className="navbar-brand"><a className="brand" href="#beranda"><img className="brand-mark" src={`${import.meta.env.BASE_URL}latih.svg`} alt="" width={32} height={32} />latih<span className="brand-dot">.</span></a><Badge variant="secondary">Preview</Badge></div>
+ const navItems = navigation.map(({ id, label, icon: Icon }) => <ButtonLink key={id} to={pagePath(id)} variant={page === id ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === id ? 'page' : undefined}><Icon data-icon="inline-start" /><span>{label}</span></ButtonLink>)
+ const brand = <div className="navbar-brand"><Link className="brand" to="/latih/"><img className="brand-mark" src={`${import.meta.env.BASE_URL}latih.svg`} alt="" width={32} height={32} />latih<span className="brand-dot">.</span></Link><Badge variant="secondary">Preview</Badge></div>
  if (!guideCompleted) return <RequiredGuide onComplete={() => { setGuideCompleted(true); window.scrollTo({ top: 0 }) }} />
- if (study) return <StudySession collection={study.collection} initial={study.progress} onExit={() => { saveLastOpened(study.collection); setLastOpened(study.collection); clearStudy(); setStudy(null); navigate('koleksi') }} />
+ const persistedStudy = readStudy()
+ const routeCollection = collections.find(item => item.id === collectionId) ?? (lastOpened?.id === collectionId ? lastOpened : null) ?? (persistedStudy && persistedStudy.collection.id === collectionId ? persistedStudy.collection : null) ?? (study && study.collection.id === collectionId ? study.collection : null)
+ if (page === 'latihan') {
+  if (!routeCollection && storage === 'loading') return <AppLoading label="Memuat latihan…" latih />
+  if (routeCollection) {
+   const progress = persistedStudy && persistedStudy.collection.id === collectionId ? persistedStudy.progress : study && study.collection.id === collectionId ? study.progress : initialProgress
+   return <StudySession key={collectionId} collection={routeCollection} initial={progress} onExit={() => { saveLastOpened(routeCollection); setLastOpened(routeCollection); clearStudy(); setStudy(null); navigate('koleksi') }} />
+  }
+ }
+ if (page === 'missing' || page === 'latihan') return <main className="latih-shell p-8"><Empty><EmptyHeader><EmptyTitle>{page === 'latihan' ? 'Latihan tidak ditemukan' : 'Halaman tidak ditemukan'}</EmptyTitle><EmptyDescription>{page === 'latihan' ? 'Koleksi ini belum tersedia di browser ini. Buka koleksi lain atau impor file JSON aslinya.' : 'Periksa alamat halaman atau kembali ke Beranda.'}</EmptyDescription></EmptyHeader><Button onClick={() => navigate(page === 'latihan' ? 'koleksi' : 'beranda')}>{page === 'latihan' ? 'Buka koleksi' : 'Buka Beranda'}</Button></Empty></main>
  return <div className="latih-shell latih-dashboard">
-  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink href="#panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
+  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink to="/latih/panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
   <div className="latih-dashboard-body">
-   <header className="latih-mobile-header">{brand}<div className="flex items-center gap-2"><ButtonLink href="#panduan" variant="ghost" size="icon-sm" aria-label="Panduan penggunaan"><CircleHelp /></ButtonLink><AppSwitcher current="latih" /></div></header>
+   <header className="latih-mobile-header">{brand}<div className="flex items-center gap-2"><ButtonLink to="/latih/panduan" variant="ghost" size="icon-sm" aria-label="Panduan penggunaan"><CircleHelp /></ButtonLink><AppSwitcher current="latih" /></div></header>
    <main className="latih-dashboard-main">
     <section className="latih-page-heading"><div><h1>{page === 'beranda' ? 'Beranda' : page === 'koleksi' ? 'Koleksi latihan' : page === 'panduan' ? 'Panduan penggunaan' : 'Template soal'}</h1></div>{page !== 'panduan' && (page !== 'beranda' || !!personal.length) && <Button onClick={() => { setError(''); setImportOpen(true) }}><Plus data-icon="inline-start" />Impor soal</Button>}</section>
     {page === 'beranda' && <>
@@ -76,7 +121,7 @@ export default function LatihApp() {
     {(page === 'koleksi' || page === 'beranda' && !!personal.length) && <section className="latih-collections"><div className="latih-section-heading"><div><h2>{page === 'beranda' ? 'Koleksi terbaru' : 'Materi kamu'}</h2></div>{page === 'beranda' && <Button variant="ghost" onClick={() => navigate('koleksi')}>Semua koleksi<ArrowUpRight data-icon="inline-end" /></Button>}</div>
      {page === 'koleksi' && <div className="latih-collection-toolbar"><Field className="latih-search-field"><FieldLabel htmlFor="latih-search">Cari koleksi</FieldLabel><div className="latih-search-input"><Search aria-hidden="true" /><Input id="latih-search" type="search" placeholder="Cari judul materi…" value={query} onChange={event => setQuery(event.target.value)} /></div></Field><ToggleGroup value={[collectionView]} onValueChange={values => { const view = values[0]; if (view === 'grid' || view === 'list') { setCollectionView(view); try { localStorage.setItem('latih:collection-view:v1', view) } catch { /* The view remains available for this session. */ } } }} variant="outline" spacing={0} aria-label="Tampilan koleksi"><ToggleGroupItem value="grid" aria-label="Tampilan grid"><LayoutGrid />Grid</ToggleGroupItem><ToggleGroupItem value="list" aria-label="Tampilan list"><List />List</ToggleGroupItem></ToggleGroup></div>}
      {page === 'koleksi' && <p className="latih-collection-count" role="status">{visible.length} koleksi{query.trim() ? ' ditemukan' : ''}</p>}
-     <div className={`latih-collection-grid${page === 'koleksi' && collectionView === 'list' ? ' is-list' : ''}`} data-view={page === 'koleksi' ? collectionView : 'grid'}>{visible.map((item, i) => <Card key={`${item.title}-${i}`} className="latih-exercise-card">
+     <div className={`latih-collection-grid${page === 'koleksi' && collectionView === 'list' ? ' is-list' : ''}`} data-view={page === 'koleksi' ? collectionView : 'grid'}>{visible.map((item, i) => <Card key={item.id ?? `${item.title}-${i}`} className="latih-exercise-card">
       <CardHeader className="latih-exercise-header"><span className="latih-collection-icon">{item.type === 'multiple-choice' ? <ListChecks aria-hidden="true" /> : <Layers aria-hidden="true" />}</span><Badge variant="outline">{item.demo ? 'Contoh' : 'Impor pribadi'}</Badge><div className="latih-exercise-title"><CardTitle>{item.title}</CardTitle><CardDescription>{item.type === 'multiple-choice' ? 'Pilihan ganda' : 'Flashcard'}</CardDescription></div></CardHeader>
       <CardFooter variant="plain" className="justify-between gap-3"><span className="latih-subtle">{item.questions.length} {item.type === 'multiple-choice' ? 'soal' : 'kartu'}</span><Button onClick={() => startStudy(item)}><Play data-icon="inline-start" />Mulai latihan</Button></CardFooter>
      </Card>)}</div>

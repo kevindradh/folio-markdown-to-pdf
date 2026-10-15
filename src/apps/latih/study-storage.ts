@@ -1,4 +1,4 @@
-import { parseCollection, type Collection } from './collections'
+import { storedCollection, type Collection } from './collections'
 
 export type StudyProgress = {
   index: number
@@ -18,7 +18,7 @@ export function readStudy(): SavedStudy | null {
     if (!raw) return null
     const data = JSON.parse(raw)
     if (data.version !== 1) return null
-    const collection = parseCollection(JSON.stringify(data.collection))
+    const collection = storedCollection(data.collection)
     const p = data.progress as StudyProgress
     if (!p || !Number.isInteger(p.index) || p.index < 0 || p.index > collection.questions.length || !Array.isArray(p.selected) || p.selected.length > 1 || typeof p.revealed !== 'boolean' || typeof p.expanded !== 'boolean' || ![null, 'hint', 'explanation'].includes(p.panel) || !Number.isInteger(p.score) || p.score < 0 || p.score > p.index + Number(p.revealed)) return null
     const question = collection.questions[p.index]

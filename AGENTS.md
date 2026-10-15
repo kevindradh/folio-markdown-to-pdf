@@ -1,5 +1,14 @@
 # Panduan Proyek
 
+## Navigasi React Router — 15 Oktober 2026
+
+- `src/main.tsx` memasang BrowserRouter dengan basename Vite. Folio berada pada `/`; latih memakai route deklaratif `/latih/`, `/latih/koleksi`, `/latih/template`, `/latih/panduan`, serta `/latih/latihan/:collectionId`. URL tidak dikenal menampilkan pemulihan yang jelas. Link router dipakai untuk navigasi internal; ButtonLink shadcn menerima `to` opsional, sementara `href` tetap anchor biasa untuk perpindahan aplikasi/splash.
+- LatihApp mendeklarasikan route melalui useRoutes; LatihWorkspace mempertahankan state koleksi dan kontrol selama navigasi. Hash halaman lama diarahkan dengan replace ke path baru; anchor bagian Panduan tetap memakai hash. Panduan wajib tetap mengunci semua route latih sebelum selesai dibaca.
+- ID record UUID IndexedDB yang sudah ada kini diteruskan ke koleksi runtime. Contoh memakai ID tetap `contoh-cara-belajar` dan `contoh-kosakata`; ID tidak ditambahkan ke format JSON LLM. Snapshot last-opened/sesi mempertahankan ID, dengan validasi; sesi lama tanpa ID dicocokkan berdasarkan isi yang dinormalisasi lalu diarahkan ke route latihan. Koleksi dan database tidak dihapus atau dimigrasikan destruktif.
+- Route latihan memulihkan progres hanya untuk ID yang sama. Back/Forward tidak menghitung ulang skor; kembali ke dashboard lewat history tetap mengikuti URL dashboard saat reload. Membuka URL materi yang belum tersedia di browser menampilkan Latihan tidak ditemukan. Perpindahan Folio/latih tetap memakai splash dan navigasi dokumen yang sudah ada.
+- `react-router` ditambahkan melalui npm bersama lockfile (audit instalasi: 0 vulnerabilities). `vercel.json` memberi rewrite `/latih/:path*` ke index.html; fallback service worker yang sudah tersedia mendukung URL dalam ketika offline. Hosting Vercel belum dideploy dari sesi ini.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check; regresi latih/panduan, router/migrasi/offline, dan PWA pada Chromium/WebKit lulus. Cakupan meliputi URL langsung/reload, tautan tanpa reload dokumen, Back/Forward, hash lama, anchor Panduan, ID stabil antar-tab, sesi/koleksi lama termasuk contoh, data pribadi, dan offline pada URL template/latihan. Versi branch tetap 0.0.32.
+
 ## Pemulihan materi terakhir dibuka — 15 Oktober 2026
 
 - `src/apps/latih/last-opened-storage.ts` menyimpan snapshot koleksi terakhir dibuka ke localStorage `latih:last-opened:v1`. App memulihkannya saat mount, termasuk status contoh/pribadi, sehingga card Beranda tetap tersedia setelah refresh atau berpindah ke Folio. Sesi kuis lama yang dipulihkan juga mengisi materi terakhir dibuka ketika keluar ke koleksi.
@@ -72,7 +81,7 @@ Dokumentasi ini berdasarkan pemeriksaan kode, konfigurasi, dan paket lokal pada 
 - Nama paket: `markdown-to-pdf`; paket privat, versi aplikasi mengikuti `package.json` (saat penerapan versioning: `0.0.20`), menggunakan ES modules (`type: module`).
 - Aplikasi frontend React + Vite + TypeScript. Tampilan awal di `src/App.tsx` menggunakan nama sementara “folio”, dengan editor dan pratinjau berdampingan.
 - Editor, unggah file Markdown, pratinjau Markdown terstruktur, pengaturan kertas/tipografi/margin, dan zoom sudah tersedia. Ekspor memakai dialog cetak browser (Save as PDF). Parser awal belum mendukung seluruh spesifikasi Markdown; rumus memakai KaTeX dan syntax highlighting memakai lowlight. Tulisan, nama dokumen, dan pengaturan tersimpan otomatis sebagai banyak dokumen dalam project IndexedDB, dengan riwayat versi otomatis + manual; tombol Unduh .md menyediakan salinan file.
-- Belum ada router, backend, atau state management eksternal. Pengujian regresi memakai Playwright pada build produksi.
+- Navigasi memakai React Router dalam mode Declarative; belum ada backend atau state management eksternal. Pengujian regresi memakai Playwright pada build produksi.
 - Gunakan npm; lockfile yang tersedia adalah `package-lock.json`. `README.md` berisi panduan menjalankan proyek, fitur, syntax highlighting, ekspor PDF, dan batasan aplikasi.
 - Repository Git sudah diinisialisasi. Periksa `git status` sebelum mengubah file agar perubahan pengguna tetap terjaga.
 
@@ -95,6 +104,7 @@ Versi berikut adalah rentang yang dideklarasikan di `package.json`, bukan selalu
 | Paket | Versi deklarasi | Peran dan pemakaian saat ini |
 | --- | --- | --- |
 | `react`, `react-dom` | `^19.2.8` | UI React dan rendering melalui `createRoot`; entry point memakai `StrictMode`. |
+| `react-router` | `^8.4.0` | BrowserRouter, route deklaratif, Link, parameter ID latihan, dan pengalihan URL lama. |
 | `@base-ui/react` | `^1.9.0` | Primitive UI; komponen Button memakai `@base-ui/react/button`. |
 | Stylesheet shadcn lokal | asal `4.21.4` | `src/styles/shadcn.css` mempertahankan stylesheet resmi tanpa memasang CLI sebagai dependensi aplikasi. Komponen shadcn tetap di `src/components/ui/`; konfigurasi di `components.json`. |
 | `tailwindcss`, `@tailwindcss/vite` | `^4.3.3` | Styling utility Tailwind v4, terintegrasi lewat plugin Vite. |
