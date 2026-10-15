@@ -27,19 +27,27 @@ export function promptFor(type: Collection['type']) {
   : 'type harus flashcard. Setiap kartu memiliki question, answer (teks jawaban singkat, bukan angka indeks), dan explanation. Jangan sertakan options.'
  return [
   'Buat latihan untuk materi [ISI MATERI], sebanyak [JUMLAH SOAL] (1–100). Gunakan bahasa Indonesia. Pastikan soal, jawaban, dan pembahasan akurat.',
-  'Kembalikan hanya satu objek JSON valid, tanpa pengantar atau pembungkus kode. Gunakan title, type, dan questions sesuai template. Total JSON maksimal 100 KiB.',
+  'Kembalikan satu objek JSON valid di dalam satu blok kode berlabel json (```json), tanpa pengantar atau teks lain. Ini menjaga karakter Markdown dan backslash saat pengguna memakai tombol salin kode di ponsel. Gunakan title, type, dan questions sesuai template. Total hasil maksimal 100 KiB.',
   format,
   'question, explanation, hint opsional, serta teks options atau answer flashcard mendukung Markdown dan LaTeX. hint memberi petunjuk konsep tanpa membocorkan jawaban. Jangan gunakan HTML mentah.',
-  String.raw`Tulis rumus inline di dalam $...$ dan rumus blok di dalam $$...$$ pada baris tersendiri. Jangan bungkus rumus dengan backtick atau fenced code: isinya akan ditampilkan sebagai kode literal. Gunakan sintaks KaTeX, tanpa preamble LaTeX, paket, atau dokumen lengkap.`,
+  String.raw`Di dalam nilai string JSON, tulis rumus inline di dalam $...$ dan rumus blok di dalam $$...$$ pada baris tersendiri. Jangan bungkus rumus dengan backtick atau fenced code di dalam string: isinya akan ditampilkan sebagai kode literal. Blok kode json hanya membungkus objek JSON terluar. Gunakan sintaks KaTeX, tanpa preamble LaTeX, paket, atau dokumen lengkap.`,
   String.raw`Escape JSON wajib: setiap backslash LaTeX harus ditulis sebagai \\ di sumber JSON, tanda kutip di dalam teks sebagai \", dan baris baru sebagai \n. Contoh field JSON: "answer": "$\\frac{a}{b}$". Jangan menulis backslash tunggal untuk perintah seperti \frac, \times, atau \begin karena dapat menjadi escape JSON yang salah atau karakter kontrol.`,
+  String.raw`Untuk matriks, gunakan \\begin{pmatrix} dan \\end{pmatrix} dalam sumber JSON; pemisah baris matriks ditulis \\\\. Contoh field JSON: "question": "$\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$". Setelah JSON dibaca, perintah memiliki satu backslash dan pemisah baris matriks dua. Jangan menambah lapisan escape lagi.`,
   'Ganti seluruh isi contoh berikut dengan materi yang diminta. Pertahankan struktur dan tipe datanya:',
-  templateFor(type),
+  '```json\n' + templateFor(type) + '\n```',
  ].join('\n\n')
 }
 export function parseCollection(source: string): Collection {
  if (new TextEncoder().encode(source).length > 102400) throw new Error('JSON maksimal 100 KiB.')
+ // Accept one complete code block copied from an AI response, never surrounding prose.
+ const trimmed = source.trim()
+ const codeBlock = trimmed.match(/^```(?:json)?[ \t]*\r?\n([\s\S]*?)\r?\n```$/i)
+ const json = codeBlock ? codeBlock[1] : trimmed
  let data: Collection
- try { data = JSON.parse(source) } catch { throw new Error('JSON belum valid. Periksa koma, tanda kutip, dan kurungnya.') }
+ try { data = JSON.parse(json) } catch {
+  if (/\\(?:begin|end|frac|times|text|boxed|sqrt|quad)\b/.test(json)) throw new Error('JSON belum valid. Periksa escape backslash LaTeX. Salin lewat tombol salin pada blok kode JSON di AI, atau minta AI membuat ulang memakai template latih.')
+  throw new Error('JSON belum valid. Periksa koma, tanda kutip, dan kurungnya.')
+ }
  if (!data || typeof data.title !== 'string' || !data.title.trim() || data.title.length > 120 || !['multiple-choice', 'flashcard'].includes(data.type) || !Array.isArray(data.questions) || !data.questions.length || data.questions.length > 100) throw new Error('Gunakan format template latih. dengan judul, jenis latihan, dan 1–100 soal.')
  for (const item of data.questions) {
   if (item && item.hint !== undefined && typeof item.hint !== 'string') throw new Error('hint harus berupa teks Markdown atau dihilangkan.')

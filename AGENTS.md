@@ -1,5 +1,17 @@
 # Panduan Proyek
 
+## Clipboard instruksi di ponsel — 15 Oktober 2026
+
+- Tombol Salin instruksi dan JSON memakai helper `src/lib/copy-text.ts`: Clipboard API diprioritaskan, lalu fallback execCommand copy dengan textarea sementara yang readonly, terseleksi penuh, dan tidak menggeser halaman. Fallback berjalan sinkron saat Clipboard API tidak tersedia (misalnya HTTP jaringan lokal); elemen sementara selalu dibersihkan dan fokus/seleksi sebelumnya dipulihkan. Tidak menambah library.
+- Kegagalan kedua metode tidak menampilkan sukses palsu atau meminta seleksi manual. Tombol Coba salin lagi memakai fallback langsung pada ketukan baru; Unduh instruksi (.txt) menyediakan isi prompt utuh. Mengganti format membersihkan status salin/error.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan delapan kasus Chromium/WebKit dengan hasTouch/tap lulus. Cakupan meliputi API modern, API hilang, writeText ditolak dengan fallback copy browser asli, isi instruksi kedua format termasuk escape, scroll tetap, cleanup, pemblokiran total, unduhan utuh, serta retry. Perangkat ponsel fisik belum diuji dalam sesi ini.
+
+## Salinan JSON dari AI mobile — 15 Oktober 2026
+
+- Perbandingan lampiran pengguna menunjukkan salinan desktop valid, sedangkan mobile kehilangan escape backslash LaTeX dan penanda Markdown. Prompt kini meminta satu blok kode json dengan tombol salin kode, memberi contoh escape matriks (perintah dua backslash/pemisah baris empat pada sumber JSON), serta membedakan pembungkus JSON dari kode literal di dalam nilai string.
+- parseCollection menerima JSON biasa atau satu pembungkus kode json/tanpa label yang mencakup seluruh input, termasuk whitespace/BOM/CRLF. Batas 100 KiB diperiksa sebelum pembungkus dilepas. Prosa, blok berganda, dan JSON rusak tetap ditolak; error escape LaTeX mengarahkan pengguna menyalin kode atau membuat ulang lewat template, tanpa mengubah backslash rumus secara otomatis. Panduan wajib, halaman Panduan, dan README konsisten dengan alur ini.
+- `docs/examples/matriks-diperbaiki.json` menyediakan lampiran mobile yang diperbaiki secara terarah; 72 rumus lolos validasi KaTeX. Build/changelog-check, lint, tipe test, diff-check, dan 68 regresi Chromium/WebKit lulus, termasuk envelope JSON, prompt matriks, impor/reload pada mobile, tampilan matriks/opsi, serta regresi flashcard/pilihan ganda/routing/CSP. Tidak menambah dependensi atau mengubah versi branch.
+
 ## Markdown dan LaTeX flashcard — 15 Oktober 2026
 
 - FlashcardPractice memakai MarkdownContent/KaTeX yang sama dengan pilihan ganda untuk pertanyaan, jawaban, petunjuk, dan penjelasan. Isi blok ditempatkan pada struktur semantik terpisah, bukan di dalam elemen p/h1; tipografi kartu, scroll internal, reveal inline, dan bar aksi tetap dipertahankan. Selector ikon petunjuk hanya mengenai ikon langsung agar SVG rumus tidak ikut diperkecil. HTML mentah tetap nonaktif.

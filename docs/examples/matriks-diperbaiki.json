@@ -1,0 +1,66 @@
+{
+  "title": "Matematika Dasar: Pengenalan dan Operasi Matriks",
+  "type": "multiple-choice",
+  "questions": [
+    {
+      "question": "Diketahui matriks berikut:\n\n$$\nA = \\begin{pmatrix} 3 & 5 & 7 \\\\ 2 & 4 & 6 \\end{pmatrix}\n$$\n\nBerapakah ordo matriks $A$?",
+      "options": [
+        "$3 \\times 2$",
+        "$2 \\times 3$",
+        "$2 \\times 2$",
+        "$3 \\times 3$"
+      ],
+      "hint": "Ordo matriks ditentukan berdasarkan jumlah baris × jumlah kolom. Perhatikan susunan elemen matriks tersebut.",
+      "answer": 1,
+      "explanation": "Ordo matriks adalah ukuran matriks berdasarkan jumlah baris dan kolom.\n\nDiketahui:\n\n$$\nA = \\begin{pmatrix} 3 & 5 & 7 \\\\ 2 & 4 & 6 \\end{pmatrix}\n$$\n\nMatriks $A$ memiliki:\n\n- 2 baris, yaitu $(3,5,7)$ dan $(2,4,6)$.\n- 3 kolom, yaitu $(3,2)$, $(5,4)$, dan $(7,6)$.\n\nDengan demikian:\n\n$$\n\\text{Ordo } A = 2 \\times 3\n$$\n\nJawaban yang benar adalah B."
+    },
+    {
+      "question": "Diketahui matriks:\n\n$$\nA = \\begin{pmatrix} 4 & 7 & 2 \\\\ 5 & 9 & 6 \\\\ 3 & 8 & 1 \\end{pmatrix}\n$$\n\nBerapakah nilai elemen $a_{23}$ pada matriks tersebut?",
+      "options": [
+        "$7$",
+        "$9$",
+        "$6$",
+        "$8$"
+      ],
+      "hint": "Notasi $a_{ij}$ menunjukkan elemen yang berada pada baris ke-$i$ dan kolom ke-$j$.",
+      "answer": 2,
+      "explanation": "Dalam matriks, elemen $a_{ij}$ menunjukkan posisi elemen pada baris ke-$i$ dan kolom ke-$j$.\n\nDiketahui:\n\n$$\nA = \\begin{pmatrix} 4 & 7 & 2 \\\\ 5 & 9 & 6 \\\\ 3 & 8 & 1 \\end{pmatrix}\n$$\n\nUntuk menentukan $a_{23}$:\n\n1. Angka pertama, yaitu $2$, menunjukkan baris kedua.\n2. Angka kedua, yaitu $3$, menunjukkan kolom ketiga.\n3. Elemen pada baris kedua dan kolom ketiga adalah $6$.\n\nJadi:\n\n$$\na_{23} = 6\n$$\n\nJawaban yang benar adalah C."
+    },
+    {
+      "question": "Diketahui dua buah matriks:\n\n$$\nA = \\begin{pmatrix} 2 & 4 \\\\ 3 & 5 \\end{pmatrix}\n$$\n\n$$\nB = \\begin{pmatrix} 1 & 3 \\\\ 2 & 4 \\end{pmatrix}\n$$\n\nHasil dari operasi penjumlahan matriks $A+B$ adalah ....",
+      "options": [
+        "$\\begin{pmatrix} 3 & 7 \\\\ 5 & 9 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 2 & 12 \\\\ 6 & 20 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 1 & 1 \\\\ 1 & 1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 3 & 5 \\\\ 7 & 9 \\end{pmatrix}$"
+      ],
+      "hint": "Penjumlahan dua matriks dilakukan dengan menjumlahkan elemen-elemen yang memiliki posisi sama. Kedua matriks harus mempunyai ordo yang sama.",
+      "answer": 0,
+      "explanation": "Penjumlahan matriks dilakukan dengan menjumlahkan setiap elemen yang berada pada posisi yang sama.\n\nDiketahui:\n\n$$\nA+B = \\begin{pmatrix} 2 & 4 \\\\ 3 & 5 \\end{pmatrix} + \\begin{pmatrix} 1 & 3 \\\\ 2 & 4 \\end{pmatrix}\n$$\n\nLangkah 1: Jumlahkan elemen yang bersesuaian.\n\n$$\nA+B = \\begin{pmatrix} 2+1 & 4+3 \\\\ 3+2 & 5+4 \\end{pmatrix}\n$$\n\nLangkah 2: Hitung hasilnya.\n\n$$\nA+B = \\begin{pmatrix} 3 & 7 \\\\ 5 & 9 \\end{pmatrix}\n$$\n\nJadi, hasil penjumlahan matriks tersebut adalah:\n\n$$\n\\boxed{\\begin{pmatrix} 3 & 7 \\\\ 5 & 9 \\end{pmatrix}}\n$$\n\nJawaban yang benar adalah A."
+    },
+    {
+      "question": "Diketahui matriks:\n\n$$\nA = \\begin{pmatrix} 2 & -3 \\\\ 4 & 1 \\end{pmatrix}\n$$\n\nJika matriks $A$ dikalikan dengan skalar $3$, maka hasil dari $3A$ adalah ....",
+      "options": [
+        "$\\begin{pmatrix} 5 & 0 \\\\ 7 & 4 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 6 & -9 \\\\ 12 & 3 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 6 & 9 \\\\ 12 & 3 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 2 & -9 \\\\ 4 & 3 \\end{pmatrix}$"
+      ],
+      "hint": "Perkalian skalar dengan matriks dilakukan dengan mengalikan setiap elemen matriks dengan bilangan skalar tersebut. Perhatikan aturan perkalian bilangan positif dan negatif.",
+      "answer": 1,
+      "explanation": "Perkalian skalar adalah operasi mengalikan seluruh elemen matriks dengan suatu bilangan.\n\nDiketahui:\n\n$$\nA = \\begin{pmatrix} 2 & -3 \\\\ 4 & 1 \\end{pmatrix}\n$$\n\nLangkah 1: Kalikan setiap elemen dengan 3.\n\n$$\n3A = 3\\begin{pmatrix} 2 & -3 \\\\ 4 & 1 \\end{pmatrix}\n$$\n\n$$\n3A = \\begin{pmatrix} 3(2) & 3(-3) \\\\ 3(4) & 3(1) \\end{pmatrix}\n$$\n\nLangkah 2: Hitung setiap perkalian.\n\n$$\n3A = \\begin{pmatrix} 6 & -9 \\\\ 12 & 3 \\end{pmatrix}\n$$\n\nPerhatikan bahwa $3 \\times (-3) = -9$, bukan $9$.\n\nJadi:\n\n$$\n\\boxed{3A = \\begin{pmatrix} 6 & -9 \\\\ 12 & 3 \\end{pmatrix}}\n$$\n\nJawaban yang benar adalah B."
+    },
+    {
+      "question": "Diketahui dua matriks:\n\n$$\nA = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}\n$$\n\n$$\nB = \\begin{pmatrix} 2 & 1 \\\\ 0 & 3 \\end{pmatrix}\n$$\n\nTentukan hasil dari perkalian matriks $A \\times B$!",
+      "options": [
+        "$\\begin{pmatrix} 2 & 2 \\\\ 0 & 12 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 2 & 7 \\\\ 6 & 15 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 3 & 3 \\\\ 3 & 7 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 2 & 6 \\\\ 6 & 12 \\end{pmatrix}$"
+      ],
+      "hint": "Pada perkalian matriks, setiap elemen hasil diperoleh dengan mengalikan elemen pada suatu baris matriks pertama dengan elemen pada suatu kolom matriks kedua, kemudian menjumlahkan hasil perkaliannya.",
+      "answer": 1,
+      "explanation": "Perkalian matriks berbeda dari penjumlahan matriks. Operasi ini menggunakan perkalian antara baris matriks pertama dan kolom matriks kedua.\n\nDiketahui:\n\n$$\nA = \\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}, \\quad B = \\begin{pmatrix} 2 & 1 \\\\ 0 & 3 \\end{pmatrix}\n$$\n\nLangkah 1: Kalikan baris pertama dengan setiap kolom.\n\nElemen baris 1 kolom 1:\n\n$$\nc_{11} = (1\\times2)+(2\\times0)=2\n$$\n\nElemen baris 1 kolom 2:\n\n$$\nc_{12} = (1\\times1)+(2\\times3)=7\n$$\n\nLangkah 2: Kalikan baris kedua dengan setiap kolom.\n\nElemen baris 2 kolom 1:\n\n$$\nc_{21} = (3\\times2)+(4\\times0)=6\n$$\n\nElemen baris 2 kolom 2:\n\n$$\nc_{22} = (3\\times1)+(4\\times3)=15\n$$\n\nLangkah 3: Susun hasil perkalian ke dalam matriks.\n\n$$\nA\\times B = \\begin{pmatrix} 2 & 7 \\\\ 6 & 15 \\end{pmatrix}\n$$\n\nJadi:\n\n$$\n\\boxed{AB = \\begin{pmatrix} 2 & 7 \\\\ 6 & 15 \\end{pmatrix}}\n$$\n\nJawaban yang benar adalah B."
+    }
+  ]
+}
