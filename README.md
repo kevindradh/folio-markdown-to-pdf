@@ -13,6 +13,10 @@ npm run dev
 
 Aplikasi pada branch `main` tidak memerlukan environment variable, API key, atau backend. Jangan mengunggah dokumen pribadi maupun file kredensial ke repository. `.gitignore` mengecualikan environment file, dependensi, hasil build/pengujian, dan konfigurasi deployment lokal; `package-lock.json`, sumber aplikasi, serta contoh environment yang sudah disanitasi tetap dapat dilacak.
 
+## Kesiapan beta
+
+Hasil audit lokal, batas beta, dan checklist deployment tersedia di [laporan kesiapan beta](docs/beta-readiness.md). Gunakan origin beta terpisah dari produksi utama untuk memisahkan cache PWA dan data lokal.
+
 ## Preview latih.
 
 Pengguna baru wajib membuka panduan pertama selama 60 detik sebelum fitur aplikasi tersedia. Waktu hanya dihitung saat tab terlihat, dan progres waktunya bertahan setelah refresh pada tab yang sama. Setelah waktunya selesai, tekan **Saya sudah membaca**; penyelesaian dicatat di browser agar panduan tidak diulang otomatis. Jika penyimpanan browser diblokir atau data situs dihapus, panduan dapat muncul lagi.
@@ -23,7 +27,7 @@ Pada pilihan ganda, `question`, setiap teks `options`, dan `explanation` menduku
 
 Kuis menampilkan progres dan bar aksi tetap. Pembahasan tersedia di panel kanan desktop atau panel bawah ponsel yang dapat ditutup, dibuka kembali, dan diperluas. Tombol Berikutnya/Selesaikan sesi tetap tersedia tanpa menggulir pembahasan sampai akhir. Field `hint` opsional dapat ditambahkan ke setiap soal (teks Markdown/LaTeX); tombol Petunjuk muncul sebelum jawaban diperiksa jika hint tersedia. Penggunaan petunjuk tidak mengurangi skor. Flashcard menampilkan pertanyaan dan jawaban pada satu kartu di tengah, dengan penjelasan langsung di bawah jawaban. Gunakan Lihat pertanyaan untuk melihat sisi depan kembali, lalu Berikutnya untuk berpindah kartu. Tombol aksi tetap terlihat ketika konten kartu panjang.
 
-Pada branch `codex/latih-preview`, tombol **Aplikasi** dengan ikon sembilan titik 3×3 pada desktop dan teks saja di mobile, pada navbar Folio dan latih. membuka pilihan aplikasi dengan logo dan deskripsi. Pilih **latih.** untuk membuka `/latih/` dengan animasi splash; badge Preview menandai tahap pengembangannya. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Navigasi memakai React Router dengan URL `/latih/koleksi`, `/latih/template`, `/latih/panduan`, serta `/latih/latihan/:id`. URL hash lama dialihkan secara otomatis. `vercel.json` menyediakan SPA fallback untuk seluruh URL agar route aplikasi dan halaman tidak ditemukan Folio dapat dibuka langsung; pada hosting lain, arahkan navigasi aplikasi ke `index.html`. Service worker produksi juga menyediakan fallback navigasi untuk penggunaan offline.
+Pada branch `codex/latih-preview`, tombol **Aplikasi** di Folio dan latih membuka pilihan aplikasi dengan logo dan deskripsi. Tombol menampilkan ikon sembilan titik 3×3 pada desktop dan teks saja di mobile. Pilih **latih.** untuk membuka `/latih/` dengan animasi splash; badge Preview menandai tahap pengembangannya. Halaman ini masih berupa preview dengan tema terpisah dan tautan kembali ke Folio. Kode aplikasi berada di `src/apps/latih/`; entry `src/app-entry.tsx` memuat aplikasi sesuai URL secara lazy dalam satu build. URL `/latih/` dan `/latih` membuka halaman yang sama. Navigasi memakai React Router dengan URL `/latih/koleksi`, `/latih/template`, `/latih/panduan`, serta `/latih/latihan/:id`. URL hash lama dialihkan secara otomatis. `vercel.json` menyediakan SPA fallback untuk seluruh URL agar route aplikasi dan halaman tidak ditemukan Folio dapat dibuka langsung; pada hosting lain, arahkan navigasi aplikasi ke `index.html`. Service worker produksi juga menyediakan fallback navigasi untuk penggunaan offline.
 
 ## Publikasi ke GitHub dan Vercel
 

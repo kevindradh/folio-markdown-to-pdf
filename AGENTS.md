@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Persiapan beta — 15 Oktober 2026
+
+- `vercel.json` menambahkan CSP same-origin untuk skrip/koneksi, pembatas embedding/object, nosniff, referrer/permissions policy, dan no-cache untuk sw.js. Style inline serta font data KaTeX dan gambar data/blob tetap diizinkan untuk kompatibilitas aplikasi. Tidak menambah dependensi atau mengubah versi branch.
+- `tests/beta-readiness.spec.ts` menyajikan build dengan header hosting untuk menguji CSP, gambar lokal, matematika, PDF Chromium, kuis dan reload offline; mencakup payload Markdown berbahaya, batas parser, skrip inline yang diblokir, serta halaman 320/390/768/1280 px. Screenshot desktop/mobile diperiksa.
+- Verifikasi: audit npm 0 kerentanan, pemeriksaan pola kredensial berkas/riwayat tanpa temuan, lockfile dry-run, build/changelog-check, lint, tipe test, dan 198 pengujian Chromium/WebKit lulus dengan 6 PDF WebKit dilewati. Deployment dan GitHub CI belum dijalankan. Laporan dan checklist hosting beta tersedia di `docs/beta-readiness.md`; anjurkan origin beta terpisah karena PWA dan storage berbasis origin.
+
 ## Popover pemilih aplikasi ringkas — 15 Oktober 2026
 
 - AppSwitcher memakai daftar baris satu kolom dengan logo 32 px, nama, deskripsi singkat, serta badge Preview outline berlatar card di samping nama latih, agar terpisah dari latar baris aktif. Panel dibatasi 310 px dan menyesuaikan layar kecil. Aplikasi aktif memakai latar secondary dan ikon centang, dengan aria-current tetap tersedia; label Sedang dibuka dihapus.
