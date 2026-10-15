@@ -1,5 +1,47 @@
 # Panduan Proyek
 
+## Pemeriksaan ulang beta setelah desain flashcard — 15 Oktober 2026
+
+- Branch codex/latih-preview pada HEAD 102854d beserta working tree diverifikasi: build/changelog-check, lint, tipe test, diff-check, npm ci dry-run, dan seluruh regresi produksi Chromium/WebKit lulus: **228 passed / 6 skipped** dalam 4,4 menit. Skip hanya PDF WebKit. Audit npm termasuk dev melaporkan 0 kerentanan; pemindaian pola kredensial pada 148 berkas dan riwayat semua ref tidak menemukan kecocokan.
+- Screenshot Folio mobile, koleksi desktop, flashcard mobile, dan sheet desktop diperiksa. README diperbaiki karena masih menyebut penjelasan inline flashcard. Laporan docs/beta-readiness.md diperbarui dengan hasil terbaru. Peringatan bundle renderer 599,13 kB (195,84 kB gzip) tetap ada. Hosting, GitHub CI, dan perangkat fisik masih memerlukan verifikasi setelah deployment. Tidak ada commit, push, perubahan dependensi, atau perubahan versi.
+
+## Penyederhanaan chip materi dan latihan — 15 Oktober 2026
+
+- Card koleksi pribadi tidak lagi menampilkan chip Impor pribadi. Chip Contoh pada card koleksi contoh tetap tersedia. Header latihan pilihan ganda dan flashcard tidak lagi menampilkan chip Pribadi/Contoh; judul dan progres tetap ditampilkan.
+
+## Animasi bottom sheet — 15 Oktober 2026
+
+- Overlay bottom sheet petunjuk/pembahasan memakai latar transparan tanpa backdrop blur. Overlay tetap menangani klik luar dan perlindungan fokus modal; tampilan overlay dialog biasa tidak diubah.
+- Dialog khusus `.latih-quiz-sheet` masuk dari bawah selama 280 ms dan turun saat ditutup selama 200 ms melalui keyframe CSS. Berlaku untuk petunjuk/pembahasan pilihan ganda mobile serta flashcard; posisi horizontal sheet desktop tetap terpusat. Dialog biasa mempertahankan animasi sebelumnya. Reduced motion menonaktifkan animasi tanpa dependensi baru.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, serta enam regresi Chromium/WebKit lulus. Pemeriksaan mencakup arah gerak aktual, posisi horizontal, dialog biasa, reduced motion, refresh, dan snapshot isi selama penutupan/pergantian soal. Screenshot sheet mobile diperiksa.
+
+## Aksi tunggal Spasi dan ketuk flashcard — 15 Oktober 2026
+
+- Spasi, klik/ketuk kartu, dan tombol utama memakai alur forward yang sama: buka jawaban, lalu lanjut ke kartu berikutnya/selesaikan sesi. Spasi aktif pada halaman latihan tanpa memfokuskan kartu; listener document dibersihkan saat komponen dilepas, dan useEffectEvent membaca state terbaru. Shortcut panah kanan dihapus. Ikon Lihat pertanyaan tetap aksi terpisah untuk kembali ke sisi depan.
+- Spasi tidak mengambil alih input/editable, tautan, seleksi teks, atau Dialog; native Space pada tombol halaman tidak menimbulkan klik kedua yang membuka panel/menjalankan aksi berbeda. Repeat saat tombol ditahan diabaikan. Klik kartu mengabaikan tombol/tautan, seleksi, pointer cancel, dan drag lebih dari 8 px agar membaca/menggulir tidak melanjutkan kartu.
+- Build/changelog-check, lint, tipe test, diff-check, dan 16 regresi Chromium/WebKit lulus. Kasus baru memakai hasTouch/tap serta keyboard tanpa fokus kartu, fokus tersisa di tombol footer, key repeat, reveal/next, ikon kembali, drag/link, sheet hint/penjelasan, dan penyelesaian sesi. Tidak menambah dependensi.
+
+## Petunjuk flashcard lewat bottom sheet — 15 Oktober 2026
+
+- Petunjuk tidak lagi dirender di kartu. Tombol Petunjuk membuka Dialog bottom sheet bersama secara manual, sama dengan Penjelasan, pada desktop dan mobile; tombol memakai aria-haspopup/aria-expanded. Tutup melalui Kembali ke kartu atau kontrol Dialog. Kartu tetap hanya berisi pertanyaan/jawaban.
+- Panel hint dan ukuran sheet tetap tersimpan pada progres sesi; refresh memulihkan petunjuk yang sebelumnya dibuka tanpa membalik kartu. Sheet penjelasan tetap tidak terbuka otomatis saat reveal. CSS hint inline yang tidak digunakan dihapus.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 12 regresi flashcard Chromium/WebKit lulus, meliputi petunjuk Markdown/LaTeX, pemulihan setelah refresh, tutup/kembali, flip, penjelasan manual, reduced motion, serta layout desktop/mobile.
+
+## Penjelasan flashcard lewat bottom sheet — 15 Oktober 2026
+
+- Sisi belakang kartu hanya memuat jawaban. Lihat pertanyaan menjadi Button ikon dengan label aksesibel di kanan atas; indikator sisi tetap kiri atas dan header memiliki tinggi stabil. Footer menampilkan Penjelasan serta Berikutnya/Selesaikan sesi. Penjelasan kosong menonaktifkan tombolnya.
+- StudySession memakai Dialog bottom sheet bersama untuk pembahasan pilihan ganda dan penjelasan flashcard. Flashcard membuka sheet hanya dari tombol Penjelasan, baik desktop maupun mobile; lebar desktop maksimal 760 px. Isi Markdown/LaTeX bergulir, dapat diperluas, dan footer Kembali ke kartu/lanjut tetap terlihat. Snapshot penutupan juga berlaku pada flashcard desktop agar pergantian kartu tidak mengganti isi sheet yang sedang ditutup.
+- Flag sessionStorage opsional flashcardExplanationOpened membedakan pembukaan manual dari panel=explanation otomatis pada snapshot flashcard lama. Sesi lama tetap memulihkan sisi jawaban tanpa membuka sheet; sesi baru memulihkan sheet hanya jika pengguna memang membukanya. Tidak mengubah versi database atau dependensi.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, 66 regresi latih/Markdown/router/CSP lulus, lalu empat kasus final desain Chromium/WebKit lulus setelah assertion posisi menunggu animasi Dialog selesai. Kasus final mencakup ikon kanan atas, kartu tanpa pembahasan, sheet manual/scroll/expand, migrasi snapshot lama, refresh, penutupan saat lanjut kartu, keyboard, reduced motion, dan lebar 1280/390/320 px. Screenshot jawaban dan sheet desktop/mobile diperiksa.
+
+## Redesign flashcard dengan flip — 15 Oktober 2026
+
+- Perapian setelah review: metadata visual dan garis footer dihapus; indikator dua titik dipindahkan ke kiri atas, kedua sisi memakai background card yang sama. Build, lint, tipe test, diff-check, dan empat pengujian desain Chromium/WebKit lulus; screenshot kedua sisi mobile diperiksa.
+
+- Flashcard memakai dek bertumpuk dengan dua Card shadcn terpisah, kedua sisi berlatar card yang sama dan hanya indikator dua titik di kiri atas. Label sisi, chip, nomor ganda, dan border atas hijau dihapus sesuai preferensi pengguna. Rotor CSS perspective/rotateY membalik kartu selama 520 ms; backface-visibility dan visibility menjaga sisi keluar selama transisi. Sisi tidak aktif memakai inert/aria-hidden agar tautan tidak dapat difokuskan atau dibaca. Konten jawaban baru dirender setelah reveal pertama dan dipertahankan untuk flip balik tanpa kedipan.
+- Scroll tiap sisi mandiri; aksi tetap di footer dengan dua kolom seimbang pada ponsel. Kontrol terkunci selama flip, dengan transitionend dan fallback 650 ms. Reduced motion menonaktifkan transisi/lock. Spasi membalik dan panah kanan melanjutkan saat area kartu difokuskan; input/tautan/tombol tidak diambil alih. Key index mereset dek pada kartu berikutnya; restore sisi jawaban tidak memutar animasi ulang.
+- Build/changelog-check, lint, tipe test, diff-check, serta 58 regresi latih/router/Markdown lulus. Setelah perapian visual, 12 regresi flashcard dan empat kasus final desain Chromium/WebKit lulus. Kasus final memeriksa motion/reduced motion, fokus/inert, keyboard, lebar 1280/390/320 px, kedua tombol sama lebar, konten panjang, refresh, dan reset kartu. Screenshot depan/belakang desktop/mobile diperiksa. Tidak menambah library atau mengubah versi branch.
+
 ## Clipboard instruksi di ponsel — 15 Oktober 2026
 
 - Tombol Salin instruksi dan JSON memakai helper `src/lib/copy-text.ts`: Clipboard API diprioritaskan, lalu fallback execCommand copy dengan textarea sementara yang readonly, terseleksi penuh, dan tidak menggeser halaman. Fallback berjalan sinkron saat Clipboard API tidak tersedia (misalnya HTTP jaringan lokal); elemen sementara selalu dibersihkan dan fokus/seleksi sebelumnya dipulihkan. Tidak menambah library.

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, Check, X, RotateCcw, Lightbulb, BookOpen, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { FlashcardPractice } from './flashcard-practice'
@@ -28,7 +27,7 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
   const [closingSheet, setClosingSheet] = useState<{ title: string; content: ReactNode; expanded: boolean; revealed: boolean; nextLabel: string } | null>(null)
   const [saved, setSaved] = useState(true)
   useEffect(() => {
-    const result = saveStudy({ collection, progress: { index, selected, revealed, score, panel, expanded } })
+    const result = saveStudy({ collection, progress: { index, selected, revealed, score, panel, expanded, flashcardExplanationOpened: collection.type === 'flashcard' && panel === 'explanation' } })
     const frame = requestAnimationFrame(() => setSaved(result))
     return () => cancelAnimationFrame(frame)
   }, [collection, index, selected, revealed, score, panel, expanded])
@@ -47,28 +46,28 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
       questionPane.current?.scrollTo({ top: 0 })
       window.scrollTo({ top: 0 })
     } else {
-      setRevealed(true); setPanel('explanation'); setExpanded(false)
+      setRevealed(true); setPanel(multipleChoice ? 'explanation' : null); setExpanded(false)
       if (correct) setScore(score + 1)
     }
   }
   function restart() { setIndex(0); setScore(0); setSelected([]); setRevealed(false); setPanel(null); setExpanded(false) }
 
-  const explanation = !done && <section className="latih-explanation" aria-live="polite">
+  const explanation = !done && (!multipleChoice ? <section className="latih-flashcard-explanation"><MarkdownContent text={question.explanation} /></section> : <section className="latih-explanation" aria-live="polite">
     <div className={cn('latih-answer-result', correct ? 'is-correct' : 'is-incorrect')}>
       {multipleChoice ? correct ? <Check aria-hidden="true" /> : <X aria-hidden="true" /> : <BookOpen aria-hidden="true" />}
       <h2>{!multipleChoice ? String(question.answer) : correct ? 'Benar, kamu sudah paham.' : 'Belum tepat'}</h2>
     </div>
     {multipleChoice && !correct && <div className="latih-correct-summary"><p>Jawaban yang benar: {String.fromCharCode(65 + Number(question.answer))}</p><MarkdownContent text={question.options![Number(question.answer)]} interactive={false} /></div>}
     {multipleChoice ? <MarkdownContent text={question.explanation} /> : <p>{question.explanation}</p>}
-  </section>
+  </section>)
   const panelContent = panel === 'hint' && !done ? <MarkdownContent text={question.hint ?? ''} /> : explanation
-  const currentSheet = { title: panel === 'hint' ? 'Petunjuk' : 'Pembahasan', content: panelContent, expanded, revealed, nextLabel }
+  const currentSheet = { title: panel === 'hint' ? 'Petunjuk' : multipleChoice ? 'Pembahasan' : 'Penjelasan', content: panelContent, expanded, revealed, nextLabel }
   const sheet = panel !== null ? currentSheet : closingSheet
 
   function closePanel() {
     // Base UI retains the popup during its exit animation. Freeze the outgoing
     // view so resetting the answer or advancing cannot expose the next solution.
-    if (mobile && panel !== null) setClosingSheet(currentSheet)
+    if ((mobile || !multipleChoice) && panel !== null) setClosingSheet(currentSheet)
     setPanel(null)
   }
 
@@ -76,7 +75,6 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
     <header className="latih-quiz-header">
       <Button variant="ghost" size="icon" aria-label="Kembali ke koleksi" onClick={onExit}><ArrowLeft /></Button>
       <div className="latih-quiz-title"><strong>{collection.title}</strong><span>{done ? 'Sesi selesai' : `${multipleChoice ? 'Soal' : 'Kartu'} ${index + 1} dari ${collection.questions.length}`}</span></div>
-      <Badge variant="secondary">{collection.demo ? 'Contoh' : 'Pribadi'}</Badge>
     </header>
     {!saved && <p role="status">Progres belum tersimpan. Refresh dapat mengulang sesi ini.</p>}
     <progress className="latih-quiz-progress" aria-label="Progres latihan" value={done ? collection.questions.length : index + (revealed ? 1 : 0)} max={collection.questions.length} />
@@ -84,7 +82,7 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
       <Check className="latih-complete-icon" aria-hidden="true" /><h1>Sesi selesai.</h1>
       <p>{multipleChoice ? `${score} dari ${collection.questions.length} jawaban benar.` : `${collection.questions.length} kartu sudah dipelajari.`}</p>
       <div className="flex flex-wrap gap-3"><Button onClick={restart}><RotateCcw data-icon="inline-start" />Ulangi latihan</Button><Button variant="outline" onClick={onExit}>Lihat koleksi</Button></div>
-    </section></main> : !multipleChoice ? <FlashcardPractice question={question} index={index} total={collection.questions.length} revealed={revealed} hintOpen={panel === 'hint'} onHint={() => setPanel(panel === 'hint' ? null : 'hint')} onReveal={advance} onFront={() => { setRevealed(false); setPanel(null); setExpanded(false) }} nextLabel={nextLabel} /> : <>
+    </section></main> : !multipleChoice ? <FlashcardPractice key={index} question={question} revealed={revealed} hintOpen={panel === 'hint'} onHint={() => { setPanel('hint'); setExpanded(false) }} onReveal={advance} onFront={() => { setRevealed(false); setPanel(null); setExpanded(false) }} onExplanation={() => { setPanel('explanation'); setExpanded(false) }} nextLabel={nextLabel} /> : <>
       <main className="latih-quiz-layout">
         <section className="latih-quiz-question-pane" ref={questionPane}>
           {multipleChoice ? <section aria-label="Teks soal" className="latih-question-content"><h1 className="sr-only">Soal {index + 1}</h1><MarkdownContent text={question.question} /></section> : <h1>{question.question}</h1>}
@@ -113,14 +111,14 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
         </div>
         <Button size="lg" disabled={!revealed && multipleChoice && !selected.length} onClick={advance}>{revealed ? nextLabel : multipleChoice ? 'Periksa jawaban' : 'Lihat jawaban'}<ArrowRight data-icon="inline-end" /></Button>
       </footer>
-      {mobile && <Dialog open={panel !== null} onOpenChange={open => { if (!open) closePanel() }}>
-        <DialogContent className="latih-quiz-sheet" data-expanded={sheet?.expanded}>
+    </>}
+      {!done && (mobile || !multipleChoice) && <Dialog open={panel !== null} onOpenChange={open => { if (!open) closePanel() }}>
+        <DialogContent className={cn('latih-quiz-sheet', !multipleChoice && 'latih-flashcard-sheet')} overlayProps={{ className: 'latih-sheet-overlay' }} data-expanded={sheet?.expanded}>
           <DialogHeader><DialogTitle>{sheet?.title}</DialogTitle></DialogHeader>
           <div className="latih-sheet-tools"><Button variant="ghost" size="sm" disabled={panel === null} onClick={() => setExpanded(!expanded)}>{sheet?.expanded ? <Minimize2 data-icon="inline-start" /> : <Maximize2 data-icon="inline-start" />}{sheet?.expanded ? 'Ringkas' : 'Perluas'}</Button></div>
           <div className="latih-quiz-sheet-content">{sheet?.content}</div>
-          <DialogFooter className="latih-quiz-sheet-footer"><Button variant="outline" disabled={panel === null} onClick={closePanel}>Kembali ke soal</Button>{sheet?.revealed && <Button disabled={panel === null} onClick={advance}>{sheet.nextLabel}<ArrowRight data-icon="inline-end" /></Button>}</DialogFooter>
+          <DialogFooter className="latih-quiz-sheet-footer"><Button variant="outline" disabled={panel === null} onClick={closePanel}>{multipleChoice ? 'Kembali ke soal' : 'Kembali ke kartu'}</Button>{sheet?.revealed && <Button disabled={panel === null} onClick={advance}>{sheet.nextLabel}<ArrowRight data-icon="inline-end" /></Button>}</DialogFooter>
         </DialogContent>
       </Dialog>}
-    </>}
   </div>
 }

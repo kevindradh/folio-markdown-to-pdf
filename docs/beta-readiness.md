@@ -1,6 +1,6 @@
 # Kesiapan beta Folio dan latih.
 
-Pemeriksaan lokal pada 15 Oktober 2026, branch `codex/latih-preview`, berdasarkan commit `6774cf1` beserta perubahan audit ini. Hasil: **siap dilanjutkan ke deployment beta terbatas**, dengan verifikasi hosting di bawah sebelum mengundang pengguna. Belum ada push atau deployment dalam pemeriksaan ini.
+Pemeriksaan lokal pada 15 Oktober 2026, branch `codex/latih-preview`, berdasarkan commit `102854d` beserta perubahan working tree flashcard, bottom sheet, dan chip materi saat pemeriksaan ulang. Hasil: **siap dilanjutkan ke deployment beta terbatas**, dengan verifikasi hosting di bawah sebelum mengundang pengguna. Belum ada push atau deployment dalam pemeriksaan ini.
 
 ## Hasil verifikasi
 
@@ -9,14 +9,14 @@ Pemeriksaan lokal pada 15 Oktober 2026, branch `codex/latih-preview`, berdasarka
 | Node dan lockfile | Node 24.21.0, sesuai engines 24.x; `npm ci --dry-run --ignore-scripts` berhasil |
 | Build produksi dan changelog | Lulus, versi branch tetap 0.0.32 |
 | ESLint dan tipe pengujian | Lulus |
-| Regresi produksi Chromium/WebKit | **198 lulus, 6 dilewati**, 3,9 menit; kasus PDF WebKit dilewati karena API PDF hanya tersedia di Chromium |
+| Regresi produksi Chromium/WebKit | **228 lulus, 6 dilewati**, 4,4 menit; kasus PDF WebKit dilewati karena API PDF hanya tersedia di Chromium |
 | Audit dependensi npm, termasuk dev | **0 kerentanan dilaporkan** saat pemeriksaan |
 | Pemindaian pola kredensial | Tidak ditemukan pola private key, token GitHub, access key AWS, atau API key yang diperiksa pada berkas proyek dan riwayat HEAD |
 | Responsivitas | Lebar 320, 390, 768, dan 1280 px tanpa overflow horizontal pada halaman yang diuji |
 
 Regresi meliputi impor dan penyimpanan koleksi, konflik/gagal storage, progres kuis setelah refresh, materi terakhir dibuka, panduan pertama 60 detik, pilihan ganda Markdown/LaTeX, petunjuk/pembahasan, flashcard, grid/list, routing/404, pemilih aplikasi, draft dan riwayat Folio, pagination/PDF, offline, serta update PWA yang menjaga draft. Laporan browser dan screenshot dihasilkan di `playwright-report/` dan `test-results/` yang tidak masuk Git.
 
-Screenshot Folio desktop/ponsel, koleksi desktop, Beranda/Template ponsel, pembahasan matematika, dan flashcard panjang diperiksa secara visual. Aksi utama tetap terlihat pada kuis dan flashcard. Pemeriksaan kontras pasangan token utama memberi rasio teks/latar 12,44 (Folio) dan 11,16 (latih), teks sekunder/latar 4,57 dan 5,27, serta teks putih/tombol utama 4,98 dan 4,91. Ini pemeriksaan pasangan warna terpilih, bukan audit aksesibilitas menyeluruh.
+Pada pemeriksaan ulang ini, screenshot Folio ponsel, koleksi desktop, jawaban flashcard ponsel, dan bottom sheet desktop diperiksa secara visual. Pengujian otomatis juga memeriksa viewport 320/390/768/1280 px, motion/reduced motion, rumus, serta konten panjang. Aksi utama tetap terlihat pada kuis dan flashcard. Pada audit awal, pemeriksaan kontras pasangan token utama memberi rasio teks/latar 12,44 (Folio) dan 11,16 (latih), teks sekunder/latar 4,57 dan 5,27, serta teks putih/tombol utama 4,98 dan 4,91. Ini pemeriksaan pasangan warna terpilih, bukan audit aksesibilitas menyeluruh.
 
 ## Penguatan dan pengujian keamanan
 
@@ -33,12 +33,12 @@ Audit dependensi dan pola kredensial tidak membuktikan ketiadaan seluruh kerenta
 - Koleksi tersimpan di browser/origin/perangkat yang sama; penghapusan data situs menghapus koleksi. Pengguna perlu menyimpan JSON asli sebagai cadangan. Tidak ada sinkronisasi cloud atau integrasi LLM.
 - Progres kuis dipulihkan pada tab yang sama. Tautan koleksi pribadi memerlukan datanya tersedia di browser tujuan. Flashcard kini mendukung Markdown/LaTeX; pengujian tambahannya tercatat di bawah.
 - Identitas dan cache PWA masih bersama Folio; kontrol pembaruan tersedia di Folio. Browser dengan build lama perlu menerima pembaruan agar mendapat kode terbaru.
-- Chunk renderer Markdown sekitar 598,77 kB (195,67 kB gzip) masih menimbulkan peringatan ukuran build. Pemisahan lebih lanjut dapat dilakukan setelah mengukur perangkat pengguna; ini bukan kegagalan build.
+- Chunk bersama renderer Markdown/LaTeX sekitar 599,13 kB (195,84 kB gzip) masih menimbulkan peringatan ukuran build. Pemisahan lebih lanjut dapat dilakukan setelah mengukur perangkat pengguna; ini bukan kegagalan build.
 - Chromium dan WebKit otomatis sudah diuji. Perangkat iOS/Android fisik, Firefox, hasil GitHub Actions Linux, serta konfigurasi Vercel yang benar-benar terpasang belum diverifikasi dalam sesi ini.
 
 ## Deployment beta
 
-Pembaruan setelah audit awal: Markdown/LaTeX flashcard dan prompt AI telah diverifikasi melalui build, lint, tipe test, serta 64 kasus Chromium/WebKit pada `tests/flashcard-markdown.spec.ts`, latih, routing, dan kesiapan beta. Screenshot rumus desktop/mobile diperiksa. Jumlah 198 pada tabel di atas tetap merupakan hasil audit awal, bukan jumlah regresi pembaruan ini.
+Pembaruan setelah audit awal mencakup Markdown/LaTeX dan prompt AI, kompatibilitas clipboard/JSON mobile, desain flip flashcard, aksi Spasi/ketuk untuk membuka jawaban lalu lanjut, petunjuk/penjelasan manual lewat bottom sheet, animasi sheet dari bawah, overlay transparan, dan penghapusan chip status materi pribadi di card/header latihan. Pengujian penuh terbaru dicatat pada tabel verifikasi di atas. README diperbaiki agar tidak lagi menyebut penjelasan inline pada flashcard.
 
 Gunakan proyek/domain Vercel beta dengan **origin terpisah dari produksi utama** agar cache PWA dan penyimpanan lokal pengujian tidak bercampur dengan pengguna produksi. Konfigurasi proyek beta: branch `codex/latih-preview`, Node 24.x, install `npm ci`, build `npm run build`, output `dist`. Aplikasi saat ini tidak memerlukan secret environment untuk berjalan. Konfigurasi ini belum diterapkan ke akun hosting.
 

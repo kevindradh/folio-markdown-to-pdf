@@ -7,6 +7,7 @@ export type StudyProgress = {
   score: number
   panel: 'hint' | 'explanation' | null
   expanded: boolean
+  flashcardExplanationOpened?: boolean
 }
 export type SavedStudy = { collection: Collection; progress: StudyProgress }
 export const initialProgress: StudyProgress = { index: 0, selected: [], revealed: false, score: 0, panel: null, expanded: false }
@@ -20,13 +21,17 @@ export function readStudy(): SavedStudy | null {
     if (data.version !== 1) return null
     const collection = storedCollection(data.collection)
     const p = data.progress as StudyProgress
+    if (p?.flashcardExplanationOpened !== undefined && typeof p.flashcardExplanationOpened !== 'boolean') return null
     if (!p || !Number.isInteger(p.index) || p.index < 0 || p.index > collection.questions.length || !Array.isArray(p.selected) || p.selected.length > 1 || typeof p.revealed !== 'boolean' || typeof p.expanded !== 'boolean' || ![null, 'hint', 'explanation'].includes(p.panel) || !Number.isInteger(p.score) || p.score < 0 || p.score > p.index + Number(p.revealed)) return null
     const question = collection.questions[p.index]
     if (p.selected.length && (!question || collection.type !== 'multiple-choice' || !question.options?.some((_, index) => String(index) === p.selected[0]))) return null
     if (question && collection.type === 'multiple-choice' && p.revealed && !p.selected.length) return null
     if (!question && (p.revealed || p.selected.length || p.panel)) return null
     if (p.panel === 'explanation' && !p.revealed || p.panel === 'hint' && (!question?.hint || p.revealed)) return null
-    return { collection: { ...collection, demo: data.collection.demo === true }, progress: p }
+    // Older flashcards stored panel=explanation automatically on every reveal.
+    // Restore the card face, but open a sheet only if it was explicitly requested.
+    const progress = collection.type === 'flashcard' && p.panel === 'explanation' && !p.flashcardExplanationOpened ? { ...p, panel: null, expanded: false } : p
+    return { collection: { ...collection, demo: data.collection.demo === true }, progress }
   } catch { return null }
 }
 
