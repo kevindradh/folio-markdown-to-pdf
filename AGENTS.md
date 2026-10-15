@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Pemulihan materi terakhir dibuka — 15 Oktober 2026
+
+- `src/apps/latih/last-opened-storage.ts` menyimpan snapshot koleksi terakhir dibuka ke localStorage `latih:last-opened:v1`. App memulihkannya saat mount, termasuk status contoh/pribadi, sehingga card Beranda tetap tersedia setelah refresh atau berpindah ke Folio. Sesi kuis lama yang dipulihkan juga mengisi materi terakhir dibuka ketika keluar ke koleksi.
+- Snapshot divalidasi dengan parser koleksi; data rusak atau versi tidak dikenal diabaikan. Kegagalan penyimpanan tidak menghalangi latihan dan state sesi tetap diperbarui. Tombol Mulai latihan tetap membuka sesi baru dari awal; pemulihan progres kuis melalui sessionStorage tidak diubah.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, serta 34 pengujian latih Chromium/WebKit lulus, termasuk koleksi pribadi setelah reload, contoh setelah navigasi Folio, membuka kembali materi tersimpan, pergantian materi terakhir, data rusak, dan storage gagal.
+
 ## Tampilan latihan flashcard — 15 Oktober 2026
 
 - `src/apps/latih/flashcard-practice.tsx` menampilkan satu Card shadcn di tengah dengan sisi pertanyaan/jawaban, nomor kartu, penjelasan inline, dan petunjuk opsional. Tombol Lihat jawaban, Lihat pertanyaan, serta Berikutnya/Selesaikan sesi berada pada bar aksi tetap. Flashcard tetap memakai teks biasa; tidak membuka panel/dialog pembahasan pilihan ganda.
