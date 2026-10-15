@@ -1,3 +1,4 @@
+import { createId } from '../../lib/create-id'
 import { parseCollection, type Collection } from './collections'
 
 const databaseName = 'latih-library'
@@ -42,7 +43,7 @@ export async function loadCollections(): Promise<Collection[]> {
 }
 
 export async function saveCollection(collection: Collection): Promise<Collection> {
-  const id = crypto.randomUUID()
+  const id = createId()
   const db = await openDatabase()
   try {
     await new Promise<void>((resolve, reject) => {

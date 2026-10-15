@@ -1,3 +1,4 @@
+import { createId } from './create-id'
 export type ImageRecord = { id: string; name: string; data: ArrayBuffer; type: string; createdAt: number }
 const MAX_IMAGE = 2 * 1024 * 1024
 const MAX_TOTAL = 10 * 1024 * 1024
@@ -42,7 +43,7 @@ export async function storeImage(file: File): Promise<ImageRecord> {
   } finally { URL.revokeObjectURL(url) }
   const db = await database()
   // ArrayBuffer survives IndexedDB structured cloning consistently, including WebKit.
-  const record: ImageRecord = { id: crypto.randomUUID(), name: file.name, data: await file.arrayBuffer(), type: file.type, createdAt: Date.now() }
+  const record: ImageRecord = { id: createId(), name: file.name, data: await file.arrayBuffer(), type: file.type, createdAt: Date.now() }
   try {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction('images', 'readwrite')

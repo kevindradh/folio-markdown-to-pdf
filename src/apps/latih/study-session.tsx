@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, Check, X, RotateCcw, Lightbulb, BookOpen, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +25,7 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
   const [score, setScore] = useState(initial.score)
   const [panel, setPanel] = useState<'hint' | 'explanation' | null>(initial.panel)
   const [expanded, setExpanded] = useState(initial.expanded)
+  const [closingSheet, setClosingSheet] = useState<{ title: string; content: ReactNode; expanded: boolean; revealed: boolean; nextLabel: string } | null>(null)
   const [saved, setSaved] = useState(true)
   useEffect(() => {
     const result = saveStudy({ collection, progress: { index, selected, revealed, score, panel, expanded } })
@@ -41,7 +42,8 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
 
   function advance() {
     if (revealed) {
-      setIndex(index + 1); setSelected([]); setRevealed(false); setPanel(null); setExpanded(false)
+      closePanel()
+      setIndex(index + 1); setSelected([]); setRevealed(false); setExpanded(false)
       questionPane.current?.scrollTo({ top: 0 })
       window.scrollTo({ top: 0 })
     } else {
@@ -60,6 +62,15 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
     {multipleChoice ? <MarkdownContent text={question.explanation} /> : <p>{question.explanation}</p>}
   </section>
   const panelContent = panel === 'hint' && !done ? <MarkdownContent text={question.hint ?? ''} /> : explanation
+  const currentSheet = { title: panel === 'hint' ? 'Petunjuk' : 'Pembahasan', content: panelContent, expanded, revealed, nextLabel }
+  const sheet = panel !== null ? currentSheet : closingSheet
+
+  function closePanel() {
+    // Base UI retains the popup during its exit animation. Freeze the outgoing
+    // view so resetting the answer or advancing cannot expose the next solution.
+    if (mobile && panel !== null) setClosingSheet(currentSheet)
+    setPanel(null)
+  }
 
   return <div className="latih-shell latih-study latih-quiz">
     <header className="latih-quiz-header">
@@ -102,12 +113,12 @@ export function StudySession({ collection, initial, onExit }: { collection: Coll
         </div>
         <Button size="lg" disabled={!revealed && multipleChoice && !selected.length} onClick={advance}>{revealed ? nextLabel : multipleChoice ? 'Periksa jawaban' : 'Lihat jawaban'}<ArrowRight data-icon="inline-end" /></Button>
       </footer>
-      {mobile && <Dialog open={panel !== null} onOpenChange={open => { if (!open) setPanel(null) }}>
-        <DialogContent className="latih-quiz-sheet" data-expanded={expanded}>
-          <DialogHeader><DialogTitle>{panel === 'hint' ? 'Petunjuk' : 'Pembahasan'}</DialogTitle></DialogHeader>
-          <div className="latih-sheet-tools"><Button variant="ghost" size="sm" onClick={() => setExpanded(!expanded)}>{expanded ? <Minimize2 data-icon="inline-start" /> : <Maximize2 data-icon="inline-start" />}{expanded ? 'Ringkas' : 'Perluas'}</Button></div>
-          <div className="latih-quiz-sheet-content">{panelContent}</div>
-          <DialogFooter className="latih-quiz-sheet-footer"><Button variant="outline" onClick={() => setPanel(null)}>Kembali ke soal</Button>{revealed && <Button onClick={advance}>{nextLabel}<ArrowRight data-icon="inline-end" /></Button>}</DialogFooter>
+      {mobile && <Dialog open={panel !== null} onOpenChange={open => { if (!open) closePanel() }}>
+        <DialogContent className="latih-quiz-sheet" data-expanded={sheet?.expanded}>
+          <DialogHeader><DialogTitle>{sheet?.title}</DialogTitle></DialogHeader>
+          <div className="latih-sheet-tools"><Button variant="ghost" size="sm" disabled={panel === null} onClick={() => setExpanded(!expanded)}>{sheet?.expanded ? <Minimize2 data-icon="inline-start" /> : <Maximize2 data-icon="inline-start" />}{sheet?.expanded ? 'Ringkas' : 'Perluas'}</Button></div>
+          <div className="latih-quiz-sheet-content">{sheet?.content}</div>
+          <DialogFooter className="latih-quiz-sheet-footer"><Button variant="outline" disabled={panel === null} onClick={closePanel}>Kembali ke soal</Button>{sheet?.revealed && <Button disabled={panel === null} onClick={advance}>{sheet.nextLabel}<ArrowRight data-icon="inline-end" /></Button>}</DialogFooter>
         </DialogContent>
       </Dialog>}
     </>}

@@ -1,3 +1,4 @@
+import { createId } from '../../lib/create-id'
 export type Collection = { id?: string; title: string; type: 'multiple-choice' | 'flashcard'; demo?: boolean; questions: { question: string; options?: string[]; answer: number | string; explanation: string; hint?: string }[] }
 export const examples: Collection[] = [
  { id: 'contoh-cara-belajar', title: 'Kenali cara belajarmu', type: 'multiple-choice', demo: true, questions: [
@@ -44,5 +45,5 @@ export function identifyCollection(item: Collection, available: Collection[]): C
  if (item.id) return item
  const content = (data: Collection) => JSON.stringify(parseCollection(JSON.stringify({ title: data.title, type: data.type, questions: data.questions })))
  const source = content(item)
- return available.find(other => content(other) === source) ?? { ...item, id: crypto.randomUUID() }
+ return available.find(other => content(other) === source) ?? { ...item, id: createId() }
 }

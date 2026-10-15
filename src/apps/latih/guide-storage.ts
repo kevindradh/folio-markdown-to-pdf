@@ -1,3 +1,4 @@
+import { createId } from '../../lib/create-id'
 export const completedKey = 'latih:guide-completed:v1'
 export function hasReadGuide() {
   try { return localStorage.getItem(completedKey) === 'true' } catch { return false }
@@ -12,7 +13,7 @@ export function readGuideProgress(): GuideProgress {
   try {
     let identity = localStorage.getItem(identityKey)
     if (!identity) {
-      identity = crypto.randomUUID()
+      identity = createId()
       localStorage.setItem(identityKey, identity)
     }
     const record = JSON.parse(sessionStorage.getItem(elapsedKey) ?? 'null')

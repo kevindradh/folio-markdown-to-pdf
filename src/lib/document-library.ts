@@ -1,3 +1,4 @@
+import { createId } from './create-id'
 import { inputError, type Draft } from './document-draft'
 
 export const LIBRARY_DB = 'folio-library'
@@ -101,7 +102,7 @@ async function checkpoint(tx: IDBTransaction, document: LibraryDocument, kind: D
   }
   const size = bytes(document.draft)
   await makeRoom(tx, info, size)
-  const version: DocumentVersion = { id: crypto.randomUUID(), documentId: document.id, draft: document.draft,
+  const version: DocumentVersion = { id: createId(), documentId: document.id, draft: document.draft,
     createdAt: Math.max(Date.now(), (latest?.value.createdAt ?? 0) + 1), kind, bytes: size }
   await get(store.put(version))
   return true
@@ -114,8 +115,8 @@ export async function loadLibrary(fallback: Draft): Promise<Library> {
     if (!projects.length && !documents.length) {
       validate(fallback)
       const now = Date.now()
-      const project: Project = { id: crypto.randomUUID(), name: 'Umum', createdAt: now }
-      const document: LibraryDocument = { id: crypto.randomUUID(), projectId: project.id, draft: fallback, createdAt: now, updatedAt: now, revision: 0 }
+      const project: Project = { id: createId(), name: 'Umum', createdAt: now }
+      const document: LibraryDocument = { id: createId(), projectId: project.id, draft: fallback, createdAt: now, updatedAt: now, revision: 0 }
       const info: Meta = { key: 'library', activeId: document.id, bytes: bytes(fallback) }
       await get(tx.objectStore('projects').put(project))
       await get(tx.objectStore('documents').put(document))
@@ -179,7 +180,7 @@ export async function selectDocument(id: string) {
 export async function createProject(name: string) {
   return transaction('readwrite', async tx => {
     if (await get(tx.objectStore('projects').count()) >= MAX_PROJECTS) throw new Error('Maksimal 20 project.')
-    const project: Project = { id: crypto.randomUUID(), name: name.trim().slice(0, 120) || 'Project baru', createdAt: Date.now() }
+    const project: Project = { id: createId(), name: name.trim().slice(0, 120) || 'Project baru', createdAt: Date.now() }
     await get(tx.objectStore('projects').add(project)); return project
   })
 }
@@ -198,7 +199,7 @@ export async function createDocument(projectId: string, draft: Draft) {
     if (!await get(tx.objectStore('projects').get(projectId))) throw new Error('Project tidak ditemukan.')
     if (await get(tx.objectStore('documents').count()) >= MAX_DOCUMENTS) throw new Error('Maksimal 100 dokumen. Unduh dokumen sebelum menghapus yang tidak diperlukan.')
     const now = Date.now()
-    const document: LibraryDocument = { id: crypto.randomUUID(), projectId, draft, createdAt: now, updatedAt: now, revision: 0 }
+    const document: LibraryDocument = { id: createId(), projectId, draft, createdAt: now, updatedAt: now, revision: 0 }
     const info = await meta(tx)
     await makeRoom(tx, info, bytes(draft))
     await get(tx.objectStore('documents').add(document))
@@ -238,7 +239,7 @@ export async function deleteDocument(id: string, empty: Draft) {
     await get(store.delete(id))
     const remaining = await get<LibraryDocument[]>(store.getAll())
     if (!remaining.length) {
-      const replacement = { ...document, id: crypto.randomUUID(), draft: empty, createdAt: Date.now(), updatedAt: Date.now(), revision: 0 }
+      const replacement = { ...document, id: createId(), draft: empty, createdAt: Date.now(), updatedAt: Date.now(), revision: 0 }
       await get(store.add(replacement)); remaining.push(replacement); info.bytes += bytes(empty)
       await checkpoint(tx, replacement, 'automatic', info)
     }

@@ -1,5 +1,16 @@
 # Panduan Proyek
 
+## Kompatibilitas UUID perangkat — 15 Oktober 2026
+
+- `src/lib/create-id.ts` memakai crypto.randomUUID jika tersedia, dengan fallback UUID v4 dari crypto.getRandomValues untuk browser/konteks HTTP jaringan lokal yang tidak menyediakan randomUUID. Tetap memakai sumber acak kriptografis tanpa dependensi tambahan atau Math.random; format ID dan database lama tidak berubah.
+- Seluruh pembuatan ID panduan, koleksi, pemulihan koleksi lama, project/dokumen/riwayat Folio, serta gambar lokal memakai helper yang sama. `tests/id-compatibility.spec.ts` menonaktifkan randomUUID sebelum aplikasi berjalan untuk menguji ID v4 berbeda, kunjungan pertama, penyimpanan dokumen, identitas panduan, impor, reload, serta kuis pada Chromium/WebKit.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 113 pengujian kompatibilitas/latih/panduan/draft/library/gambar lulus pada Chromium/WebKit; satu PDF WebKit dilewati sesuai keterbatasan engine.
+
+## Perbaikan transisi panel kuis mobile — 15 Oktober 2026
+
+- StudySession mempertahankan snapshot tampilan panel yang ditutup (isi, judul, status jawaban, ukuran, dan label aksi) selama animasi keluar Dialog Base UI. Perpindahan soal tetap memperbarui progres langsung; panel keluar tidak lagi merender pembahasan soal berikutnya atau berganti dari Petunjuk menjadi Pembahasan. Kontrol panel dinonaktifkan selama menutup.
+- Regresi baru memperlambat animasi keluar untuk memeriksa isi transisi di Chromium/WebKit dengan motion aktif, termasuk penutupan petunjuk, pembahasan diperluas, soal berikutnya, refresh, serta hasil skor. Build/changelog-check, lint, tipe test, diff-check, dan 48 pengujian latih/beta lulus; screenshot transisi mobile diperiksa. Tidak menambah dependensi atau mengubah versi branch.
+
 ## Persiapan beta — 15 Oktober 2026
 
 - `vercel.json` menambahkan CSP same-origin untuk skrip/koneksi, pembatas embedding/object, nosniff, referrer/permissions policy, dan no-cache untuk sw.js. Style inline serta font data KaTeX dan gambar data/blob tetap diizinkan untuk kompatibilitas aplikasi. Tidak menambah dependensi atau mengubah versi branch.
