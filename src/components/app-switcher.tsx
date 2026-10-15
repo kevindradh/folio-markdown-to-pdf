@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Grid3X3 } from 'lucide-react'
+import { Grip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from '@/components/ui/popover'
@@ -14,11 +14,11 @@ const applications = [
 export function AppSwitcher({ current }: { current: Application }) {
   const [open, setOpen] = useState(false)
   return <Popover open={open} onOpenChange={setOpen}>
-    <PopoverTrigger render={<Button variant="ghost" size="icon-sm" className="app-switcher-trigger" aria-label="Pilih aplikasi" title="Pilih aplikasi" />}>
-      <Grid3X3 />
+    <PopoverTrigger render={<Button variant="ghost" size="sm" className="app-switcher-trigger" aria-label="Pilih aplikasi" />}>
+      <Grip data-icon="inline-start" /><span>Aplikasi</span>
     </PopoverTrigger>
     <PopoverContent align="end" sideOffset={12} className="app-switcher-panel">
-      <PopoverHeader><PopoverTitle>Aplikasi</PopoverTitle></PopoverHeader>
+      <PopoverHeader><PopoverTitle>Pindah aplikasi</PopoverTitle></PopoverHeader>
       <nav className="app-switcher-grid" aria-label="Pilihan aplikasi">
         {applications.map(app => <AppSwitchLink key={app.id} application={app.id} variant="ghost"
           className="app-switcher-choice" aria-current={current === app.id ? 'page' : undefined}

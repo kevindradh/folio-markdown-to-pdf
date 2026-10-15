@@ -1,5 +1,10 @@
 # Panduan Proyek
 
+## Label pemilih aplikasi — 15 Oktober 2026
+
+- AppSwitcher menampilkan ikon Grip (sembilan titik 3×3) beserta teks Aplikasi pada desktop; pada layar hingga 760 px hanya teks Aplikasi yang tampil, dengan judul popover Pindah aplikasi. Nama aksesibel Pilih aplikasi tetap dipertahankan. Sidebar latih tidak lagi menambahkan teks Aplikasi lainnya yang menduplikasi fungsi tombol; tombol memenuhi lebar sidebar dan tinggi 42 px yang sama dengan Panduan.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 46 pengujian latih/PWA Chromium/WebKit lulus. Regresi baru memeriksa label terlihat dan layout 390/320 px, isi pilihan Folio, serta navigasi dari latih ke editor Folio. Screenshot menu mobile diperiksa.
+
 ## Status koneksi dan pembaruan di navbar Folio — 15 Oktober 2026
 
 - PwaStatus dipindahkan dari footer ke kelompok brand setelah deskripsi Markdown to PDF. Deskripsi disembunyikan di mobile sehingga status tampil setelah versi. Teks Online/Offline selalu terlihat, dengan rincian cache/error/pengembangan melalui Popover shadcn yang bisa dibuka lewat klik, ketukan, atau keyboard. Footer tetap memuat atribusi pengembang.

@@ -109,7 +109,7 @@ function LatihWorkspace({ page }: { page: Page }) {
  }
  if (page === 'missing' || page === 'latihan') return <AppNotFound application="latih" study={page === 'latihan'} />
  return <div className="latih-shell latih-dashboard">
-  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink to="/latih/panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
+  <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink to="/latih/panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /></div></div></aside>
   <div className="latih-dashboard-body">
    <header className="latih-mobile-header">{brand}<div className="flex items-center gap-2"><ButtonLink to="/latih/panduan" variant="ghost" size="icon-sm" aria-label="Panduan penggunaan"><CircleHelp /></ButtonLink><AppSwitcher current="latih" /></div></header>
    <main className="latih-dashboard-main">
