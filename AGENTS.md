@@ -1,8 +1,13 @@
 # Panduan Proyek
 
+## Popover pemilih aplikasi ringkas — 15 Oktober 2026
+
+- AppSwitcher memakai daftar baris satu kolom dengan logo 32 px, nama, deskripsi singkat, serta badge Preview outline berlatar card di samping nama latih, agar terpisah dari latar baris aktif. Panel dibatasi 310 px dan menyesuaikan layar kecil. Aplikasi aktif memakai latar secondary dan ikon centang, dengan aria-current tetap tersedia; label Sedang dibuka dihapus.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan empat pengujian pemilih aplikasi/navbar Chromium/WebKit lulus. Uji memeriksa panel di bawah 240 px tinggi, susunan baris, penanda aktif, layout mobile, serta navigasi ke Folio. Screenshot mobile diperiksa.
+
 ## Label pemilih aplikasi — 15 Oktober 2026
 
-- AppSwitcher menampilkan ikon Grip (sembilan titik 3×3) beserta teks Aplikasi pada desktop; pada layar hingga 760 px hanya teks Aplikasi yang tampil, dengan judul popover Pindah aplikasi. Nama aksesibel Pilih aplikasi tetap dipertahankan. Sidebar latih tidak lagi menambahkan teks Aplikasi lainnya yang menduplikasi fungsi tombol; tombol memenuhi lebar sidebar dan tinggi 42 px yang sama dengan Panduan.
+- AppSwitcher menampilkan ikon Grip (sembilan titik 3×3) beserta teks Aplikasi pada desktop; pada layar hingga 760 px hanya teks Aplikasi yang tampil, dengan judul popover Aplikasi. Nama aksesibel Pilih aplikasi tetap dipertahankan. Sidebar latih tidak lagi menambahkan teks Aplikasi lainnya yang menduplikasi fungsi tombol; tombol memenuhi lebar sidebar dan tinggi 42 px yang sama dengan Panduan.
 - Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 46 pengujian latih/PWA Chromium/WebKit lulus. Regresi baru memeriksa label terlihat dan layout 390/320 px, isi pilihan Folio, serta navigasi dari latih ke editor Folio. Screenshot menu mobile diperiksa.
 
 ## Status koneksi dan pembaruan di navbar Folio — 15 Oktober 2026

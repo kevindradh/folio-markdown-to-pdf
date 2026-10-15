@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Grip } from 'lucide-react'
+import { Check, Grip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverHeader, PopoverTitle, PopoverTrigger } from '@/components/ui/popover'
@@ -18,20 +18,16 @@ export function AppSwitcher({ current }: { current: Application }) {
       <Grip data-icon="inline-start" /><span>Aplikasi</span>
     </PopoverTrigger>
     <PopoverContent align="end" sideOffset={12} className="app-switcher-panel">
-      <PopoverHeader><PopoverTitle>Pindah aplikasi</PopoverTitle></PopoverHeader>
-      <nav className="app-switcher-grid" aria-label="Pilihan aplikasi">
+      <PopoverHeader><PopoverTitle>Aplikasi</PopoverTitle></PopoverHeader>
+      <nav className="app-switcher-list" aria-label="Pilihan aplikasi">
         {applications.map(app => <AppSwitchLink key={app.id} application={app.id} variant="ghost"
           className="app-switcher-choice" aria-current={current === app.id ? 'page' : undefined}
           onClick={event => {
             if (current === app.id) { event.preventDefault(); setOpen(false) }
           }}>
-          <img src={`${import.meta.env.BASE_URL}${app.icon}`} alt="" width={48} height={48} />
-          <span className="app-switcher-name">{app.name}</span>
-          <span className="app-switcher-description">{app.description}</span>
-          <span className="app-switcher-badges">
-            {app.id === 'latih' && <Badge variant="secondary">Preview</Badge>}
-            {current === app.id && <Badge variant="outline">Sedang dibuka</Badge>}
-          </span>
+          <img src={`${import.meta.env.BASE_URL}${app.icon}`} alt="" width={32} height={32} />
+          <span className="app-switcher-details"><span className="app-switcher-heading"><span className="app-switcher-name">{app.name}</span>{app.id === 'latih' && <Badge variant="outline" className="bg-card">Preview</Badge>}</span><span className="app-switcher-description">{app.description}</span></span>
+          {current === app.id && <Check className="app-switcher-active" aria-hidden="true" />}
         </AppSwitchLink>)}
       </nav>
     </PopoverContent>
