@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router'
+import { BrowserRouter, Routes, Route } from 'react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { TooltipProvider } from './components/ui/tooltip'
 import { registerOfflineApp } from './lib/pwa'
 import AppEntry from './app-entry'
+import { AppNotFound } from './components/app-not-found'
 import { consumeAppTransition } from './lib/app-navigation'
 
 const isLatih = window.location.pathname === `${import.meta.env.BASE_URL}latih` || window.location.pathname.startsWith(`${import.meta.env.BASE_URL}latih/`)
@@ -19,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
     <TooltipProvider><BrowserRouter basename={import.meta.env.BASE_URL}><Routes>
       <Route path="/" element={<AppEntry isLatih={false} showSplash={showSplash} />} />
       <Route path="/latih/*" element={<AppEntry isLatih showSplash={showSplash} />} />
-      <Route path="*" element={<main className="p-8"><h1>Halaman tidak ditemukan</h1><Link to="/">Buka Folio</Link></main>} />
+      <Route path="*" element={<AppNotFound />} />
     </Routes></BrowserRouter></TooltipProvider>
   </StrictMode>,
 )

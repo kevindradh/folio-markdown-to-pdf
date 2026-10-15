@@ -37,11 +37,11 @@ test('legacy hashes redirect and unavailable routes have an explicit recovery', 
   await expect(page).toHaveURL(/\/latih\/panduan#format-soal$/)
   await page.goto('/latih/tidak-ada')
   await expect(page.getByText('Halaman tidak ditemukan', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Buka Beranda', exact: true }).click()
+  await page.getByRole('link', { name: 'Buka Beranda', exact: true }).click()
   await expect(page).toHaveURL(/\/latih\/$/)
   await page.goto('/latih/latihan/tidak-ada')
   await expect(page.getByText('Latihan tidak ditemukan', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Buka koleksi', exact: true }).click()
+  await page.getByRole('link', { name: 'Buka koleksi', exact: true }).click()
   await expect(page).toHaveURL(/\/latih\/koleksi$/)
 })
 

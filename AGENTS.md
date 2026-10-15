@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Halaman tidak ditemukan Folio dan latih — 15 Oktober 2026
+
+- Route global `*` memakai `src/components/app-not-found.tsx`: layout bersama dengan identitas aplikasi, kode 404, penjelasan singkat, dan ButtonLink shadcn. Folio kembali ke `/`; halaman tidak ditemukan latih memakai logo/tema teal dan kembali ke `/latih/` atau `/latih/koleksi` untuk latihan yang tidak tersedia. Empty shadcn menyusun konten; halaman responsif tanpa animasi. Judul browser berubah selama halaman 404 dan dipulihkan saat kembali ke aplikasi. Dokumen tidak direset.
+- Rewrite Vercel diperluas dari `/latih/:path*` menjadi `/(.*)` menuju index.html sesuai konfigurasi SPA Vite, agar URL tidak dikenal di luar latih juga mencapai router aplikasi. Belum ada deployment Vercel dalam sesi ini.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, dan 24 pengujian Chromium/WebKit untuk 404 Folio/latih, routing latih, serta PWA lulus. Uji 404 meliputi akses langsung, reload, lebar 1280/390/320 px, judul browser, dan kembali ke dokumen tersimpan. Screenshot ponsel diperiksa.
+
 ## Navigasi React Router — 15 Oktober 2026
 
 - `src/main.tsx` memasang BrowserRouter dengan basename Vite. Folio berada pada `/`; latih memakai route deklaratif `/latih/`, `/latih/koleksi`, `/latih/template`, `/latih/panduan`, serta `/latih/latihan/:collectionId`. URL tidak dikenal menampilkan pemulihan yang jelas. Link router dipakai untuk navigasi internal; ButtonLink shadcn menerima `to` opsional, sementara `href` tetap anchor biasa untuk perpindahan aplikasi/splash.

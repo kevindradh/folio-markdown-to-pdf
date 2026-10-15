@@ -1,4 +1,5 @@
 import { Link, Navigate, useLocation, useNavigate, useParams, useRoutes } from 'react-router'
+import { AppNotFound } from '@/components/app-not-found'
 import { AppLoading } from '@/components/app-loading'
 import { useEffect, useRef, useState } from 'react'
 import { House, Library, Braces, Plus, Upload, ArrowUpRight, Play, Layers, ListChecks, Copy, Check, CircleHelp, Search, LayoutGrid, List } from 'lucide-react'
@@ -106,7 +107,7 @@ function LatihWorkspace({ page }: { page: Page }) {
    return <StudySession key={collectionId} collection={routeCollection} initial={progress} onExit={() => { saveLastOpened(routeCollection); setLastOpened(routeCollection); clearStudy(); setStudy(null); navigate('koleksi') }} />
   }
  }
- if (page === 'missing' || page === 'latihan') return <main className="latih-shell p-8"><Empty><EmptyHeader><EmptyTitle>{page === 'latihan' ? 'Latihan tidak ditemukan' : 'Halaman tidak ditemukan'}</EmptyTitle><EmptyDescription>{page === 'latihan' ? 'Koleksi ini belum tersedia di browser ini. Buka koleksi lain atau impor file JSON aslinya.' : 'Periksa alamat halaman atau kembali ke Beranda.'}</EmptyDescription></EmptyHeader><Button onClick={() => navigate(page === 'latihan' ? 'koleksi' : 'beranda')}>{page === 'latihan' ? 'Buka koleksi' : 'Buka Beranda'}</Button></Empty></main>
+ if (page === 'missing' || page === 'latihan') return <AppNotFound application="latih" study={page === 'latihan'} />
  return <div className="latih-shell latih-dashboard">
   <aside className="latih-sidebar">{brand}<nav aria-label="Navigasi latih" className="latih-side-nav">{navItems}</nav><div className="latih-sidebar-bottom"><ButtonLink to="/latih/panduan" variant={page === 'panduan' ? 'secondary' : 'ghost'} className="latih-nav-link" aria-current={page === 'panduan' ? 'page' : undefined}><CircleHelp data-icon="inline-start" />Panduan</ButtonLink><Separator /><div className="latih-app-menu"><AppSwitcher current="latih" /><span>Aplikasi lainnya</span></div></div></aside>
   <div className="latih-dashboard-body">
