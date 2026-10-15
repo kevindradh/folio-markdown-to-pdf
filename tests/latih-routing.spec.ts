@@ -104,7 +104,7 @@ test('legacy stored collections and active sessions migrate without losing their
 
 test('deep links and study reload continue working offline after the production app is cached', async ({ page, context }) => {
   await page.goto('/')
-  await expect(page.locator('.pwa-status-label')).toHaveText('Siap digunakan offline')
+  await expect(page.locator('.pwa-status')).toHaveAttribute('data-offline-ready', 'true')
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
   await page.goto('/latih/template')
   await expect(page.getByRole('heading', { name: 'Template soal', exact: true })).toBeVisible()

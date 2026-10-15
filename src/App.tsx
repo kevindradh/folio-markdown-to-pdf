@@ -270,6 +270,7 @@ export default function App() {
         <a className="brand" href="#"><img className="brand-mark" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={32} height={32} />folio<span className="brand-dot">.</span></a>
         <span className="brand-version" aria-label={`Versi aplikasi v${version}`}>v{version}</span>
         <span className="brand-description">Markdown to PDF</span>
+        <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
       </div>
       <nav aria-label="Navigasi aplikasi dan panduan" className="navbar-actions flex items-center gap-1">
         <AppSwitcher current="folio" />
@@ -403,7 +404,6 @@ export default function App() {
         </div>
       </section>
       <footer className="app-footer">
-        <PwaStatus prepareReload={library.prepareReload} cancelReload={library.cancelReload} saved={saved} busy={library.busy || imageSaving || fileLoading} />
         <span>Dibuat oleh (GitHub: <a href="https://github.com/kevindradh" target="_blank" rel="noreferrer" className="underline underline-offset-2">kevindradh</a>)</span>
       </footer>
     </main>

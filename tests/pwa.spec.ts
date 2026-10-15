@@ -29,7 +29,8 @@ const test = base.extend<{ site: { url: string; deploy: () => void } }>({
 })
 
 async function offlineReady(page: Page) {
-  await expect(page.locator('.pwa-status-label')).toHaveText('Siap digunakan offline')
+  await expect(page.locator('.topbar .pwa-status')).toHaveAttribute('data-offline-ready', 'true')
+  await expect(page.locator('.pwa-status-label')).toHaveText('Online')
   await expect(page.locator('.pwa-status-label')).toBeVisible()
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
 }
@@ -37,18 +38,20 @@ async function previewReady(page: Page) {
   await expect(page.getByRole('button', { name: 'Ekspor PDF', exact: true })).toBeEnabled()
 }
 
-test('development shows offline status as footer text without registering an offline worker', async ({ page }, testInfo) => {
+test('development shows concise navbar status with clickable details without registering an offline worker', async ({ page }, testInfo) => {
   const { createServer: createDevServer } = await import('vite')
   const server = await createDevServer({ logLevel: 'silent', server: { host: '127.0.0.1', port: 0, open: false } })
   try {
     await server.listen()
     const address = server.httpServer!.address() as { port: number }
     await page.goto(`http://127.0.0.1:${address.port}`)
-    const status = page.locator('.app-footer .pwa-status-label')
-    await expect(status).toHaveText('Mode pengembangan · cache offline tidak aktif')
+    const status = page.locator('.topbar .pwa-status-label')
+    await expect(status).toHaveText('Online')
     await expect(status).toBeVisible()
-    await expect(page.locator('.topbar .pwa-status')).toHaveCount(0)
-    await expect(page.locator('.pwa-status button')).toHaveCount(0)
+    await expect(page.locator('.app-footer .pwa-status')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Status aplikasi: Online', exact: true }).click()
+    await expect(page.locator('.pwa-status-details')).toContainText('Mode pengembangan · cache offline tidak aktif')
+    await page.keyboard.press('Escape')
     await page.screenshot({ path: testInfo.outputPath('pwa-development.png') })
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 844 })
@@ -95,8 +98,8 @@ test('development shows offline status as footer text without registering an off
 test('production manifest and cached app preserve documents, images, fonts and export offline', async ({ page, context, site, browserName }, testInfo) => {
   await page.goto(site.url)
   await offlineReady(page)
-  await expect(page.locator('.app-footer .pwa-status-label')).toHaveText('Siap digunakan offline')
-  await expect(page.locator('.topbar .pwa-status')).toHaveCount(0)
+  await expect(page.locator('.topbar .pwa-status-label')).toHaveText('Online')
+  await expect(page.locator('.app-footer .pwa-status')).toHaveCount(0)
   const manifest = await page.evaluate(async () => {
     const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')!
     return (await fetch(link.href)).json()
@@ -115,7 +118,7 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await context.setOffline(true)
   await page.reload()
   await previewReady(page)
-  await expect(page.locator('.pwa-status-label')).toHaveText('Offline · siap menulis')
+  await expect(page.locator('.pwa-status-label')).toHaveText('Offline')
   await expect(page.locator('.paper-pages img')).toHaveJSProperty('naturalWidth', 160)
   await expect(page.locator('.paper-pages .katex')).toHaveCount(1)
   expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('16px "Inter Variable"') })).toBe(true)
@@ -167,7 +170,8 @@ test('production manifest and cached app preserve documents, images, fonts and e
   await expect(page.getByRole('dialog', { name: 'Riwayat versi', exact: true })).toContainText('Disimpan manual')
   await page.getByRole('dialog', { name: 'Riwayat versi', exact: true }).getByRole('button', { name: 'Close', exact: true }).click()
   await context.setOffline(false)
-  await expect(page.locator('.pwa-status-label')).toHaveText('Siap digunakan offline')
+  await expect(page.locator('.topbar .pwa-status')).toHaveAttribute('data-offline-ready', 'true')
+  await expect(page.locator('.pwa-status-label')).toHaveText('Online')
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await page.screenshot({ path: testInfo.outputPath('pwa-mobile.png'), fullPage: true })
@@ -222,4 +226,34 @@ test('failed persistence prevents an update from discarding the draft', async ({
   await page.locator('#markdown-editor').fill('# Tetap bisa menulis saat storage gagal')
   await expect(page.locator('#draft-status')).toHaveText('Draft belum tersimpan; unduh .md')
   await expect(update).toBeDisabled()
+})
+
+test.describe('navbar status on touch screens', () => {
+  test.use({ hasTouch: true, viewport: { width: 390, height: 844 } })
+  test('status details open by tapping and updates stay in the navbar on small screens', async ({ page, context, site }, testInfo) => {
+    await page.goto(site.url)
+    await offlineReady(page)
+    await page.getByRole('button', { name: 'Status aplikasi: Online', exact: true }).tap()
+    await expect(page.locator('.pwa-status-details')).toBeVisible()
+    await expect(page.locator('.pwa-status-details')).toContainText('Siap digunakan offline')
+    await page.screenshot({ path: testInfo.outputPath('navbar-status-touch.png') })
+    await page.keyboard.press('Escape')
+    site.deploy()
+    await page.evaluate(async () => { await (await navigator.serviceWorker.getRegistration())!.update() })
+    const update = page.getByRole('button', { name: 'Perbarui aplikasi', exact: true })
+    await expect(update).toBeEnabled()
+    for (const width of [1280, 760, 390, 320]) {
+      await page.setViewportSize({ width, height: 844 })
+      const bounds = await update.boundingBox()
+      expect(bounds!.x).toBeGreaterThanOrEqual(0)
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      if (width === 390 || width === 1280) await page.screenshot({ path: testInfo.outputPath(`navbar-update-${width}.png`) })
+    }
+    await context.setOffline(true)
+    await expect(page.locator('.pwa-status-label')).toHaveText('Offline')
+    await page.getByRole('button', { name: 'Status aplikasi: Offline', exact: true }).tap()
+    await expect(page.locator('.pwa-status-details')).toContainText('Offline · siap menulis')
+    await expect(page.locator('.pwa-status-details')).toContainText('Versi baru tersedia.')
+  })
 })

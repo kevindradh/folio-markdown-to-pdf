@@ -1,5 +1,11 @@
 # Panduan Proyek
 
+## Status koneksi dan pembaruan di navbar Folio — 15 Oktober 2026
+
+- PwaStatus dipindahkan dari footer ke kelompok brand setelah deskripsi Markdown to PDF. Deskripsi disembunyikan di mobile sehingga status tampil setelah versi. Teks Online/Offline selalu terlihat, dengan rincian cache/error/pengembangan melalui Popover shadcn yang bisa dibuka lewat klik, ketukan, atau keyboard. Footer tetap memuat atribusi pengembang.
+- Tombol Perbarui berada di sebelah status pada navbar dengan nama aksesibel Perbarui aplikasi. Popover menjelaskan versi baru, menunggu draft/proses, dan status pembaruan. Perlindungan prepareReload/cancelReload, draft belum tersimpan, serta tab lain tidak diubah. Navbar membungkus bila ruang terbatas dan tidak bergantung pada hover Tooltip.
+- Verifikasi: build/changelog-check, lint, tipe test, diff-check, serta 22 kasus PWA/routing Chromium/WebKit lulus. Uji touch nyata memakai hasTouch dan tap untuk rincian online/offline; tombol update diperiksa pada 1280/760/390/320 px tanpa overflow. Regresi offline/cache, ekspor, update aman, dan storage gagal tetap lulus. Screenshot navbar desktop/mobile dan popover diperiksa.
+
 ## Halaman tidak ditemukan Folio dan latih — 15 Oktober 2026
 
 - Route global `*` memakai `src/components/app-not-found.tsx`: layout bersama dengan identitas aplikasi, kode 404, penjelasan singkat, dan ButtonLink shadcn. Folio kembali ke `/`; halaman tidak ditemukan latih memakai logo/tema teal dan kembali ke `/latih/` atau `/latih/koleksi` untuk latihan yang tidak tersedia. Empty shadcn menyusun konten; halaman responsif tanpa animasi. Judul browser berubah selama halaman 404 dan dipulihkan saat kembali ke aplikasi. Dokumen tidak direset.
